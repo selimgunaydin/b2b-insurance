@@ -5,8 +5,8 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { AuditModule } from '../audit/audit.module';
 
 @Module({
-    imports: [PrismaModule, AuditModule],
-    controllers: [ChatController],
-    providers: [ChatService],
+  imports: [PrismaModule, AuditModule],
+  controllers: [ChatController],
+  providers: [ChatService],
 })
-export class ChatModule { }
+export class ChatModule {}

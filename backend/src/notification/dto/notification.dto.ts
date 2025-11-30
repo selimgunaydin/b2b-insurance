@@ -11,4 +11,12 @@ export class SendNotificationDto {
 
   @IsString()
   message: string;
+
+  @IsString()
+  @IsOptional()
+  title?: string;
+
+  @IsString()
+  @IsOptional()
+  target?: 'ALL' | 'USER';
 }

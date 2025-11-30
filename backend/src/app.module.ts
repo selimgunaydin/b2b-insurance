@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -19,6 +20,8 @@ import { AdminModule } from './admin/admin.module';
 import { CompanyModule } from './company/company.module';
 import { UploadModule } from './upload/upload.module';
 
+import { GoalModule } from './goal/goal.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -37,8 +40,10 @@ import { UploadModule } from './upload/upload.module';
     AdminModule,
     CompanyModule,
     UploadModule,
+    ScheduleModule.forRoot(),
+    GoalModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

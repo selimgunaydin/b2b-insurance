@@ -14,15 +14,22 @@ const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const audit_service_1 = require("../audit/audit.service");
 const client_1 = require("@prisma/client");
+const notification_service_1 = require("../notification/notification.service");
+const client_2 = require("@prisma/client");
 const supabase_service_1 = require("../supabase/supabase.service");
+const goal_service_1 = require("../goal/goal.service");
 let InsuranceService = class InsuranceService {
     prisma;
     auditService;
     supabaseService;
-    constructor(prisma, auditService, supabaseService) {
+    notificationService;
+    goalService;
+    constructor(prisma, auditService, supabaseService, notificationService, goalService) {
         this.prisma = prisma;
         this.auditService = auditService;
         this.supabaseService = supabaseService;
+        this.notificationService = notificationService;
+        this.goalService = goalService;
     }
     async getStats(userId) {
         const taliProfile = await this.prisma.taliProfile.findUnique({
@@ -54,7 +61,7 @@ let InsuranceService = class InsuranceService {
         });
         const policies = await this.prisma.policy.findMany({
             where: { insuranceRequest: { taliId } },
-            select: { commission: true }
+            select: { commission: true },
         });
         const totalEarnings = policies.reduce((sum, p) => sum + (Number(p.commission) || 0), 0);
         return {
@@ -93,7 +100,8 @@ let InsuranceService = class InsuranceService {
         if (globalSetting && globalSetting.value === 'false') {
             throw new Error(`Bu sigorta türü (${dto.type}) şu anda sistem genelinde pasiftir.`);
         }
-        if (taliProfile.allowedInsuranceTypes && taliProfile.allowedInsuranceTypes.length > 0) {
+        if (taliProfile.allowedInsuranceTypes &&
+            taliProfile.allowedInsuranceTypes.length > 0) {
             if (!taliProfile.allowedInsuranceTypes.includes(dto.type)) {
                 throw new Error(`Bu sigorta türünü (${dto.type}) oluşturma yetkiniz bulunmamaktadır.`);
             }
@@ -129,7 +137,6 @@ let InsuranceService = class InsuranceService {
                 customerId,
                 type: dto.type,
                 details: dto.details || {},
-                files: dto.files || [],
                 status: client_1.RequestStatus.PENDING_OFFER,
             },
         });
@@ -171,6 +178,7 @@ let InsuranceService = class InsuranceService {
                 status: client_1.RequestStatus.OFFER_READY,
             },
         });
+        await this.notificationService.createSystemNotification(request.taliId, 'Teklif Hazır', `#${request.id.slice(0, 8)} numaralı talebiniz için teklif hazırlandı.`, client_2.NotificationType.SYSTEM);
         return request;
     }
     async updateOffer(id, dto, userId) {
@@ -185,6 +193,7 @@ let InsuranceService = class InsuranceService {
             requestId: id,
             offers: dto.offers,
         });
+        await this.notificationService.createSystemNotification(request.taliId, 'Teklif Hazır', `#${request.id.slice(0, 8)} numaralı talebiniz için teklif güncellendi.`, client_2.NotificationType.SYSTEM);
         return request;
     }
     async uploadPolicy(id, file, userId) {
@@ -197,7 +206,7 @@ let InsuranceService = class InsuranceService {
         const request = await this.prisma.insuranceRequest.update({
             where: { id },
             data: {
-                policyPdfUrl,
+                policyUrl: policyPdfUrl,
                 status: client_1.RequestStatus.COMPLETED,
             },
         });
@@ -207,7 +216,9 @@ let InsuranceService = class InsuranceService {
             create: {
                 insuranceRequestId: id,
                 pdfUrl: policyPdfUrl,
-                premium: request.offers ? request.offers.find(o => o.company === request.adminOfferCompany)?.price || 0 : 0,
+                premium: request.offers
+                    ? request.offers.find((o) => o.company === request.adminOfferCompany)?.price || 0
+                    : 0,
                 company: request.adminOfferCompany || 'Unknown',
                 policyNumber: `POL-${Date.now()}`,
                 startDate: new Date(),
@@ -219,6 +230,7 @@ let InsuranceService = class InsuranceService {
             requestId: id,
             filename,
         });
+        await this.notificationService.createSystemNotification(request.taliId, 'Poliçe Onaylandı', `#${request.id.slice(0, 8)} numaralı talebiniz onaylandı ve poliçeniz oluşturuldu.`, client_2.NotificationType.SYSTEM);
         return request;
     }
     async approveOffer(id, userId, selectedOffer) {
@@ -278,7 +290,7 @@ let InsuranceService = class InsuranceService {
                 where: { id },
                 data: {
                     status: client_1.RequestStatus.COMPLETED,
-                    policyPdfUrl: existingPolicy.pdfUrl
+                    policyUrl: existingPolicy.pdfUrl,
                 },
             });
             return existingPolicy;
@@ -287,7 +299,7 @@ let InsuranceService = class InsuranceService {
             request.status !== client_1.RequestStatus.PAYMENT_REVIEW) {
             throw new Error('Request is not pending payment or review');
         }
-        let policyPdfUrl = request.policyPdfUrl;
+        let policyPdfUrl = request.policyUrl;
         if (file) {
             const sanitizedOriginalName = file.originalname
                 .normalize('NFD')
@@ -297,13 +309,13 @@ let InsuranceService = class InsuranceService {
             policyPdfUrl = await this.supabaseService.uploadFile(file, filename);
         }
         try {
-            return await this.prisma
+            const result = await this.prisma
                 .$transaction(async (prisma) => {
                 const updatedRequest = await prisma.insuranceRequest.update({
                     where: { id },
                     data: {
                         status: client_1.RequestStatus.COMPLETED,
-                        policyPdfUrl: policyPdfUrl,
+                        policyUrl: policyPdfUrl,
                     },
                 });
                 const policy = await prisma.policy.create({
@@ -327,6 +339,13 @@ let InsuranceService = class InsuranceService {
                 });
                 return res.updatedRequest;
             });
+            if (request) {
+                await this.notificationService.createSystemNotification(request.taliId, 'Poliçe Onaylandı', `#${request.id.slice(0, 8)} numaralı talebiniz onaylandı ve poliçeniz oluşturuldu.`, client_2.NotificationType.SYSTEM);
+            }
+            if (request) {
+                await this.goalService.checkProgress(request.taliId, request.type, Number(request.adminOfferPrice || 0));
+            }
+            return result;
         }
         catch (error) {
             console.error('Confirm Payment Error:', error);
@@ -373,8 +392,8 @@ let InsuranceService = class InsuranceService {
                     include: {
                         user: {
                             include: {
-                                taliProfile: true
-                            }
+                                taliProfile: true,
+                            },
                         },
                     },
                 },
@@ -392,8 +411,8 @@ let InsuranceService = class InsuranceService {
                             include: {
                                 user: {
                                     include: {
-                                        taliProfile: true
-                                    }
+                                        taliProfile: true,
+                                    },
                                 },
                             },
                         },
@@ -446,11 +465,11 @@ let InsuranceService = class InsuranceService {
                         customer: true,
                         tali: {
                             include: {
-                                user: true
-                            }
-                        }
-                    }
-                }
+                                user: true,
+                            },
+                        },
+                    },
+                },
             },
             orderBy: { createdAt: 'desc' },
         });
@@ -464,11 +483,11 @@ let InsuranceService = class InsuranceService {
                         customer: true,
                         tali: {
                             include: {
-                                user: true
-                            }
-                        }
-                    }
-                }
+                                user: true,
+                            },
+                        },
+                    },
+                },
             },
         });
         if (!cancellation)
@@ -496,6 +515,12 @@ let InsuranceService = class InsuranceService {
                 data: { status: client_1.RequestStatus.CANCELLED },
             });
         }
+        const request = await this.prisma.insuranceRequest.findUnique({
+            where: { id: cancellation.policyId },
+        });
+        if (request) {
+            await this.notificationService.createSystemNotification(request.taliId, `İptal Talebi ${status === 'APPROVED' ? 'Onaylandı' : 'Reddedildi'}`, `#${request.id.slice(0, 8)} numaralı poliçe için iptal talebiniz ${status === 'APPROVED' ? 'onaylandı' : 'reddedildi'}.`, client_2.NotificationType.SYSTEM);
+        }
         await this.auditService.log(userId, 'UPDATE_CANCELLATION_STATUS', {
             cancellationId: id,
             status,
@@ -508,6 +533,8 @@ exports.InsuranceService = InsuranceService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
         audit_service_1.AuditService,
-        supabase_service_1.SupabaseService])
+        supabase_service_1.SupabaseService,
+        notification_service_1.NotificationService,
+        goal_service_1.GoalService])
 ], InsuranceService);
 //# sourceMappingURL=insurance.service.js.map

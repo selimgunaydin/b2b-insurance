@@ -1,0 +1,129 @@
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var GoalService_1;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.GoalService = void 0;
+const common_1 = require("@nestjs/common");
+const prisma_service_1 = require("../prisma/prisma.service");
+let GoalService = GoalService_1 = class GoalService {
+    prisma;
+    logger = new common_1.Logger(GoalService_1.name);
+    constructor(prisma) {
+        this.prisma = prisma;
+    }
+    async create(data) {
+        const goal = await this.prisma.goal.create({
+            data: {
+                ...data,
+                rewardValue: data.rewardValue,
+            },
+        });
+        await this.assignGoalToAllTalis(goal.id);
+        return goal;
+    }
+    async assignGoalToAllTalis(goalId) {
+        const talis = await this.prisma.taliProfile.findMany();
+        const taliGoals = talis.map((tali) => ({
+            taliId: tali.id,
+            goalId,
+            currentValue: 0,
+            isCompleted: false,
+        }));
+        await this.prisma.taliGoal.createMany({
+            data: taliGoals,
+            skipDuplicates: true,
+        });
+    }
+    async findAll() {
+        return this.prisma.goal.findMany({
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+    async getTaliGoals(userId) {
+        const taliProfile = await this.prisma.taliProfile.findUnique({
+            where: { userId },
+        });
+        if (!taliProfile)
+            return [];
+        return this.prisma.taliGoal.findMany({
+            where: { taliId: taliProfile.id },
+            include: { goal: true },
+            orderBy: { goal: { endDate: 'asc' } },
+        });
+    }
+    async checkProgress(taliId, policyType, premium) {
+        const activeGoals = await this.prisma.taliGoal.findMany({
+            where: {
+                taliId,
+                isCompleted: false,
+                goal: {
+                    isActive: true,
+                    startDate: { lte: new Date() },
+                    endDate: { gte: new Date() },
+                    OR: [
+                        { policyType: null },
+                        { policyType: policyType },
+                    ],
+                },
+            },
+            include: { goal: true },
+        });
+        for (const taliGoal of activeGoals) {
+            let increment = 0;
+            if (taliGoal.goal.targetType === 'COUNT') {
+                increment = 1;
+            }
+            else if (taliGoal.goal.targetType === 'PREMIUM') {
+                increment = Math.floor(premium);
+            }
+            const newValue = taliGoal.currentValue + increment;
+            let isCompleted = false;
+            if (newValue >= taliGoal.goal.targetValue) {
+                isCompleted = true;
+            }
+            await this.prisma.taliGoal.update({
+                where: { id: taliGoal.id },
+                data: {
+                    currentValue: newValue,
+                    isCompleted,
+                    completedAt: isCompleted ? new Date() : null,
+                },
+            });
+            if (isCompleted) {
+                await this.grantReward(taliId, taliGoal.goal);
+            }
+        }
+    }
+    async grantReward(taliId, goal) {
+        if (goal.rewardType === 'CASH') {
+            await this.prisma.taliProfile.update({
+                where: { id: taliId },
+                data: {
+                    balance: { increment: goal.rewardValue },
+                },
+            });
+            await this.prisma.reward.create({
+                data: {
+                    taliId,
+                    amount: goal.rewardValue,
+                    description: `Hedef Tamamlandı: ${goal.title}`,
+                },
+            });
+            this.logger.log(`Reward granted to Tali ${taliId} for goal ${goal.title}`);
+        }
+    }
+};
+exports.GoalService = GoalService;
+exports.GoalService = GoalService = GoalService_1 = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+], GoalService);
+//# sourceMappingURL=goal.service.js.map

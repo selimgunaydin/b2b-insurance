@@ -3,7 +3,10 @@ import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { CreateInsuranceRequestDto, UpdateOfferDto } from './dto/insurance.dto';
 import { RequestStatus, PolicyStatus } from '@prisma/client';
+import { NotificationService } from '../notification/notification.service';
+import { NotificationType } from '@prisma/client';
 import { SupabaseService } from '../supabase/supabase.service';
+import { GoalService } from '../goal/goal.service';
 
 @Injectable()
 export class InsuranceService {
@@ -11,7 +14,9 @@ export class InsuranceService {
     private prisma: PrismaService,
     private auditService: AuditService,
     private supabaseService: SupabaseService,
-  ) { }
+    private notificationService: NotificationService,
+    private goalService: GoalService,
+  ) {}
 
   async getStats(userId: string) {
     const taliProfile = await this.prisma.taliProfile.findUnique({
@@ -55,10 +60,13 @@ export class InsuranceService {
 
     const policies = await this.prisma.policy.findMany({
       where: { insuranceRequest: { taliId } },
-      select: { commission: true }
+      select: { commission: true },
     });
 
-    const totalEarnings = policies.reduce((sum, p) => sum + (Number(p.commission) || 0), 0);
+    const totalEarnings = policies.reduce(
+      (sum, p) => sum + (Number(p.commission) || 0),
+      0,
+    );
 
     return {
       activePolicies,
@@ -102,13 +110,20 @@ export class InsuranceService {
       where: { key: `insurance_type_${dto.type}_enabled` },
     });
     if (globalSetting && globalSetting.value === 'false') {
-      throw new Error(`Bu sigorta türü (${dto.type}) şu anda sistem genelinde pasiftir.`);
+      throw new Error(
+        `Bu sigorta türü (${dto.type}) şu anda sistem genelinde pasiftir.`,
+      );
     }
 
     // 2. User Permission Check
-    if (taliProfile.allowedInsuranceTypes && taliProfile.allowedInsuranceTypes.length > 0) {
+    if (
+      taliProfile.allowedInsuranceTypes &&
+      taliProfile.allowedInsuranceTypes.length > 0
+    ) {
       if (!taliProfile.allowedInsuranceTypes.includes(dto.type)) {
-        throw new Error(`Bu sigorta türünü (${dto.type}) oluşturma yetkiniz bulunmamaktadır.`);
+        throw new Error(
+          `Bu sigorta türünü (${dto.type}) oluşturma yetkiniz bulunmamaktadır.`,
+        );
       }
     }
 
@@ -152,7 +167,7 @@ export class InsuranceService {
         customerId,
         type: dto.type,
         details: dto.details || {},
-        files: dto.files || [],
+        // files: dto.files || [], // Removed from schema
         status: RequestStatus.PENDING_OFFER,
       },
     });
@@ -198,7 +213,12 @@ export class InsuranceService {
     });
 
     // Notify user about the offer
-    // await this.notificationService.sendOfferNotification(request.userId, request.id);
+    await this.notificationService.createSystemNotification(
+      request.taliId,
+      'Teklif Hazır',
+      `#${request.id.slice(0, 8)} numaralı talebiniz için teklif hazırlandı.`,
+      NotificationType.SYSTEM,
+    );
 
     return request;
   }
@@ -218,6 +238,14 @@ export class InsuranceService {
       offers: dto.offers,
     });
 
+    // Notify user about the offer
+    await this.notificationService.createSystemNotification(
+      request.taliId,
+      'Teklif Hazır',
+      `#${request.id.slice(0, 8)} numaralı talebiniz için teklif güncellendi.`,
+      NotificationType.SYSTEM,
+    );
+
     return request;
   }
 
@@ -234,7 +262,7 @@ export class InsuranceService {
     const request = await this.prisma.insuranceRequest.update({
       where: { id },
       data: {
-        policyPdfUrl,
+        policyUrl: policyPdfUrl,
         status: RequestStatus.COMPLETED,
       },
     });
@@ -246,7 +274,11 @@ export class InsuranceService {
       create: {
         insuranceRequestId: id,
         pdfUrl: policyPdfUrl,
-        premium: request.offers ? (request.offers as any[]).find(o => o.company === request.adminOfferCompany)?.price || 0 : 0, // Best effort premium
+        premium: request.offers
+          ? (request.offers as any[]).find(
+              (o) => o.company === request.adminOfferCompany,
+            )?.price || 0
+          : 0, // Best effort premium
         company: request.adminOfferCompany || 'Unknown',
         policyNumber: `POL-${Date.now()}`, // Generate a temp policy number if new
         startDate: new Date(),
@@ -259,6 +291,14 @@ export class InsuranceService {
       requestId: id,
       filename,
     });
+
+    // Notify user
+    await this.notificationService.createSystemNotification(
+      request.taliId,
+      'Poliçe Onaylandı',
+      `#${request.id.slice(0, 8)} numaralı talebiniz onaylandı ve poliçeniz oluşturuldu.`,
+      NotificationType.SYSTEM,
+    );
 
     return request;
   }
@@ -334,7 +374,7 @@ export class InsuranceService {
         where: { id },
         data: {
           status: RequestStatus.COMPLETED,
-          policyPdfUrl: existingPolicy.pdfUrl
+          policyUrl: existingPolicy.pdfUrl,
         },
       });
       return existingPolicy;
@@ -348,7 +388,7 @@ export class InsuranceService {
       throw new Error('Request is not pending payment or review');
     }
 
-    let policyPdfUrl = (request as any).policyPdfUrl;
+    let policyPdfUrl = (request as any).policyUrl;
     if (file) {
       // Sanitize filename: normalize to NFD, remove diacritics, replace non-alphanumeric with _, keep extension
       const sanitizedOriginalName = file.originalname
@@ -362,14 +402,14 @@ export class InsuranceService {
 
     try {
       // Transaction: Update Request -> Create Policy -> Log Audit
-      return await this.prisma
+      const result = await this.prisma
         .$transaction(async (prisma) => {
           // 1. Update Request Status
           const updatedRequest = await prisma.insuranceRequest.update({
             where: { id },
             data: {
               status: RequestStatus.COMPLETED,
-              policyPdfUrl: policyPdfUrl, // Update if new file uploaded
+              policyUrl: policyPdfUrl, // Update if new file uploaded
             },
           });
 
@@ -398,6 +438,27 @@ export class InsuranceService {
           });
           return res.updatedRequest;
         });
+
+      // Notify user
+      if (request) {
+        await this.notificationService.createSystemNotification(
+          request.taliId,
+          'Poliçe Onaylandı',
+          `#${request.id.slice(0, 8)} numaralı talebiniz onaylandı ve poliçeniz oluşturuldu.`,
+          NotificationType.SYSTEM,
+        );
+      }
+
+      // Track goal progress
+      if (request) {
+        await this.goalService.checkProgress(
+          request.taliId,
+          request.type,
+          Number(request.adminOfferPrice || 0),
+        );
+      }
+
+      return result;
     } catch (error) {
       console.error('Confirm Payment Error:', error);
       throw error;
@@ -446,8 +507,8 @@ export class InsuranceService {
           include: {
             user: {
               include: {
-                taliProfile: true
-              }
+                taliProfile: true,
+              },
             },
           },
         },
@@ -466,8 +527,8 @@ export class InsuranceService {
               include: {
                 user: {
                   include: {
-                    taliProfile: true
-                  }
+                    taliProfile: true,
+                  },
                 },
               },
             },
@@ -544,11 +605,11 @@ export class InsuranceService {
             customer: true,
             tali: {
               include: {
-                user: true
-              }
-            }
-          }
-        }
+                user: true,
+              },
+            },
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -563,15 +624,16 @@ export class InsuranceService {
             customer: true,
             tali: {
               include: {
-                user: true
-              }
-            }
-          }
-        }
+                user: true,
+              },
+            },
+          },
+        },
       },
     });
 
-    if (!cancellation) throw new NotFoundException('Cancellation request not found');
+    if (!cancellation)
+      throw new NotFoundException('Cancellation request not found');
     return cancellation;
   }
 
@@ -585,7 +647,8 @@ export class InsuranceService {
       include: { policy: true },
     });
 
-    if (!cancellation) throw new NotFoundException('Cancellation request not found');
+    if (!cancellation)
+      throw new NotFoundException('Cancellation request not found');
 
     const updated = await this.prisma.cancellationRequest.update({
       where: { id },
@@ -603,11 +666,26 @@ export class InsuranceService {
       });
 
       // Also update InsuranceRequest status? Maybe keep it COMPLETED or add CANCELLED?
-      // Schema has RequestStatus.CANCELLED
       await this.prisma.insuranceRequest.update({
         where: { id: cancellation.policyId },
         data: { status: RequestStatus.CANCELLED },
       });
+    }
+
+    // Notify user
+    // Need to fetch Tali ID from cancellation -> policy (InsuranceRequest) -> Tali
+    // cancellation.policy is InsuranceRequest
+    const request = await this.prisma.insuranceRequest.findUnique({
+      where: { id: cancellation.policyId },
+    });
+
+    if (request) {
+      await this.notificationService.createSystemNotification(
+        request.taliId,
+        `İptal Talebi ${status === 'APPROVED' ? 'Onaylandı' : 'Reddedildi'}`,
+        `#${request.id.slice(0, 8)} numaralı poliçe için iptal talebiniz ${status === 'APPROVED' ? 'onaylandı' : 'reddedildi'}.`,
+        NotificationType.SYSTEM,
+      );
     }
 
     await this.auditService.log(userId, 'UPDATE_CANCELLATION_STATUS', {

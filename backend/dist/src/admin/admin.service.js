@@ -56,11 +56,13 @@ let AdminService = class AdminService {
         };
     }
     async getGeneralTaliStats() {
-        const totalTalis = await this.prisma.user.count({ where: { role: client_1.Role.TALI, isApproved: true } });
+        const totalTalis = await this.prisma.user.count({
+            where: { role: client_1.Role.TALI, isApproved: true },
+        });
         const totalPolicies = await this.prisma.policy.count();
         const totalPremiumResult = await this.prisma.policy.aggregate({
             _sum: { premium: true },
-            where: { status: 'ACTIVE' }
+            where: { status: 'ACTIVE' },
         });
         const totalPremium = totalPremiumResult._sum.premium || 0;
         return {
@@ -72,12 +74,12 @@ let AdminService = class AdminService {
     async getTaliStats(taliId) {
         const taliProfile = await this.prisma.taliProfile.findUnique({
             where: { userId: taliId },
-            include: { user: true }
+            include: { user: true },
         });
         if (!taliProfile) {
             const byId = await this.prisma.taliProfile.findUnique({
                 where: { id: taliId },
-                include: { user: true }
+                include: { user: true },
             });
             if (!byId)
                 throw new Error('Tali not found');
@@ -89,13 +91,13 @@ let AdminService = class AdminService {
         const policies = await this.prisma.policy.findMany({
             where: {
                 insuranceRequest: {
-                    taliId: taliProfile.id
-                }
+                    taliId: taliProfile.id,
+                },
             },
-            include: { insuranceRequest: true }
+            include: { insuranceRequest: true },
         });
         const totalPolicies = policies.length;
-        const activePolicies = policies.filter(p => p.status === 'ACTIVE').length;
+        const activePolicies = policies.filter((p) => p.status === 'ACTIVE').length;
         let totalPremium = 0;
         let totalCommission = 0;
         const policiesByType = {};
@@ -117,7 +119,7 @@ let AdminService = class AdminService {
             totalPremium,
             totalCommission,
             policiesByType,
-            policiesByMonth
+            policiesByMonth,
         };
     }
 };

@@ -15,6 +15,8 @@ class SendNotificationDto {
     phone;
     email;
     message;
+    title;
+    target;
 }
 exports.SendNotificationDto = SendNotificationDto;
 __decorate([
@@ -31,4 +33,14 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], SendNotificationDto.prototype, "message", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], SendNotificationDto.prototype, "title", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], SendNotificationDto.prototype, "target", void 0);
 //# sourceMappingURL=notification.dto.js.map

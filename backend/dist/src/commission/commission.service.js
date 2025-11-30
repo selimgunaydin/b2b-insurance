@@ -23,7 +23,7 @@ let CommissionService = class CommissionService {
                 key: { startsWith: `commission_${membershipType}_` },
             },
         });
-        return settings.map(s => ({
+        return settings.map((s) => ({
             insuranceType: s.key.split('_')[2],
             rate: parseFloat(s.value),
         }));

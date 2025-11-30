@@ -6,8 +6,8 @@ import Providers from "@/components/providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Antigravity InsurTech",
-  description: "B2B Insurance Platform",
+  title: "B2B Sigorta | Dijital Sigorta Platformu",
+  description: "Tali ve sigorta şirketleri için modern B2B sigorta yönetim platformu",
 };
 
 import { Toaster } from "@/components/ui/toaster";
@@ -19,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="tr">
       <body className={inter.className}>
         <Providers>
           {children}

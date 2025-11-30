@@ -29,7 +29,7 @@ let SettingsController = class SettingsController {
     }
     async getConfig() {
         const settings = await this.settingsService.getSettings();
-        return settings.filter(s => s.key.startsWith('insurance_type_') && s.key.endsWith('_enabled'));
+        return settings.filter((s) => s.key.startsWith('insurance_type_') && s.key.endsWith('_enabled'));
     }
     async updateSetting(key, body, req) {
         return this.settingsService.updateSetting(key, body.value, req.user.id);

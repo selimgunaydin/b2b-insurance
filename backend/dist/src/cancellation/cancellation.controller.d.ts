@@ -19,15 +19,15 @@ export declare class CancellationController {
             updatedAt: Date;
             type: import("@prisma/client").$Enums.InsuranceType;
             details: import("@prisma/client/runtime/library").JsonValue;
-            customerId: string;
-            files: string[];
+            customerId: string | null;
             offers: import("@prisma/client/runtime/library").JsonValue | null;
-            status: import("@prisma/client").$Enums.RequestStatus;
             taliId: string;
+            status: import("@prisma/client").$Enums.RequestStatus;
+            selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
             adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
             adminOfferCompany: string | null;
             adminOfferDescription: string | null;
-            policyPdfUrl: string | null;
+            policyUrl: string | null;
         };
     } & {
         id: string;

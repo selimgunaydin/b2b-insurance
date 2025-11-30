@@ -68,6 +68,7 @@ model User {
   taliProfile TaliProfile?
   transactions Transactions[]
   messages    Message[]
+  notifications Notification[]
 }
 
 model TaliProfile {
@@ -91,6 +92,8 @@ model TaliProfile {
 
   customers         Customer[]
   insuranceRequests InsuranceRequest[]
+  goals             TaliGoal[]
+  rewards           Reward[]
 }
 
 model Customer {
@@ -112,19 +115,19 @@ model InsuranceRequest {
   id           String        @id @default(uuid())
   taliId       String
   tali         TaliProfile   @relation(fields: [taliId], references: [id])
-  customerId   String
-  customer     Customer      @relation(fields: [customerId], references: [id])
+  customerId   String?
+  customer     Customer?     @relation(fields: [customerId], references: [id])
   type         InsuranceType
   status       RequestStatus @default(PENDING_OFFER)
-  details      Json
-  files        String[]
+  details      Json // Flexible JSON for different insurance types
   
   // Offer details
-  offers       Json? // Array of { company, price, description }
+  offers       Json? // Array of offers from admins
+  selectedOffer Json? // The offer selected by Tali
   adminOfferPrice Decimal?
   adminOfferCompany String?
   adminOfferDescription String?
-  policyPdfUrl String?
+  policyUrl String? // URL of the uploaded policy PDF
 
   policy    Policy?
   cancellationRequest CancellationRequest?
@@ -225,4 +228,71 @@ model SystemSetting {
   category    String   // GENERAL, NOTIFICATIONS, COMMISSION, etc.
   description String?
   updatedAt   DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  type      NotificationType @default(SYSTEM)
+  createdAt DateTime @default(now())
+}
+
+enum NotificationType {
+  SYSTEM
+  ADMIN_MESSAGE
+  RENEWAL
+}
+
+model Goal {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  targetType  GoalTargetType // COUNT, PREMIUM
+  policyType  InsuranceType? // Specific type or null for ALL
+  targetValue Int       // e.g., 10 policies or 10000 TL
+  rewardType  RewardType // CASH, GIFT
+  rewardValue Decimal   // e.g., 500 TL
+  startDate   DateTime
+  endDate     DateTime
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  taliGoals   TaliGoal[]
+}
+
+model TaliGoal {
+  id          String    @id @default(uuid())
+  taliId      String
+  tali        TaliProfile @relation(fields: [taliId], references: [id])
+  goalId      String
+  goal        Goal      @relation(fields: [goalId], references: [id])
+  currentValue Int      @default(0) // Count or Premium amount
+  isCompleted Boolean   @default(false)
+  completedAt DateTime?
+
+  @@unique([taliId, goalId])
+}
+
+model Reward {
+  id          String    @id @default(uuid())
+  taliId      String
+  tali        TaliProfile @relation(fields: [taliId], references: [id])
+  amount      Decimal
+  description String
+  createdAt   DateTime  @default(now())
+}
+
+enum GoalTargetType {
+  COUNT
+  PREMIUM
+}
+
+enum RewardType {
+  CASH
+  GIFT
 }

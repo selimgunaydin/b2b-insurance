@@ -22,7 +22,7 @@ import { Role } from '@prisma/client';
 @Controller('insurance')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class InsuranceController {
-  constructor(private readonly insuranceService: InsuranceService) { }
+  constructor(private readonly insuranceService: InsuranceService) {}
 
   @Post()
   @Roles(Role.TALI)
@@ -136,7 +136,6 @@ export class InsuranceController {
   ) {
     return this.insuranceService.notifyPayment(id, body.method, req.user.id);
   }
-
 
   @Post('cancellation')
   @Roles(Role.TALI)

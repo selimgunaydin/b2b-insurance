@@ -35,7 +35,16 @@ let ChatService = class ChatService {
         }
         return this.prisma.message.findMany({
             where: { insuranceRequestId: requestId },
-            include: { sender: { select: { id: true, email: true, role: true, taliProfile: { select: { fullName: true } } } } },
+            include: {
+                sender: {
+                    select: {
+                        id: true,
+                        email: true,
+                        role: true,
+                        taliProfile: { select: { fullName: true } },
+                    },
+                },
+            },
             orderBy: { createdAt: 'asc' },
         });
     }
@@ -58,7 +67,16 @@ let ChatService = class ChatService {
                 senderId: userId,
                 insuranceRequestId: requestId,
             },
-            include: { sender: { select: { id: true, email: true, role: true, taliProfile: { select: { fullName: true } } } } },
+            include: {
+                sender: {
+                    select: {
+                        id: true,
+                        email: true,
+                        role: true,
+                        taliProfile: { select: { fullName: true } },
+                    },
+                },
+            },
         });
         return message;
     }

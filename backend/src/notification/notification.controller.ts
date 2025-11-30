@@ -1,4 +1,13 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Get,
+  Put,
+  Param,
+  Request,
+} from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { SendNotificationDto } from './dto/notification.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -15,5 +24,20 @@ export class NotificationController {
   @Roles(Role.ADMIN)
   async send(@Body() dto: SendNotificationDto) {
     return this.notificationService.sendNotification(dto);
+  }
+
+  @Get()
+  async findAll(@Request() req: any) {
+    return this.notificationService.findAll(req.user.id as string);
+  }
+
+  @Put(':id/read')
+  async markAsRead(@Param('id') id: string, @Request() req: any) {
+    return this.notificationService.markAsRead(id, req.user.id as string);
+  }
+
+  @Put('read-all')
+  async markAllAsRead(@Request() req: any) {
+    return this.notificationService.markAllAsRead(req.user.id as string);
   }
 }

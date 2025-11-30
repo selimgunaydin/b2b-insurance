@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { Home, FileText, User, LogOut, PlusCircle, XCircle, ChevronLeft, ChevronRight, Users, Shield } from "lucide-react";
+import { Home, FileText, User, LogOut, PlusCircle, XCircle, ChevronLeft, ChevronRight, Users, Shield, Bell, Target } from "lucide-react";
 
 export function TaliSidebar() {
   const router = useRouter();
@@ -21,7 +21,9 @@ export function TaliSidebar() {
     { href: "/dashboard/requests", label: "Taleplerim", icon: FileText },
     { href: "/dashboard/customers", label: "Müşterilerim", icon: Users },
     { href: "/dashboard/policies", label: "Poliçelerim", icon: Shield },
+    { href: "/dashboard/goals", label: "Hedeflerim", icon: Target },
     { href: "/dashboard/requests/cancellation", label: "İptal Talebi", icon: XCircle },
+    { href: "/dashboard/notifications", label: "Bildirimler", icon: Bell },
     { href: "/dashboard/profile", label: "Profilim", icon: User },
   ];
 
@@ -32,7 +34,7 @@ export function TaliSidebar() {
       }`}
     >
       <div className="p-4 flex items-center justify-between">
-        {!isCollapsed && <h1 className="text-xl font-bold truncate">Antigravity</h1>}
+        {!isCollapsed && <h1 className="text-xl font-bold truncate">B2B Sigorta</h1>}
         <button 
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="p-2 hover:bg-indigo-800 rounded-lg transition-colors ml-auto"

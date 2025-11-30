@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, DollarSign, FileText, CheckCircle, Clock } from "lucide-react";
+import { Loader2, DollarSign, CheckCircle, Clock } from "lucide-react";
 
 export default function DashboardPage() {
   const { data: profile, isLoading: isProfileLoading } = useQuery({
@@ -101,41 +101,42 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent Requests */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Son Talepler</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Tarih</TableHead>
-                <TableHead>Müşteri</TableHead>
-                <TableHead>Tür</TableHead>
-                <TableHead>Durum</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {recentRequests?.map((req: any) => (
-                <TableRow key={req.id}>
-                  <TableCell>
-                    {new Date(req.createdAt).toLocaleDateString("tr-TR")}
-                  </TableCell>
-                  <TableCell>{req.customer?.fullName || req.customer?.tc_kn || "-"}</TableCell>
-                  <TableCell>{req.type}</TableCell>
-                  <TableCell>{req.status}</TableCell>
-                </TableRow>
-              ))}
-              {!recentRequests?.length && (
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card className="col-span-1">
+          <CardHeader>
+            <CardTitle>Son Talepler</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center">Henüz talep bulunmuyor.</TableCell>
+                  <TableHead>Müşteri</TableHead>
+                  <TableHead>Tür</TableHead>
+                  <TableHead>Durum</TableHead>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+              </TableHeader>
+              <TableBody>
+                {recentRequests?.map((request: { id: string; customer: { fullName: string }; type: string; status: string }) => (
+                  <TableRow key={request.id}>
+                    <TableCell>{request.customer?.fullName}</TableCell>
+                    <TableCell>{request.type}</TableCell>
+                    <TableCell>{request.status}</TableCell>
+                  </TableRow>
+                ))}
+                {(!recentRequests || recentRequests.length === 0) && (
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-center text-muted-foreground">
+                      Henüz talep yok
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
 
+        <RecentNotifications />
+      </div>
       {/* Commission Rates (Only for Tali) */}
       {isTali && (
         <Card className="col-span-4">
@@ -168,5 +169,54 @@ export default function DashboardPage() {
         </Card>
       )}
     </div>
+  );
+}
+
+function RecentNotifications() {
+  const { data: notifications, isLoading } = useQuery({
+    queryKey: ["notifications"],
+    queryFn: async () => {
+      const res = await api.get("/notification");
+      return res.data.slice(0, 5); // Get last 5
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <Card className="col-span-1">
+        <CardHeader>
+          <CardTitle>Son Bildirimler</CardTitle>
+        </CardHeader>
+        <CardContent className="flex justify-center py-8">
+          <Loader2 className="h-6 w-6 animate-spin" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="col-span-1">
+      <CardHeader>
+        <CardTitle>Son Bildirimler</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {notifications?.map((notification: { id: string; title: string; message: string; isRead: boolean }) => (
+            <div key={notification.id} className={`flex items-start gap-3 p-3 rounded-lg border ${!notification.isRead ? 'bg-blue-50 border-blue-100' : 'bg-white'}`}>
+              <div className="flex-1">
+                <p className="text-sm font-medium">{notification.title}</p>
+                <p className="text-xs text-muted-foreground line-clamp-2">{notification.message}</p>
+              </div>
+              {!notification.isRead && (
+                <div className="h-2 w-2 rounded-full bg-blue-500 mt-1.5" />
+              )}
+            </div>
+          ))}
+          {(!notifications || notifications.length === 0) && (
+            <p className="text-center text-muted-foreground py-4">Henüz bildirim yok</p>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

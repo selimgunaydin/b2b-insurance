@@ -16,7 +16,7 @@ import { Role } from '@prisma/client';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {}
 
   @UseGuards(AuthGuard('jwt'))
   @Get('profile')
@@ -48,7 +48,10 @@ export class UserController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @Put(':id/permissions')
-  async updatePermissions(@Param('id') id: string, @Body() body: { allowedTypes: string[] }) {
+  async updatePermissions(
+    @Param('id') id: string,
+    @Body() body: { allowedTypes: string[] },
+  ) {
     return this.userService.updatePermissions(id, body.allowedTypes);
   }
 }

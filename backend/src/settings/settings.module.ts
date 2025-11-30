@@ -5,8 +5,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 
 @Module({
-    controllers: [SettingsController],
-    providers: [SettingsService, PrismaService, AuditService],
-    exports: [SettingsService],
+  controllers: [SettingsController],
+  providers: [SettingsService, PrismaService, AuditService],
+  exports: [SettingsService],
 })
-export class SettingsModule { }
+export class SettingsModule {}

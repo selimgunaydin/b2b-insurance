@@ -5,8 +5,17 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { AuditModule } from '../audit/audit.module';
 import { SupabaseModule } from '../supabase/supabase.module';
 
+import { NotificationModule } from '../notification/notification.module';
+import { GoalModule } from '../goal/goal.module';
+
 @Module({
-  imports: [PrismaModule, AuditModule, SupabaseModule],
+  imports: [
+    PrismaModule,
+    AuditModule,
+    SupabaseModule,
+    NotificationModule,
+    GoalModule,
+  ],
   controllers: [InsuranceController],
   providers: [InsuranceService],
 })

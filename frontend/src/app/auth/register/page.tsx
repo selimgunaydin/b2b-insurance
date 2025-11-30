@@ -92,7 +92,7 @@ export default function RegisterPage() {
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">Tali Sigortacı Başvurusu</CardTitle>
           <CardDescription className="text-center">
-            Antigravity sistemine katılmak için formu doldurun. Başvurunuz yönetici onayından sonra aktifleşecektir.
+            B2B Sigorta sistemine katılmak için formu doldurun. Başvurunuz yönetici onayından sonra aktifleşecektir.
           </CardDescription>
         </CardHeader>
         <CardContent>

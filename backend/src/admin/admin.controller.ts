@@ -8,23 +8,23 @@ import { Role } from '@prisma/client';
 @Controller('admin')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class AdminController {
-    constructor(private readonly adminService: AdminService) { }
+  constructor(private readonly adminService: AdminService) {}
 
-    @Get('stats')
-    @Roles(Role.ADMIN)
-    async getStats() {
-        return this.adminService.getDashboardStats();
-    }
+  @Get('stats')
+  @Roles(Role.ADMIN)
+  async getStats() {
+    return this.adminService.getDashboardStats();
+  }
 
-    @Get('stats/general')
-    @Roles(Role.ADMIN)
-    async getGeneralStats() {
-        return this.adminService.getGeneralTaliStats();
-    }
+  @Get('stats/general')
+  @Roles(Role.ADMIN)
+  async getGeneralStats() {
+    return this.adminService.getGeneralTaliStats();
+  }
 
-    @Get('stats/tali/:id')
-    @Roles(Role.ADMIN)
-    async getTaliStats(@Param('id') id: string) {
-        return this.adminService.getTaliStats(id);
-    }
+  @Get('stats/tali/:id')
+  @Roles(Role.ADMIN)
+  async getTaliStats(@Param('id') id: string) {
+    return this.adminService.getTaliStats(id);
+  }
 }
