@@ -415,15 +415,17 @@ export class InsuranceService {
         });
 
         // 2. Create Policy
-        const policy = await prisma.policy.create({
-          data: {
+        const policy = await prisma.policy.upsert({
+          update: { policyUrl: policyPdfUrl },
+          where: {
             insuranceRequestId: id,
-            policyNumber: `POL - ${Math.floor(Math.random() * 1000000)} `, // Mock Policy Number
-            company: request.adminOfferCompany || 'Unknown',
+          },
+          create: {
+            insuranceRequestId: id,
+            policyNumber: 'PENDING', // Will be updated by admin
+            company: 'PENDING', // Will be updated by admin
             startDate: new Date(),
-            endDate: new Date(
-              new Date().setFullYear(new Date().getFullYear() + 1),
-            ), // 1 Year default
+            endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)), // 1 Year default
             premium: request.adminOfferPrice || 0,
             status: 'ACTIVE',
             policyUrl: policyPdfUrl,

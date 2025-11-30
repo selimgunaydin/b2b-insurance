@@ -320,11 +320,15 @@ let InsuranceService = class InsuranceService {
                         policyUrl: policyPdfUrl,
                     },
                 });
-                const policy = await prisma.policy.create({
-                    data: {
+                const policy = await prisma.policy.upsert({
+                    update: { policyUrl: policyPdfUrl },
+                    where: {
                         insuranceRequestId: id,
-                        policyNumber: `POL - ${Math.floor(Math.random() * 1000000)} `,
-                        company: request.adminOfferCompany || 'Unknown',
+                    },
+                    create: {
+                        insuranceRequestId: id,
+                        policyNumber: 'PENDING',
+                        company: 'PENDING',
                         startDate: new Date(),
                         endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
                         premium: request.adminOfferPrice || 0,
