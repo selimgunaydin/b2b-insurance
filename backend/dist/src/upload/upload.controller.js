@@ -23,7 +23,8 @@ let UploadController = class UploadController {
         this.supabaseService = supabaseService;
     }
     async uploadFile(file) {
-        const filename = `${Date.now()}-${file.originalname}`;
+        const sanitizedOriginalName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const filename = `${Date.now()}-${sanitizedOriginalName}`;
         const url = await this.supabaseService.uploadFile(file, filename);
         return { url };
     }

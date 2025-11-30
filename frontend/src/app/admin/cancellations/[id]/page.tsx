@@ -10,6 +10,7 @@ import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import { Loader2, CheckCircle, XCircle, FileText, ArrowLeft, Calendar, User, CreditCard, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 
 interface CancellationRequest {
   id: string;
@@ -71,9 +72,31 @@ export default function CancellationDetailPage() {
     }
   }, [params.id]);
 
-  const handleStatusUpdate = async (status: "APPROVED" | "REJECTED") => {
-    if (!confirm(`Bu talebi ${status === "APPROVED" ? "ONAYLAMAK" : "REDDETMEK"} istediğinize emin misiniz?`)) return;
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    onConfirm: () => void;
+    variant?: "default" | "destructive";
+  }>({
+    isOpen: false,
+    title: "",
+    description: "",
+    onConfirm: () => {},
+  });
 
+  const handleStatusUpdateClick = (status: "APPROVED" | "REJECTED") => {
+    setConfirmModal({
+      isOpen: true,
+      title: status === "APPROVED" ? "Talebi Onayla" : "Talebi Reddet",
+      description: `Bu talebi ${status === "APPROVED" ? "ONAYLAMAK" : "REDDETMEK"} istediğinize emin misiniz?`,
+      onConfirm: () => handleStatusUpdate(status),
+      variant: status === "REJECTED" ? "destructive" : "default",
+    });
+  };
+
+  const handleStatusUpdate = async (status: "APPROVED" | "REJECTED") => {
+    setConfirmModal((prev) => ({ ...prev, isOpen: false }));
     try {
       await api.put(`/insurance/cancellation/${params.id}/status`, { status });
       toast({
@@ -217,14 +240,14 @@ export default function CancellationDetailPage() {
               <CardContent className="space-y-3">
                 <Button
                   className="w-full bg-green-600 hover:bg-green-700"
-                  onClick={() => handleStatusUpdate("APPROVED")}
+                  onClick={() => handleStatusUpdateClick("APPROVED")}
                 >
                   <CheckCircle className="mr-2 h-4 w-4" /> Onayla ve İptal Et
                 </Button>
                 <Button
                   variant="destructive"
                   className="w-full"
-                  onClick={() => handleStatusUpdate("REJECTED")}
+                  onClick={() => handleStatusUpdateClick("REJECTED")}
                 >
                   <XCircle className="mr-2 h-4 w-4" /> Reddet
                 </Button>
@@ -283,6 +306,15 @@ export default function CancellationDetailPage() {
           </Card>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        description={confirmModal.description}
+        variant={confirmModal.variant}
+      />
     </div>
   );
 }

@@ -122,8 +122,8 @@ export default function DashboardPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {recentRequests?.map((request: { id: string; customer: { fullName: string }; type: string; status: string }) => (
-                  <TableRow key={request.id}>
+                {recentRequests?.map((request: { id: string; customer: { fullName: string }; type: string; status: string }, key: number) => (
+                  <TableRow key={key}>
                     <TableCell>{request.customer?.fullName}</TableCell>
                     <TableCell>{request.type}</TableCell>
                     <TableCell>{request.status}</TableCell>

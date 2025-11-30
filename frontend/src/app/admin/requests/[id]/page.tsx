@@ -17,6 +17,7 @@ import { tr } from "date-fns/locale";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { ChatComponent } from "@/components/chat/chat-component";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 
 interface Offer {
     company: string;
@@ -75,12 +76,94 @@ export default function AdminRequestDetailPage() {
     }
 
     try {
-      await api.post(`/insurance/${id}/offer`, { offers });
+      await api.put(`/insurance/${id}/offers`, { offers });
       toast({ title: "Teklifler Gönderildi", description: "Tali teklifleri inceleyip birini seçecektir." });
       await refetch();
     } catch (err) {
       console.error("Failed to submit offers", err);
       toast({ title: "İşlem başarısız.", variant: "destructive" });
+    }
+  };
+
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    onConfirm: () => void;
+    variant?: "default" | "destructive";
+    isLoading?: boolean;
+  }>({
+    isOpen: false,
+    title: "",
+    description: "",
+    onConfirm: () => {},
+  });
+
+  const handleConfirmPaymentClick = () => {
+    if (!file) {
+      alert("Lütfen poliçe dosyasını yükleyiniz.");
+      return;
+    }
+    setConfirmModal({
+      isOpen: true,
+      title: "Ödemeyi Onayla",
+      description: "Ödemeyi onaylıyor ve poliçeyi oluşturuyor musunuz?",
+      onConfirm: handleConfirmPayment,
+    });
+  };
+
+  const handleConfirmPayment = async () => {
+    if (!file) return;
+    setConfirmModal((prev) => ({ ...prev, isLoading: true }));
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      
+      await api.post(`/insurance/${id}/confirm-payment`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      await refetch();
+      setConfirmModal((prev) => ({ ...prev, isOpen: false, isLoading: false }));
+    } catch(e) {
+      console.error(e);
+      toast({ title: "Hata", description: "İşlem başarısız.", variant: "destructive" });
+      setConfirmModal((prev) => ({ ...prev, isLoading: false }));
+    }
+  };
+
+  const handleUpdatePolicyClick = () => {
+    if (!file) {
+      alert("Lütfen bir dosya seçiniz.");
+      return;
+    }
+    setConfirmModal({
+      isOpen: true,
+      title: "Poliçeyi Güncelle",
+      description: "Mevcut poliçeyi güncellemek istediğinize emin misiniz?",
+      onConfirm: handleUpdatePolicy,
+      variant: "destructive",
+    });
+  };
+
+  const handleUpdatePolicy = async () => {
+    if (!file) return;
+    setConfirmModal((prev) => ({ ...prev, isLoading: true }));
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      await api.post(`/insurance/${id}/policy-upload`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+      });
+      toast({ title: "Başarılı", description: "Poliçe güncellendi." });
+      setFile(null);
+      await refetch();
+      setConfirmModal((prev) => ({ ...prev, isOpen: false, isLoading: false }));
+    } catch(e) {
+      console.error(e);
+      toast({ title: "Hata", description: "Güncelleme başarısız.", variant: "destructive" });
+      setConfirmModal((prev) => ({ ...prev, isLoading: false }));
     }
   };
 
@@ -227,7 +310,7 @@ export default function AdminRequestDetailPage() {
                                   )}
                                   <Input
                                       type="file"
-                                      accept=".pdf"
+                                      accept="image/*,.pdf"
                                       onChange={async (e) => {
                                           const file = e.target.files?.[0];
                                           if (file) {
@@ -299,7 +382,7 @@ export default function AdminRequestDetailPage() {
                     <Input
                       id="policyFile"
                       type="file"
-                      accept=".pdf"
+                      accept="image/*,.pdf"
                       onChange={(e) => setFile(e.target.files?.[0] || null)}
                     />
                     <p className="text-xs text-muted-foreground">Ödeme onaylandığında bu poliçe müşteriye gösterilecektir.</p>
@@ -307,28 +390,7 @@ export default function AdminRequestDetailPage() {
 
                   <div className="flex justify-end">
                     <Button 
-                      onClick={async () => {
-                        if(!file) {
-                          alert("Lütfen poliçe dosyasını yükleyiniz.");
-                          return;
-                        }
-                        if(!confirm("Ödemeyi onaylıyor ve poliçeyi oluşturuyor musunuz?")) return;
-                        
-                        try {
-                          const formData = new FormData();
-                          formData.append("file", file);
-                          
-                          await api.post(`/insurance/${id}/confirm-payment`, formData, {
-                            headers: {
-                              "Content-Type": "multipart/form-data",
-                            },
-                          });
-                          await refetch();
-                        } catch(e) {
-                          console.error(e);
-                          alert("Hata oluştu");
-                        }
-                      }}
+                      onClick={handleConfirmPaymentClick}
                       className="bg-green-600 hover:bg-green-700"
                     >
                       <CheckCircle className="mr-2 h-4 w-4" />
@@ -362,32 +424,11 @@ export default function AdminRequestDetailPage() {
                             <div className="flex gap-2">
                                 <Input
                                     type="file"
-                                    accept=".pdf"
+                                    accept="image/*,.pdf"
                                     onChange={(e) => setFile(e.target.files?.[0] || null)}
                                 />
                                 <Button 
-                                    onClick={async () => {
-                                        if(!file) {
-                                            alert("Lütfen bir dosya seçiniz.");
-                                            return;
-                                        }
-                                        if(!confirm("Mevcut poliçeyi güncellemek istediğinize emin misiniz?")) return;
-                                        
-                                        try {
-                                            const formData = new FormData();
-                                            formData.append("file", file);
-                                            // Using the existing upload-policy endpoint which maps to uploadPolicy service method
-                                            await api.post(`/insurance/${id}/policy-upload`, formData, {
-                                                headers: { "Content-Type": "multipart/form-data" },
-                                            });
-                                            alert("Poliçe güncellendi.");
-                                            setFile(null); // Reset file input
-                                            await refetch();
-                                        } catch(e) {
-                                            console.error(e);
-                                            alert("Güncelleme başarısız.");
-                                        }
-                                    }}
+                                    onClick={handleUpdatePolicyClick}
                                     variant="secondary"
                                 >
                                     Güncelle
@@ -406,6 +447,16 @@ export default function AdminRequestDetailPage() {
             <ChatComponent requestId={id} currentUserRole="ADMIN" />
         </div>
       </div>
+      
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        description={confirmModal.description}
+        variant={confirmModal.variant}
+        isLoading={confirmModal.isLoading}
+      />
     </div>
   );
 }

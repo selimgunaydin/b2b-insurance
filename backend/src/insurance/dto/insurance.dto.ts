@@ -40,6 +40,10 @@ export class OfferItemDto {
   @IsString()
   @IsOptional()
   description?: string;
+
+  @IsString()
+  @IsOptional()
+  fileUrl?: string;
 }
 
 export class UpdateOfferDto {

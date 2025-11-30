@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { Clock, MessageCircle } from "lucide-react";
 import { ProgressStepper } from "@/components/ui/progress-stepper";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 
 interface Offer {
     company: string;
@@ -34,6 +35,19 @@ export default function TaliRequestDetailPage() {
   const [isBuying, setIsBuying] = useState(false);
   const [selectedOfferIndex, setSelectedOfferIndex] = useState<number | null>(null);
 
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    onConfirm: () => void;
+    variant?: "default" | "destructive";
+  }>({
+    isOpen: false,
+    title: "",
+    description: "",
+    onConfirm: () => {},
+  });
+
   const { data: request, isLoading, refetch } = useQuery({
     queryKey: ["tali-request", id],
     queryFn: async () => {
@@ -50,12 +64,20 @@ export default function TaliRequestDetailPage() {
     },
   });
 
-  const handleApproveOffer = async () => {
+  const handleApproveOfferClick = () => {
     if (selectedOfferIndex === null) return;
     const selectedOffer = (request.offers as Offer[])[selectedOfferIndex];
-    
-    if (!confirm(`${selectedOffer.company} teklifini (${selectedOffer.price} TL) onaylıyor musunuz?`)) return;
-    
+
+    setConfirmModal({
+      isOpen: true,
+      title: "Teklifi Onayla",
+      description: `${selectedOffer.company} teklifini (${selectedOffer.price} TL) onaylıyor musunuz?`,
+      onConfirm: () => handleApproveOffer(selectedOffer),
+    });
+  };
+
+  const handleApproveOffer = async (selectedOffer: Offer) => {
+    setConfirmModal((prev) => ({ ...prev, isOpen: false }));
     setIsBuying(true);
     try {
       await api.post(`/insurance/${id}/approve-offer`, { selectedOffer });
@@ -69,18 +91,23 @@ export default function TaliRequestDetailPage() {
     }
   };
 
+  const handleNotifyPaymentClick = (method: "WHATSAPP" | "VIRTUAL_POS") => {
+    setConfirmModal({
+      isOpen: true,
+      title: method === "WHATSAPP" ? "Ödeme Bildirimi" : "Ödeme Onayı",
+      description: method === "WHATSAPP" ? "Ödeme yaptığınızı bildirmek istiyor musunuz?" : "Ödemeyi onaylıyor musunuz?",
+      onConfirm: () => handleNotifyPayment(method),
+    });
+  };
+
   const handleNotifyPayment = async (method: "WHATSAPP" | "VIRTUAL_POS") => {
+    setConfirmModal((prev) => ({ ...prev, isOpen: false }));
     if (method === "VIRTUAL_POS") {
        // Mock payment delay
        setIsBuying(true);
        await new Promise(resolve => setTimeout(resolve, 1500));
     }
 
-    if (!confirm(method === "WHATSAPP" ? "Ödeme yaptığınızı bildirmek istiyor musunuz?" : "Ödemeyi onaylıyor musunuz?")) {
-        setIsBuying(false);
-        return;
-    }
-    
     try {
       await api.post(`/insurance/${id}/notify-payment`, { method });
       toast({ title: "Ödeme Bildirimi Gönderildi", description: "Admin onayı bekleniyor." });
@@ -264,7 +291,7 @@ export default function TaliRequestDetailPage() {
                     className="w-full" 
                     size="lg"
                     disabled={selectedOfferIndex === null || isBuying} // Added isBuying to disable
-                    onClick={handleApproveOffer}
+                    onClick={handleApproveOfferClick}
                   >
                     {isBuying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle className="mr-2 h-5 w-5" />}
                     Seçili Teklifi Onayla ({selectedOfferIndex !== null ? (request.offers as Offer[])[selectedOfferIndex].price : 0} TL)
@@ -286,7 +313,7 @@ export default function TaliRequestDetailPage() {
                     <Button 
                         variant="outline" 
                         className="h-24 flex flex-col gap-2" 
-                        onClick={() => handleNotifyPayment("WHATSAPP")}
+                        onClick={() => handleNotifyPaymentClick("WHATSAPP")}
                     >
                         <MessageCircle className="h-8 w-8 text-green-600" />
                         <span>WhatsApp ile Bildir</span>
@@ -294,7 +321,7 @@ export default function TaliRequestDetailPage() {
                     <Button 
                         variant="outline" 
                         className="h-24 flex flex-col gap-2" 
-                        onClick={() => handleNotifyPayment("VIRTUAL_POS")}
+                        onClick={() => handleNotifyPaymentClick("VIRTUAL_POS")}
                         disabled={isBuying} // Re-added disabled state based on original logic
                     >
                         {isBuying ? <Loader2 className="h-8 w-8 animate-spin" /> : <CreditCard className="h-8 w-8 text-blue-600" />}
@@ -347,6 +374,16 @@ export default function TaliRequestDetailPage() {
             <ChatComponent requestId={id} currentUserRole="TALI" />
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        description={confirmModal.description}
+        variant={confirmModal.variant}
+        isLoading={isBuying}
+      />
     </div>
   );
 }

@@ -48,6 +48,7 @@ class OfferItemDto {
     price;
     company;
     description;
+    fileUrl;
 }
 exports.OfferItemDto = OfferItemDto;
 __decorate([
@@ -63,6 +64,11 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], OfferItemDto.prototype, "description", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], OfferItemDto.prototype, "fileUrl", void 0);
 class UpdateOfferDto {
     offers;
 }

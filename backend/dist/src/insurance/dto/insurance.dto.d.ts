@@ -10,6 +10,7 @@ export declare class OfferItemDto {
     price: number;
     company: string;
     description?: string;
+    fileUrl?: string;
 }
 export declare class UpdateOfferDto {
     offers: OfferItemDto[];

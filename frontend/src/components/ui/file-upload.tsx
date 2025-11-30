@@ -55,6 +55,7 @@ export function FileUpload({ value = [], onChange, maxFiles = 5 }: FileUploadPro
       <div className="flex items-center gap-4">
         <Input
           type="file"
+          accept="image/*,.pdf"
           disabled={isUploading || value.length >= maxFiles}
           onChange={handleUpload}
           className="cursor-pointer"

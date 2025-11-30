@@ -179,7 +179,7 @@ function CreateGoalForm({ onSubmit, isLoading }: { onSubmit: (data: CreateGoalDa
     title: "",
     description: "",
     targetType: "COUNT",
-    policyType: "",
+    policyType: "ALL",
     targetValue: "",
     rewardType: "CASH",
     rewardValue: "",
@@ -193,7 +193,7 @@ function CreateGoalForm({ onSubmit, isLoading }: { onSubmit: (data: CreateGoalDa
       ...formData,
       targetValue: parseInt(formData.targetValue),
       rewardValue: parseFloat(formData.rewardValue),
-      policyType: formData.policyType || undefined,
+      policyType: formData.policyType === "ALL" ? undefined : formData.policyType,
     });
   };
 
@@ -241,7 +241,7 @@ function CreateGoalForm({ onSubmit, isLoading }: { onSubmit: (data: CreateGoalDa
               <SelectValue placeholder="Tümü" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Tümü</SelectItem>
+              <SelectItem value="ALL">Tümü</SelectItem>
               <SelectItem value="TRAFFIC">Trafik</SelectItem>
               <SelectItem value="KASKO">Kasko</SelectItem>
               <SelectItem value="HEALTH">Sağlık</SelectItem>

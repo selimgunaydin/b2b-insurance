@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 
 interface Company {
   id: string;
@@ -36,7 +37,7 @@ export default function AdminCompaniesPage() {
   });
 
   const createMutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: Omit<Company, "id">) => {
       return api.post("/companies", data);
     },
     onSuccess: () => {
@@ -51,7 +52,7 @@ export default function AdminCompaniesPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+    mutationFn: async ({ id, data }: { id: string; data: Partial<Company> }) => {
       return api.put(`/companies/${id}`, data);
     },
     onSuccess: () => {
@@ -83,7 +84,7 @@ export default function AdminCompaniesPage() {
     if (editingCompany) {
       updateMutation.mutate({ id: editingCompany.id, data: formData });
     } else {
-      createMutation.mutate({ name: formData.name, logoUrl: formData.logoUrl });
+      createMutation.mutate({ name: formData.name, logoUrl: formData.logoUrl, isActive: formData.isActive });
     }
   };
 
@@ -93,9 +94,16 @@ export default function AdminCompaniesPage() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm("Bu şirketi silmek istediğinize emin misiniz?")) {
-      deleteMutation.mutate(id);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const handleDeleteClick = (id: string) => {
+    setDeleteId(id);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteId) {
+      deleteMutation.mutate(deleteId);
+      setDeleteId(null);
     }
   };
 
@@ -222,7 +230,7 @@ export default function AdminCompaniesPage() {
                       <Button variant="ghost" size="icon" onClick={() => handleEdit(company)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600" onClick={() => handleDelete(company.id)}>
+                      <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600" onClick={() => handleDeleteClick(company.id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -240,6 +248,16 @@ export default function AdminCompaniesPage() {
           </Table>
         </CardContent>
       </Card>
+
+      <ConfirmModal
+        isOpen={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={handleConfirmDelete}
+        title="Şirketi Sil"
+        description="Bu şirketi silmek istediğinize emin misiniz? Bu işlem geri alınamaz."
+        variant="destructive"
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   );
 }
