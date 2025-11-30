@@ -215,10 +215,10 @@ let InsuranceService = class InsuranceService {
         });
         await this.prisma.policy.upsert({
             where: { insuranceRequestId: id },
-            update: { pdfUrl: policyPdfUrl },
+            update: { policyUrl: policyPdfUrl },
             create: {
                 insuranceRequestId: id,
-                pdfUrl: policyPdfUrl,
+                policyUrl: policyPdfUrl,
                 premium: request.offers
                     ? request.offers.find((o) => o.company === request.adminOfferCompany)?.price || 0
                     : 0,
@@ -327,13 +327,13 @@ let InsuranceService = class InsuranceService {
                     },
                     create: {
                         insuranceRequestId: id,
+                        policyUrl: policyPdfUrl,
                         policyNumber: 'PENDING',
                         company: 'PENDING',
                         startDate: new Date(),
                         endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
                         premium: request.adminOfferPrice || 0,
                         status: 'ACTIVE',
-                        policyUrl: policyPdfUrl,
                     },
                 });
                 return { updatedRequest, policy };

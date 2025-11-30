@@ -37,8 +37,8 @@ const client_1 = require("@prisma/client");
 const bcrypt = __importStar(require("bcrypt"));
 const prisma = new client_1.PrismaClient();
 async function main() {
-    const adminEmail = 'admin@antigravity.com';
-    const adminPassword = await bcrypt.hash('admin123', 10);
+    const adminEmail = 'admin@b2b.com';
+    const adminPassword = await bcrypt.hash('123123Se*', 10);
     const admin = await prisma.user.upsert({
         where: { email: adminEmail },
         update: {},

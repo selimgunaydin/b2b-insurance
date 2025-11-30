@@ -104,7 +104,7 @@ export default function ProfilePage() {
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Hesap Durumu</p>
-                <Badge variant={profile.isApproved ? "success" : "destructive"} className="mt-1">
+                <Badge variant={profile.isApproved ? "default" : "destructive"} className="mt-1 bg-green-600 hover:bg-green-700">
                   {profile.isApproved ? "Onaylı" : "Onay Bekliyor"}
                 </Badge>
               </div>

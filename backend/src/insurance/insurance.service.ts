@@ -272,10 +272,10 @@ export class InsuranceService {
     // Update or create Policy entity
     await this.prisma.policy.upsert({
       where: { insuranceRequestId: id },
-      update: { pdfUrl: policyPdfUrl },
+      update: { policyUrl: policyPdfUrl },
       create: {
         insuranceRequestId: id,
-        pdfUrl: policyPdfUrl,
+        policyUrl: policyPdfUrl,
         premium: request.offers
           ? (request.offers as any[]).find(
             (o) => o.company === request.adminOfferCompany,
@@ -422,13 +422,13 @@ export class InsuranceService {
           },
           create: {
             insuranceRequestId: id,
+            policyUrl: policyPdfUrl,
             policyNumber: 'PENDING', // Will be updated by admin
             company: 'PENDING', // Will be updated by admin
             startDate: new Date(),
             endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)), // 1 Year default
             premium: request.adminOfferPrice || 0,
             status: 'ACTIVE',
-            policyUrl: policyPdfUrl,
           },
         });
 
