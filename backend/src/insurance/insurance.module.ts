@@ -8,6 +8,8 @@ import { SupabaseModule } from '../supabase/supabase.module';
 import { NotificationModule } from '../notification/notification.module';
 import { GoalModule } from '../goal/goal.module';
 import { WhatsAppModule } from '../whatsapp/whatsapp.module';
+import { PaymentModule } from '../payment/payment.module';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
@@ -17,8 +19,10 @@ import { WhatsAppModule } from '../whatsapp/whatsapp.module';
     NotificationModule,
     GoalModule,
     WhatsAppModule,
+    PaymentModule,
+    UserModule,
   ],
   controllers: [InsuranceController],
   providers: [InsuranceService],
 })
-export class InsuranceModule {}
+export class InsuranceModule { }
