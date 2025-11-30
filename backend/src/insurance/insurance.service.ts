@@ -7,6 +7,7 @@ import { NotificationService } from '../notification/notification.service';
 import { NotificationType } from '@prisma/client';
 import { SupabaseService } from '../supabase/supabase.service';
 import { GoalService } from '../goal/goal.service';
+import { WhatsAppService } from '../whatsapp/whatsapp.service';
 
 @Injectable()
 export class InsuranceService {
@@ -16,7 +17,8 @@ export class InsuranceService {
     private supabaseService: SupabaseService,
     private notificationService: NotificationService,
     private goalService: GoalService,
-  ) {}
+    private whatsappService: WhatsAppService,
+  ) { }
 
   async getStats(userId: string) {
     const taliProfile = await this.prisma.taliProfile.findUnique({
@@ -276,8 +278,8 @@ export class InsuranceService {
         pdfUrl: policyPdfUrl,
         premium: request.offers
           ? (request.offers as any[]).find(
-              (o) => o.company === request.adminOfferCompany,
-            )?.price || 0
+            (o) => o.company === request.adminOfferCompany,
+          )?.price || 0
           : 0, // Best effort premium
         company: request.adminOfferCompany || 'Unknown',
         policyNumber: `POL-${Date.now()}`, // Generate a temp policy number if new
@@ -436,7 +438,7 @@ export class InsuranceService {
             requestId: id,
             policyId: res.policy.id,
           });
-          return res.updatedRequest;
+          return res; // Return both updatedRequest and policy
         });
 
       // Notify user
@@ -458,7 +460,27 @@ export class InsuranceService {
         );
       }
 
-      return result;
+      // Send WhatsApp notification to customer
+      if (request && result.policy) {
+        const customer = await this.prisma.customer.findUnique({
+          where: { id: request.customerId || '' },
+        });
+
+        if (customer?.phone) {
+          await this.whatsappService.sendPolicyNotification(
+            customer.phone,
+            customer.fullName || 'Değerli Müşterimiz',
+            result.policy.policyNumber,
+            result.policy.company,
+            Number(result.policy.premium),
+            result.policy.startDate,
+            result.policy.endDate,
+            result.policy.pdfUrl || '',
+          );
+        }
+      }
+
+      return result.updatedRequest;
     } catch (error) {
       console.error('Confirm Payment Error:', error);
       throw error;

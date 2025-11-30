@@ -7,6 +7,7 @@ import { SupabaseModule } from '../supabase/supabase.module';
 
 import { NotificationModule } from '../notification/notification.module';
 import { GoalModule } from '../goal/goal.module';
+import { WhatsAppModule } from '../whatsapp/whatsapp.module';
 
 @Module({
   imports: [
@@ -15,8 +16,9 @@ import { GoalModule } from '../goal/goal.module';
     SupabaseModule,
     NotificationModule,
     GoalModule,
+    WhatsAppModule,
   ],
   controllers: [InsuranceController],
   providers: [InsuranceService],
 })
-export class InsuranceModule {}
+export class InsuranceModule { }

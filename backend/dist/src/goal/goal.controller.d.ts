@@ -15,8 +15,10 @@ export declare class GoalController {
         endDate: string;
     }): Promise<{
         id: string;
-        title: string;
+        createdAt: Date;
+        updatedAt: Date;
         description: string | null;
+        title: string;
         targetType: import("@prisma/client").$Enums.GoalTargetType;
         policyType: import("@prisma/client").$Enums.InsuranceType | null;
         targetValue: number;
@@ -25,13 +27,13 @@ export declare class GoalController {
         startDate: Date;
         endDate: Date;
         isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
     findAll(): Promise<{
         id: string;
-        title: string;
+        createdAt: Date;
+        updatedAt: Date;
         description: string | null;
+        title: string;
         targetType: import("@prisma/client").$Enums.GoalTargetType;
         policyType: import("@prisma/client").$Enums.InsuranceType | null;
         targetValue: number;
@@ -40,14 +42,14 @@ export declare class GoalController {
         startDate: Date;
         endDate: Date;
         isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date;
     }[]>;
     getMyGoals(req: any): Promise<({
         goal: {
             id: string;
-            title: string;
+            createdAt: Date;
+            updatedAt: Date;
             description: string | null;
+            title: string;
             targetType: import("@prisma/client").$Enums.GoalTargetType;
             policyType: import("@prisma/client").$Enums.InsuranceType | null;
             targetValue: number;
@@ -56,8 +58,6 @@ export declare class GoalController {
             startDate: Date;
             endDate: Date;
             isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
         };
     } & {
         id: string;

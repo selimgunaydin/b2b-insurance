@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Save, Settings, Bell, DollarSign, Megaphone } from "lucide-react";
+import { Loader2, Settings, Bell, DollarSign, Megaphone } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface SystemSetting {
@@ -27,7 +27,7 @@ export default function AdminSettingsPage() {
   const [savingKey, setSavingKey] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const fetchSettings = async () => {
+  const fetchSettings = useCallback(async () => {
     try {
       const res = await api.get("/settings");
       setSettings(res.data);
@@ -41,11 +41,11 @@ export default function AdminSettingsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchSettings();
-  }, []);
+  }, [fetchSettings]);
 
   const handleUpdate = async (key: string, value: string) => {
     setSavingKey(key);

@@ -296,3 +296,12 @@ enum RewardType {
   CASH
   GIFT
 }
+
+model WebsiteContent {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  type      String   // TEXT, HTML, IMAGE_URL
+  value     String   @db.Text
+  category  String   // HOME, ABOUT, CONTACT, REFERENCES
+  updatedAt DateTime @updatedAt
+}

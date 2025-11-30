@@ -28,6 +28,7 @@ const admin_module_1 = require("./admin/admin.module");
 const company_module_1 = require("./company/company.module");
 const upload_module_1 = require("./upload/upload.module");
 const goal_module_1 = require("./goal/goal.module");
+const cms_module_1 = require("./cms/cms.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -52,6 +53,7 @@ exports.AppModule = AppModule = __decorate([
             upload_module_1.UploadModule,
             schedule_1.ScheduleModule.forRoot(),
             goal_module_1.GoalModule,
+            cms_module_1.CmsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

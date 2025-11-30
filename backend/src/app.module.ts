@@ -21,6 +21,7 @@ import { CompanyModule } from './company/company.module';
 import { UploadModule } from './upload/upload.module';
 
 import { GoalModule } from './goal/goal.module';
+import { CmsModule } from './cms/cms.module';
 
 @Module({
   imports: [
@@ -42,8 +43,9 @@ import { GoalModule } from './goal/goal.module';
     UploadModule,
     ScheduleModule.forRoot(),
     GoalModule,
+    CmsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

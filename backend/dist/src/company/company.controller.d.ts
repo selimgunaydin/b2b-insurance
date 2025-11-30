@@ -7,16 +7,16 @@ export declare class CompanyController {
         createdAt: Date;
         updatedAt: Date;
         name: string;
-        logoUrl: string | null;
         isActive: boolean;
+        logoUrl: string | null;
     }[]>;
     getAllCompanies(): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
         name: string;
-        logoUrl: string | null;
         isActive: boolean;
+        logoUrl: string | null;
     }[]>;
     createCompany(data: {
         name: string;
@@ -26,8 +26,8 @@ export declare class CompanyController {
         createdAt: Date;
         updatedAt: Date;
         name: string;
-        logoUrl: string | null;
         isActive: boolean;
+        logoUrl: string | null;
     }>;
     updateCompany(id: string, data: {
         name?: string;
@@ -38,15 +38,15 @@ export declare class CompanyController {
         createdAt: Date;
         updatedAt: Date;
         name: string;
-        logoUrl: string | null;
         isActive: boolean;
+        logoUrl: string | null;
     }>;
     deleteCompany(id: string): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
         name: string;
-        logoUrl: string | null;
         isActive: boolean;
+        logoUrl: string | null;
     }>;
 }

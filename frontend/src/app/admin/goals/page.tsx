@@ -11,17 +11,43 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Plus, Target, Trophy } from "lucide-react";
+import { Loader2, Plus, Trophy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
+
+interface Goal {
+  id: string;
+  title: string;
+  description?: string;
+  targetType: string;
+  policyType?: string;
+  targetValue: number;
+  rewardType: string;
+  rewardValue: number;
+  startDate: string;
+  endDate: string;
+  isActive: boolean;
+}
+
+interface CreateGoalData {
+  title: string;
+  description?: string;
+  targetType: string;
+  policyType?: string;
+  targetValue: number;
+  rewardType: string;
+  rewardValue: number;
+  startDate: string;
+  endDate: string;
+}
 
 export default function AdminGoalsPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: goals, isLoading } = useQuery({
+  const { data: goals, isLoading } = useQuery<Goal[]>({
     queryKey: ["admin-goals"],
     queryFn: async () => {
       const res = await api.get("/goals");
@@ -30,7 +56,7 @@ export default function AdminGoalsPage() {
   });
 
   const createMutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: CreateGoalData) => {
       return api.post("/goals", data);
     },
     onSuccess: () => {
@@ -86,67 +112,69 @@ export default function AdminGoalsPage() {
           <CardTitle>Tüm Hedefler</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Başlık</TableHead>
-                <TableHead>Tip</TableHead>
-                <TableHead>Poliçe Türü</TableHead>
-                <TableHead>Hedef</TableHead>
-                <TableHead>Ödül</TableHead>
-                <TableHead>Tarih Aralığı</TableHead>
-                <TableHead>Durum</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {goals?.map((goal: any) => (
-                <TableRow key={goal.id}>
-                  <TableCell className="font-medium">{goal.title}</TableCell>
-                  <TableCell>
-                    {goal.targetType === "COUNT" ? "Adet" : "Prim Tutarı"}
-                  </TableCell>
-                  <TableCell>{goal.policyType || "Tümü"}</TableCell>
-                  <TableCell>
-                    {goal.targetValue} {goal.targetType === "COUNT" ? "adet" : "TL"}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Trophy className="h-4 w-4 text-yellow-500" />
-                      ₺{goal.rewardValue}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-sm">
-                    {format(new Date(goal.startDate), "dd/MM/yy", { locale: tr })} - {format(new Date(goal.endDate), "dd/MM/yy", { locale: tr })}
-                  </TableCell>
-                  <TableCell>
-                    {goal.isActive ? (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        Aktif
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                        Pasif
-                      </span>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-              {(!goals || goals.length === 0) && (
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                    Henüz hedef oluşturulmamış
-                  </TableCell>
+                  <TableHead className="whitespace-nowrap">Başlık</TableHead>
+                  <TableHead className="whitespace-nowrap">Tip</TableHead>
+                  <TableHead className="whitespace-nowrap">Poliçe Türü</TableHead>
+                  <TableHead className="whitespace-nowrap">Hedef</TableHead>
+                  <TableHead className="whitespace-nowrap">Ödül</TableHead>
+                  <TableHead className="whitespace-nowrap">Tarih Aralığı</TableHead>
+                  <TableHead className="whitespace-nowrap">Durum</TableHead>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {goals?.map((goal) => (
+                  <TableRow key={goal.id}>
+                    <TableCell className="font-medium whitespace-nowrap">{goal.title}</TableCell>
+                    <TableCell>
+                      {goal.targetType === "COUNT" ? "Adet" : "Prim Tutarı"}
+                    </TableCell>
+                    <TableCell>{goal.policyType || "Tümü"}</TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      {goal.targetValue} {goal.targetType === "COUNT" ? "adet" : "TL"}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1 whitespace-nowrap">
+                        <Trophy className="h-4 w-4 text-yellow-500" />
+                        ₺{goal.rewardValue}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-sm whitespace-nowrap">
+                      {format(new Date(goal.startDate), "dd/MM/yy", { locale: tr })} - {format(new Date(goal.endDate), "dd/MM/yy", { locale: tr })}
+                    </TableCell>
+                    <TableCell>
+                      {goal.isActive ? (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          Aktif
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          Pasif
+                        </span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {(!goals || goals.length === 0) && (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                      Henüz hedef oluşturulmamış
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>
   );
 }
 
-function CreateGoalForm({ onSubmit, isLoading }: { onSubmit: (data: any) => void; isLoading: boolean }) {
+function CreateGoalForm({ onSubmit, isLoading }: { onSubmit: (data: CreateGoalData) => void; isLoading: boolean }) {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -171,7 +199,7 @@ function CreateGoalForm({ onSubmit, isLoading }: { onSubmit: (data: any) => void
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="col-span-2">
           <Label htmlFor="title">Hedef Başlığı *</Label>
           <Input

@@ -158,6 +158,27 @@ let SettingsService = class SettingsService {
                 category: 'NOTIFICATIONS',
                 description: 'E-posta bildirimleri açık mı?',
             },
+            {
+                key: 'whatsapp_enabled',
+                value: 'false',
+                type: 'BOOLEAN',
+                category: 'NOTIFICATIONS',
+                description: 'WhatsApp bildirimleri aktif mi?',
+            },
+            {
+                key: 'whatsapp_api_key',
+                value: '',
+                type: 'TEXT',
+                category: 'NOTIFICATIONS',
+                description: 'WhatsApp API Anahtarı (Twilio)',
+            },
+            {
+                key: 'whatsapp_sender_number',
+                value: '',
+                type: 'TEXT',
+                category: 'NOTIFICATIONS',
+                description: 'WhatsApp Gönderici Numarası',
+            },
         ];
         for (const setting of defaults) {
             const exists = await this.prisma.systemSetting.findUnique({

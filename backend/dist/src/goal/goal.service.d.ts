@@ -16,8 +16,10 @@ export declare class GoalService {
         endDate: Date;
     }): Promise<{
         id: string;
-        title: string;
+        createdAt: Date;
+        updatedAt: Date;
         description: string | null;
+        title: string;
         targetType: import("@prisma/client").$Enums.GoalTargetType;
         policyType: import("@prisma/client").$Enums.InsuranceType | null;
         targetValue: number;
@@ -26,14 +28,14 @@ export declare class GoalService {
         startDate: Date;
         endDate: Date;
         isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
     assignGoalToAllTalis(goalId: string): Promise<void>;
     findAll(): Promise<{
         id: string;
-        title: string;
+        createdAt: Date;
+        updatedAt: Date;
         description: string | null;
+        title: string;
         targetType: import("@prisma/client").$Enums.GoalTargetType;
         policyType: import("@prisma/client").$Enums.InsuranceType | null;
         targetValue: number;
@@ -42,14 +44,14 @@ export declare class GoalService {
         startDate: Date;
         endDate: Date;
         isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date;
     }[]>;
     getTaliGoals(userId: string): Promise<({
         goal: {
             id: string;
-            title: string;
+            createdAt: Date;
+            updatedAt: Date;
             description: string | null;
+            title: string;
             targetType: import("@prisma/client").$Enums.GoalTargetType;
             policyType: import("@prisma/client").$Enums.InsuranceType | null;
             targetValue: number;
@@ -58,8 +60,6 @@ export declare class GoalService {
             startDate: Date;
             endDate: Date;
             isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
         };
     } & {
         id: string;

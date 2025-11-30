@@ -16,7 +16,6 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -79,8 +78,9 @@ export default function RegisterPage() {
         hasContractApproval: data.hasContractApproval,
       });
       router.push("/auth/login?registered=true");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Kayıt işlemi başarısız oldu");
+    } catch (err) {
+      const error = err as any;
+      setError(error.response?.data?.message || "Kayıt işlemi başarısız oldu");
     } finally {
       setIsLoading(false);
     }

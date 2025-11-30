@@ -18,18 +18,21 @@ const notification_service_1 = require("../notification/notification.service");
 const client_2 = require("@prisma/client");
 const supabase_service_1 = require("../supabase/supabase.service");
 const goal_service_1 = require("../goal/goal.service");
+const whatsapp_service_1 = require("../whatsapp/whatsapp.service");
 let InsuranceService = class InsuranceService {
     prisma;
     auditService;
     supabaseService;
     notificationService;
     goalService;
-    constructor(prisma, auditService, supabaseService, notificationService, goalService) {
+    whatsappService;
+    constructor(prisma, auditService, supabaseService, notificationService, goalService, whatsappService) {
         this.prisma = prisma;
         this.auditService = auditService;
         this.supabaseService = supabaseService;
         this.notificationService = notificationService;
         this.goalService = goalService;
+        this.whatsappService = whatsappService;
     }
     async getStats(userId) {
         const taliProfile = await this.prisma.taliProfile.findUnique({
@@ -337,7 +340,7 @@ let InsuranceService = class InsuranceService {
                     requestId: id,
                     policyId: res.policy.id,
                 });
-                return res.updatedRequest;
+                return res;
             });
             if (request) {
                 await this.notificationService.createSystemNotification(request.taliId, 'Poliçe Onaylandı', `#${request.id.slice(0, 8)} numaralı talebiniz onaylandı ve poliçeniz oluşturuldu.`, client_2.NotificationType.SYSTEM);
@@ -345,7 +348,15 @@ let InsuranceService = class InsuranceService {
             if (request) {
                 await this.goalService.checkProgress(request.taliId, request.type, Number(request.adminOfferPrice || 0));
             }
-            return result;
+            if (request && result.policy) {
+                const customer = await this.prisma.customer.findUnique({
+                    where: { id: request.customerId || '' },
+                });
+                if (customer?.phone) {
+                    await this.whatsappService.sendPolicyNotification(customer.phone, customer.fullName || 'Değerli Müşterimiz', result.policy.policyNumber, result.policy.company, Number(result.policy.premium), result.policy.startDate, result.policy.endDate, result.policy.pdfUrl || '');
+                }
+            }
+            return result.updatedRequest;
         }
         catch (error) {
             console.error('Confirm Payment Error:', error);
@@ -535,6 +546,7 @@ exports.InsuranceService = InsuranceService = __decorate([
         audit_service_1.AuditService,
         supabase_service_1.SupabaseService,
         notification_service_1.NotificationService,
-        goal_service_1.GoalService])
+        goal_service_1.GoalService,
+        whatsapp_service_1.WhatsAppService])
 ], InsuranceService);
 //# sourceMappingURL=insurance.service.js.map

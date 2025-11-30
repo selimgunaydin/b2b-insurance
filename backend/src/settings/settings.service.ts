@@ -7,7 +7,7 @@ export class SettingsService implements OnModuleInit {
   constructor(
     private prisma: PrismaService,
     private auditService: AuditService,
-  ) {}
+  ) { }
 
   async onModuleInit() {
     await this.initializeDefaultSettings();
@@ -150,6 +150,28 @@ export class SettingsService implements OnModuleInit {
         type: 'BOOLEAN',
         category: 'NOTIFICATIONS',
         description: 'E-posta bildirimleri açık mı?',
+      },
+      // WhatsApp Settings
+      {
+        key: 'whatsapp_enabled',
+        value: 'false',
+        type: 'BOOLEAN',
+        category: 'NOTIFICATIONS',
+        description: 'WhatsApp bildirimleri aktif mi?',
+      },
+      {
+        key: 'whatsapp_api_key',
+        value: '',
+        type: 'TEXT',
+        category: 'NOTIFICATIONS',
+        description: 'WhatsApp API Anahtarı (Twilio)',
+      },
+      {
+        key: 'whatsapp_sender_number',
+        value: '',
+        type: 'TEXT',
+        category: 'NOTIFICATIONS',
+        description: 'WhatsApp Gönderici Numarası',
       },
     ];
 
