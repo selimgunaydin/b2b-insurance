@@ -46,6 +46,7 @@ interface Purchase {
   id: string;
   product: Product;
   tali: {
+    fullName: string;
     user: {
       email: string;
       taliProfile: {
@@ -213,6 +214,8 @@ export default function AdminMarketPage() {
     );
   }
 
+  console.log(purchases)
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -328,7 +331,7 @@ export default function AdminMarketPage() {
                       <TableCell>{new Date(purchase.createdAt).toLocaleDateString("tr-TR")}</TableCell>
                       <TableCell>
                         <div className="flex flex-col">
-                          <span className="font-medium">{purchase.tali.user.taliProfile.fullName}</span>
+                          <span className="font-medium">{purchase.tali?.fullName}</span>
                           <span className="text-xs text-muted-foreground">{purchase.tali.user.email}</span>
                         </div>
                       </TableCell>
@@ -367,7 +370,7 @@ export default function AdminMarketPage() {
                                 <DialogHeader>
                                     <DialogTitle>Sipariş Yönetimi</DialogTitle>
                                     <DialogDescription>
-                                        {purchase.product.name} - {purchase.tali.user.taliProfile.fullName}
+                                        {purchase.product.name} - {purchase.tali.fullName}
                                     </DialogDescription>
                                 </DialogHeader>
                                 <div className="space-y-4">
