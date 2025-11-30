@@ -28,4 +28,4 @@ services:
         fromService:
           type: web
           name: b2b-insurance-backend
-          property: url
+          property: host
