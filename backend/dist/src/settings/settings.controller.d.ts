@@ -4,38 +4,38 @@ export declare class SettingsController {
     constructor(settingsService: SettingsService);
     getPublicConfig(): Promise<{
         id: string;
+        updatedAt: Date;
         key: string;
         value: string;
         type: string;
         category: string;
         description: string | null;
-        updatedAt: Date;
     }[]>;
     getSettings(): Promise<{
         id: string;
+        updatedAt: Date;
         key: string;
         value: string;
         type: string;
         category: string;
         description: string | null;
-        updatedAt: Date;
     }[]>;
     getConfig(): Promise<{
         id: string;
+        updatedAt: Date;
         key: string;
         value: string;
         type: string;
         category: string;
         description: string | null;
-        updatedAt: Date;
     }[]>;
     updateSetting(key: string, value: string, req: any): Promise<{
         id: string;
+        updatedAt: Date;
         key: string;
         value: string;
         type: string;
         category: string;
         description: string | null;
-        updatedAt: Date;
     }>;
 }

@@ -6,74 +6,74 @@ export declare class PremiumController {
         paymentMethod: string;
     }): Promise<{
         id: string;
-        status: import("@prisma/client").$Enums.PremiumRequestStatus;
-        paymentMethod: string;
         createdAt: Date;
         updatedAt: Date;
         taliId: string;
+        status: import("@prisma/client").$Enums.PremiumRequestStatus;
+        paymentMethod: string;
     }>;
     findAllRequests(): Promise<({
         tali: {
             user: {
                 id: string;
-                createdAt: Date;
-                updatedAt: Date;
                 email: string;
                 password: string;
                 role: import("@prisma/client").$Enums.Role;
                 isApproved: boolean;
+                createdAt: Date;
+                updatedAt: Date;
             };
         } & {
             id: string;
-            userId: string;
+            membershipType: import("@prisma/client").$Enums.MembershipType;
             fullName: string;
             tcKimlikNo: string | null;
             phone: string | null;
             address: string | null;
             birthDate: Date | null;
-            membershipType: import("@prisma/client").$Enums.MembershipType;
-            points: import("@prisma/client/runtime/library").Decimal;
-            trustScore: number;
             hasKvkkApproval: boolean;
             hasContractApproval: boolean;
+            points: import("@prisma/client/runtime/library").Decimal;
+            trustScore: number;
             allowedInsuranceTypes: string[];
+            userId: string;
         };
     } & {
         id: string;
-        status: import("@prisma/client").$Enums.PremiumRequestStatus;
-        paymentMethod: string;
         createdAt: Date;
         updatedAt: Date;
         taliId: string;
+        status: import("@prisma/client").$Enums.PremiumRequestStatus;
+        paymentMethod: string;
     })[]>;
     approveRequest(id: string): Promise<[{
         id: string;
-        status: import("@prisma/client").$Enums.PremiumRequestStatus;
-        paymentMethod: string;
         createdAt: Date;
         updatedAt: Date;
         taliId: string;
+        status: import("@prisma/client").$Enums.PremiumRequestStatus;
+        paymentMethod: string;
     }, {
         id: string;
-        userId: string;
+        membershipType: import("@prisma/client").$Enums.MembershipType;
         fullName: string;
         tcKimlikNo: string | null;
         phone: string | null;
         address: string | null;
         birthDate: Date | null;
-        membershipType: import("@prisma/client").$Enums.MembershipType;
-        points: import("@prisma/client/runtime/library").Decimal;
-        trustScore: number;
         hasKvkkApproval: boolean;
         hasContractApproval: boolean;
+        points: import("@prisma/client/runtime/library").Decimal;
+        trustScore: number;
         allowedInsuranceTypes: string[];
+        userId: string;
     }]>;
     rejectRequest(id: string): Promise<{
         id: string;
-        status: import("@prisma/client").$Enums.PremiumRequestStatus;
-        paymentMethod: string;
         createdAt: Date;
         updatedAt: Date;
         taliId: string;
+        status: import("@prisma/client").$Enums.PremiumRequestStatus;
+        paymentMethod: string;
     }>;
 }

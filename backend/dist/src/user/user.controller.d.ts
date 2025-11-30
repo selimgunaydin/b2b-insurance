@@ -5,18 +5,18 @@ export declare class UserController {
     getProfile(req: any): Promise<({
         taliProfile: {
             id: string;
-            userId: string;
+            membershipType: import("@prisma/client").$Enums.MembershipType;
             fullName: string;
             tcKimlikNo: string | null;
             phone: string | null;
             address: string | null;
             birthDate: Date | null;
-            membershipType: import("@prisma/client").$Enums.MembershipType;
-            points: import("@prisma/client/runtime/library").Decimal;
-            trustScore: number;
             hasKvkkApproval: boolean;
             hasContractApproval: boolean;
+            points: import("@prisma/client/runtime/library").Decimal;
+            trustScore: number;
             allowedInsuranceTypes: string[];
+            userId: string;
         } | null;
     } & {
         id: string;
@@ -30,18 +30,18 @@ export declare class UserController {
     findAll(): Promise<({
         taliProfile: {
             id: string;
-            userId: string;
+            membershipType: import("@prisma/client").$Enums.MembershipType;
             fullName: string;
             tcKimlikNo: string | null;
             phone: string | null;
             address: string | null;
             birthDate: Date | null;
-            membershipType: import("@prisma/client").$Enums.MembershipType;
-            points: import("@prisma/client/runtime/library").Decimal;
-            trustScore: number;
             hasKvkkApproval: boolean;
             hasContractApproval: boolean;
+            points: import("@prisma/client/runtime/library").Decimal;
+            trustScore: number;
             allowedInsuranceTypes: string[];
+            userId: string;
         } | null;
     } & {
         id: string;
@@ -74,47 +74,47 @@ export declare class UserController {
         allowedTypes: string[];
     }): Promise<{
         id: string;
-        userId: string;
+        membershipType: import("@prisma/client").$Enums.MembershipType;
         fullName: string;
         tcKimlikNo: string | null;
         phone: string | null;
         address: string | null;
         birthDate: Date | null;
-        membershipType: import("@prisma/client").$Enums.MembershipType;
-        points: import("@prisma/client/runtime/library").Decimal;
-        trustScore: number;
         hasKvkkApproval: boolean;
         hasContractApproval: boolean;
+        points: import("@prisma/client/runtime/library").Decimal;
+        trustScore: number;
         allowedInsuranceTypes: string[];
+        userId: string;
     } | null>;
     updateProfile(req: any, body: any): Promise<{
         id: string;
-        userId: string;
+        membershipType: import("@prisma/client").$Enums.MembershipType;
         fullName: string;
         tcKimlikNo: string | null;
         phone: string | null;
         address: string | null;
         birthDate: Date | null;
-        membershipType: import("@prisma/client").$Enums.MembershipType;
-        points: import("@prisma/client/runtime/library").Decimal;
-        trustScore: number;
         hasKvkkApproval: boolean;
         hasContractApproval: boolean;
+        points: import("@prisma/client/runtime/library").Decimal;
+        trustScore: number;
         allowedInsuranceTypes: string[];
+        userId: string;
     } | null>;
     adminUpdateProfile(id: string, body: any): Promise<{
         id: string;
-        userId: string;
+        membershipType: import("@prisma/client").$Enums.MembershipType;
         fullName: string;
         tcKimlikNo: string | null;
         phone: string | null;
         address: string | null;
         birthDate: Date | null;
-        membershipType: import("@prisma/client").$Enums.MembershipType;
-        points: import("@prisma/client/runtime/library").Decimal;
-        trustScore: number;
         hasKvkkApproval: boolean;
         hasContractApproval: boolean;
+        points: import("@prisma/client/runtime/library").Decimal;
+        trustScore: number;
         allowedInsuranceTypes: string[];
+        userId: string;
     } | null>;
 }

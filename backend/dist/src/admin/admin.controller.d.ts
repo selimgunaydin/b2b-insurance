@@ -11,18 +11,18 @@ export declare class AdminController {
             user: {
                 taliProfile: {
                     id: string;
-                    userId: string;
+                    membershipType: import("@prisma/client").$Enums.MembershipType;
                     fullName: string;
                     tcKimlikNo: string | null;
                     phone: string | null;
                     address: string | null;
                     birthDate: Date | null;
-                    membershipType: import("@prisma/client").$Enums.MembershipType;
-                    points: import("@prisma/client/runtime/library").Decimal;
-                    trustScore: number;
                     hasKvkkApproval: boolean;
                     hasContractApproval: boolean;
+                    points: import("@prisma/client/runtime/library").Decimal;
+                    trustScore: number;
                     allowedInsuranceTypes: string[];
+                    userId: string;
                 } | null;
             } & {
                 id: string;
@@ -37,8 +37,8 @@ export declare class AdminController {
             id: string;
             createdAt: Date;
             userId: string;
-            details: import("@prisma/client/runtime/library").JsonValue | null;
             action: string;
+            details: import("@prisma/client/runtime/library").JsonValue | null;
             ipAddress: string | null;
         })[];
     }>;

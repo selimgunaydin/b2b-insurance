@@ -18,8 +18,8 @@ export declare class GoalService {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        title: string;
         description: string | null;
+        title: string;
         targetType: import("@prisma/client").$Enums.GoalTargetType;
         policyType: import("@prisma/client").$Enums.InsuranceType | null;
         targetValue: number;
@@ -33,8 +33,8 @@ export declare class GoalService {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        title: string;
         description: string | null;
+        title: string;
         targetType: import("@prisma/client").$Enums.GoalTargetType;
         policyType: import("@prisma/client").$Enums.InsuranceType | null;
         targetValue: number;
@@ -49,8 +49,8 @@ export declare class GoalService {
             id: string;
             createdAt: Date;
             updatedAt: Date;
-            title: string;
             description: string | null;
+            title: string;
             targetType: import("@prisma/client").$Enums.GoalTargetType;
             policyType: import("@prisma/client").$Enums.InsuranceType | null;
             targetValue: number;
