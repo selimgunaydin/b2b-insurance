@@ -46,13 +46,48 @@ let CmsService = class CmsService {
     }
     async initializeDefaults() {
         const defaults = [
-            { key: 'hero_title', value: 'B2B Sigorta Platformu', type: 'TEXT', category: 'HOME' },
-            { key: 'hero_subtitle', value: 'Tali ve sigorta şirketleri için modern dijital çözüm', type: 'TEXT', category: 'HOME' },
-            { key: 'about_title', value: 'Hakkımızda', type: 'TEXT', category: 'ABOUT' },
-            { key: 'about_text', value: 'B2B Sigorta, tali sigortacılar ve sigorta şirketleri arasında köprü görevi gören modern bir dijital platformdur.', type: 'HTML', category: 'ABOUT' },
-            { key: 'contact_phone', value: '+90 XXX XXX XX XX', type: 'TEXT', category: 'CONTACT' },
-            { key: 'contact_email', value: 'info@b2bsigorta.com', type: 'TEXT', category: 'CONTACT' },
-            { key: 'contact_address', value: 'İstanbul, Türkiye', type: 'TEXT', category: 'CONTACT' },
+            {
+                key: 'hero_title',
+                value: 'B2B Sigorta Platformu',
+                type: 'TEXT',
+                category: 'HOME',
+            },
+            {
+                key: 'hero_subtitle',
+                value: 'Tali ve sigorta şirketleri için modern dijital çözüm',
+                type: 'TEXT',
+                category: 'HOME',
+            },
+            {
+                key: 'about_title',
+                value: 'Hakkımızda',
+                type: 'TEXT',
+                category: 'ABOUT',
+            },
+            {
+                key: 'about_text',
+                value: 'B2B Sigorta, tali sigortacılar ve sigorta şirketleri arasında köprü görevi gören modern bir dijital platformdur.',
+                type: 'HTML',
+                category: 'ABOUT',
+            },
+            {
+                key: 'contact_phone',
+                value: '+90 XXX XXX XX XX',
+                type: 'TEXT',
+                category: 'CONTACT',
+            },
+            {
+                key: 'contact_email',
+                value: 'info@b2bsigorta.com',
+                type: 'TEXT',
+                category: 'CONTACT',
+            },
+            {
+                key: 'contact_address',
+                value: 'İstanbul, Türkiye',
+                type: 'TEXT',
+                category: 'CONTACT',
+            },
         ];
         for (const content of defaults) {
             const exists = await this.prisma.websiteContent.findUnique({

@@ -7,7 +7,7 @@ export class SettingsService implements OnModuleInit {
   constructor(
     private prisma: PrismaService,
     private auditService: AuditService,
-  ) { }
+  ) {}
 
   async onModuleInit() {
     await this.initializeDefaultSettings();
@@ -35,6 +35,13 @@ export class SettingsService implements OnModuleInit {
         type: 'BOOLEAN',
         category: 'GENERAL',
         description: 'Yeni üye alımı açık mı?',
+      },
+      {
+        key: 'premium_system_active',
+        value: 'false',
+        type: 'BOOLEAN',
+        category: 'GENERAL',
+        description: 'Premium sistemi aktif mi?',
       },
       // Insurance Type Global Toggles
       {

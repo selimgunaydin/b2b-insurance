@@ -16,11 +16,12 @@ import { Role } from '@prisma/client';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @UseGuards(AuthGuard('jwt'))
   @Get('profile')
-  async getProfile(@Request() req: any) {
+  getProfile(@Request() req: any) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return this.userService.findOne(req.user.id);
   }
 
@@ -53,5 +54,17 @@ export class UserController {
     @Body() body: { allowedTypes: string[] },
   ) {
     return this.userService.updatePermissions(id, body.allowedTypes);
+  }
+  @UseGuards(AuthGuard('jwt'))
+  @Put('profile')
+  async updateProfile(@Request() req: any, @Body() body: any) {
+    return this.userService.updateProfile(req.user.id, body);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Put(':id/profile')
+  async adminUpdateProfile(@Param('id') id: string, @Body() body: any) {
+    return this.userService.adminUpdateProfile(id, body);
   }
 }

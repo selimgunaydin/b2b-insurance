@@ -33,7 +33,9 @@ let PaymentService = class PaymentService {
                 data: { points: { increment: dto.amount } },
             });
         }
-        else if (dto.type === 'PAYMENT' || dto.type === 'REFUND' || dto.type === 'MARKET_PURCHASE') {
+        else if (dto.type === 'PAYMENT' ||
+            dto.type === 'REFUND' ||
+            dto.type === 'MARKET_PURCHASE') {
             await this.prisma.taliProfile.update({
                 where: { userId: dto.userId },
                 data: { points: { decrement: dto.amount } },

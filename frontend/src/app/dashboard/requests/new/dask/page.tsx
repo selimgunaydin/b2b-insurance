@@ -33,8 +33,11 @@ const daskSchema = z.object({
 
 type DaskFormValues = z.infer<typeof daskSchema>;
 
+import { useToast } from "@/hooks/use-toast";
+
 export default function DaskRequestPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -74,13 +77,15 @@ export default function DaskRequestPage() {
       });
 
       router.push("/dashboard");
-    } catch (err) {
-      console.error("Request failed", err);
-      const error = err as any;
-      setError(error.response?.data?.message || "Teklif oluşturulurken bir hata oluştu.");
-    } finally {
-      setIsLoading(false);
+    } catch (error: any) {
+      console.error("Request failed", error);
+      toast({
+        title: "Hata",
+        description: error.message || "Talep oluşturulurken bir hata oluştu.",
+        variant: "destructive",
+      });
     }
+    setIsLoading(false);
   }
 
   return (

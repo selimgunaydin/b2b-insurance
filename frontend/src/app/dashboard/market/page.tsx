@@ -7,7 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ShoppingBag, History, Gift, AlertCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Loader2, ShoppingBag, History, Gift, Package, MapPin, Truck, Copy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -27,6 +30,7 @@ interface Product {
   pointCost: number;
   stock: number;
   isActive: boolean;
+  type: "PHYSICAL" | "DIGITAL";
 }
 
 interface Purchase {
@@ -34,6 +38,8 @@ interface Purchase {
   product: Product;
   pointCost: number;
   status: string;
+  details?: any;
+  fulfillmentData?: any;
   createdAt: string;
 }
 
@@ -42,6 +48,7 @@ export default function MarketPage() {
   const queryClient = useQueryClient();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isPurchaseDialogOpen, setIsPurchaseDialogOpen] = useState(false);
+  const [address, setAddress] = useState("");
 
   // Get User Profile for Points
   const { data: profile } = useQuery({
@@ -72,8 +79,8 @@ export default function MarketPage() {
 
   // Purchase Mutation
   const purchaseMutation = useMutation({
-    mutationFn: async (productId: string) => {
-      const res = await api.post(`/market/purchase/${productId}`);
+    mutationFn: async (data: { productId: string; details?: any }) => {
+      const res = await api.post(`/market/purchase/${data.productId}`, { details: data.details });
       return res.data;
     },
     onSuccess: () => {
@@ -82,6 +89,7 @@ export default function MarketPage() {
         description: "Ürün başarıyla satın alındı.",
       });
       setIsPurchaseDialogOpen(false);
+      setAddress("");
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["my-purchases"] });
       queryClient.invalidateQueries({ queryKey: ["profile"] }); // Update points
@@ -97,8 +105,18 @@ export default function MarketPage() {
 
   const handlePurchase = () => {
     if (selectedProduct) {
-      purchaseMutation.mutate(selectedProduct.id);
+      const details = selectedProduct.type === "PHYSICAL" ? { address } : {};
+      if (selectedProduct.type === "PHYSICAL" && !address.trim()) {
+        toast({ title: "Hata", description: "Lütfen teslimat adresi giriniz.", variant: "destructive" });
+        return;
+      }
+      purchaseMutation.mutate({ productId: selectedProduct.id, details });
     }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({ title: "Kopyalandı", description: "Kod panoya kopyalandı." });
   };
 
   if (productsLoading || purchasesLoading) {
@@ -158,9 +176,14 @@ export default function MarketPage() {
                     />
                   ) : (
                     <div className="flex items-center justify-center w-full h-full bg-secondary text-secondary-foreground">
-                      <Gift className="h-12 w-12 opacity-20" />
+                      {product.type === "PHYSICAL" ? <Package className="h-12 w-12 opacity-20" /> : <Gift className="h-12 w-12 opacity-20" />}
                     </div>
                   )}
+                  <div className="absolute top-2 right-2">
+                    <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm">
+                        {product.type === "PHYSICAL" ? "Fiziksel" : "Dijital"}
+                    </Badge>
+                  </div>
                   {product.stock <= 0 && (
                     <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
                       <span className="font-bold text-destructive text-lg border-2 border-destructive px-4 py-2 rounded-md transform -rotate-12">
@@ -188,8 +211,12 @@ export default function MarketPage() {
                 <CardFooter>
                   <Dialog open={isPurchaseDialogOpen && selectedProduct?.id === product.id} onOpenChange={(open) => {
                     setIsPurchaseDialogOpen(open);
-                    if (open) setSelectedProduct(product);
-                    else setSelectedProduct(null);
+                    if (open) {
+                        setSelectedProduct(product);
+                        setAddress("");
+                    } else {
+                        setSelectedProduct(null);
+                    }
                   }}>
                     <DialogTrigger asChild>
                       <Button 
@@ -207,13 +234,13 @@ export default function MarketPage() {
                           Bu ürünü satın almak istediğinize emin misiniz?
                         </DialogDescription>
                       </DialogHeader>
-                      <div className="py-4">
+                      <div className="py-4 space-y-4">
                         <div className="flex items-start gap-4">
                           {product.imageUrl ? (
                             <img src={product.imageUrl} alt={product.name} className="w-20 h-20 object-cover rounded-md" />
                           ) : (
                             <div className="w-20 h-20 bg-muted rounded-md flex items-center justify-center">
-                              <Gift className="h-8 w-8 text-muted-foreground" />
+                              {product.type === "PHYSICAL" ? <Package className="h-8 w-8 text-muted-foreground" /> : <Gift className="h-8 w-8 text-muted-foreground" />}
                             </div>
                           )}
                           <div>
@@ -224,6 +251,19 @@ export default function MarketPage() {
                             </p>
                           </div>
                         </div>
+
+                        {product.type === "PHYSICAL" && (
+                            <div className="space-y-2">
+                                <Label htmlFor="address">Teslimat Adresi</Label>
+                                <Textarea 
+                                    id="address" 
+                                    placeholder="Açık adresinizi giriniz..." 
+                                    value={address}
+                                    onChange={(e) => setAddress(e.target.value)}
+                                    className="min-h-[80px]"
+                                />
+                            </div>
+                        )}
                       </div>
                       <DialogFooter>
                         <Button variant="outline" onClick={() => setIsPurchaseDialogOpen(false)}>İptal</Button>
@@ -256,13 +296,13 @@ export default function MarketPage() {
             <CardContent>
               <div className="space-y-4">
                 {purchases?.map((purchase) => (
-                  <div key={purchase.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div key={purchase.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg gap-4">
                     <div className="flex items-center gap-4">
-                      <div className="h-12 w-12 bg-muted rounded-md flex items-center justify-center">
+                      <div className="h-12 w-12 bg-muted rounded-md flex items-center justify-center shrink-0">
                         {purchase.product.imageUrl ? (
                           <img src={purchase.product.imageUrl} alt={purchase.product.name} className="h-full w-full object-cover rounded-md" />
                         ) : (
-                          <Gift className="h-6 w-6 text-muted-foreground" />
+                           purchase.product.type === "PHYSICAL" ? <Package className="h-6 w-6 text-muted-foreground" /> : <Gift className="h-6 w-6 text-muted-foreground" />
                         )}
                       </div>
                       <div>
@@ -270,18 +310,47 @@ export default function MarketPage() {
                         <p className="text-sm text-muted-foreground">
                           {new Date(purchase.createdAt).toLocaleDateString("tr-TR")} • {purchase.pointCost} Puan
                         </p>
+                        {purchase.product.type === "PHYSICAL" && purchase.details?.address && (
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                                <MapPin className="h-3 w-3" />
+                                <span className="truncate max-w-[200px]" title={purchase.details.address}>{purchase.details.address}</span>
+                            </div>
+                        )}
                       </div>
                     </div>
-                    <Badge variant={
-                      purchase.status === "COMPLETED" || purchase.status === "DELIVERED" ? "default" : 
-                      purchase.status === "REJECTED" ? "destructive" : "secondary"
-                    }>
-                      {purchase.status === "PENDING" ? "Bekliyor" :
-                       purchase.status === "APPROVED" ? "Onaylandı" :
-                       purchase.status === "COMPLETED" ? "Tamamlandı" :
-                       purchase.status === "DELIVERED" ? "Teslim Edildi" :
-                       purchase.status === "REJECTED" ? "Reddedildi" : purchase.status}
-                    </Badge>
+
+                    <div className="flex flex-col items-end gap-2">
+                        <Badge variant={
+                        purchase.status === "COMPLETED" || purchase.status === "DELIVERED" ? "default" : 
+                        purchase.status === "REJECTED" ? "destructive" : "secondary"
+                        }>
+                        {purchase.status === "PENDING" ? "Bekliyor" :
+                        purchase.status === "APPROVED" ? "Onaylandı" :
+                        purchase.status === "SHIPPED" ? "Kargolandı" :
+                        purchase.status === "DELIVERED" ? "Teslim Edildi" :
+                        purchase.status === "COMPLETED" ? "Tamamlandı" :
+                        purchase.status === "REJECTED" ? "Reddedildi" : purchase.status}
+                        </Badge>
+
+                        {purchase.fulfillmentData && (
+                            <div className="text-sm bg-muted p-2 rounded flex items-center gap-2">
+                                {purchase.product.type === "PHYSICAL" ? (
+                                    <>
+                                        <Truck className="h-4 w-4 text-blue-600" />
+                                        <span>Kargo: <strong>{purchase.fulfillmentData.trackingCode}</strong></span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Gift className="h-4 w-4 text-purple-600" />
+                                        <span>Kod: <strong>{purchase.fulfillmentData.couponCode}</strong></span>
+                                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyToClipboard(purchase.fulfillmentData.couponCode)}>
+                                            <Copy className="h-3 w-3" />
+                                        </Button>
+                                    </>
+                                )}
+                            </div>
+                        )}
+                    </div>
                   </div>
                 ))}
                 {(!purchases || purchases.length === 0) && (

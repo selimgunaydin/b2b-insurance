@@ -28,13 +28,13 @@ let NotificationController = class NotificationController {
     async send(dto) {
         return this.notificationService.sendNotification(dto);
     }
-    async findAll(req) {
+    getMyNotifications(req) {
         return this.notificationService.findAll(req.user.id);
     }
-    async markAsRead(id, req) {
+    markAsRead(id, req) {
         return this.notificationService.markAsRead(id, req.user.id);
     }
-    async markAllAsRead(req) {
+    markAllAsRead(req) {
         return this.notificationService.markAllAsRead(req.user.id);
     }
 };
@@ -49,25 +49,28 @@ __decorate([
 ], NotificationController.prototype, "send", null);
 __decorate([
     (0, common_1.Get)(),
+    (0, roles_decorator_1.Roles)('TALI'),
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], NotificationController.prototype, "findAll", null);
+    __metadata("design:returntype", void 0)
+], NotificationController.prototype, "getMyNotifications", null);
 __decorate([
-    (0, common_1.Put)(':id/read'),
+    (0, common_1.Post)('read/:id'),
+    (0, roles_decorator_1.Roles)('TALI'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Object]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], NotificationController.prototype, "markAsRead", null);
 __decorate([
-    (0, common_1.Put)('read-all'),
+    (0, common_1.Post)('read-all'),
+    (0, roles_decorator_1.Roles)('TALI'),
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], NotificationController.prototype, "markAllAsRead", null);
 exports.NotificationController = NotificationController = __decorate([
     (0, common_1.Controller)('notification'),

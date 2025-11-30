@@ -4,7 +4,7 @@ import { RequestStatus, Role } from '@prisma/client';
 
 @Injectable()
 export class AdminService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async getDashboardStats() {
     const pendingUsers = await this.prisma.user.count({
@@ -135,5 +135,45 @@ export class AdminService {
       policiesByType,
       policiesByMonth,
     };
+  }
+  async managePoints(
+    userId: string,
+    amount: number,
+    type: string,
+    description: string,
+  ) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { taliProfile: true },
+    });
+
+    if (!user || !user.taliProfile) {
+      throw new Error('User or Tali profile not found');
+    }
+
+    const points = Number(amount);
+    const currentPoints = Number(user.taliProfile.points);
+
+    // Update Tali points
+    await this.prisma.taliProfile.update({
+      where: { id: user.taliProfile.id },
+      data: {
+        points: {
+          increment: points,
+        },
+      },
+    });
+
+    // Create Transaction Record
+    await this.prisma.transactions.create({
+      data: {
+        userId: userId,
+        points: points,
+        type: type as any, // DEPOSIT, REFUND, etc.
+        status: 'SUCCESS',
+      },
+    });
+
+    return { success: true, newPoints: currentPoints + points };
   }
 }

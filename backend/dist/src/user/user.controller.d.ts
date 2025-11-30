@@ -5,17 +5,18 @@ export declare class UserController {
     getProfile(req: any): Promise<({
         taliProfile: {
             id: string;
-            membershipType: import("@prisma/client").$Enums.MembershipType;
+            userId: string;
             fullName: string;
             tcKimlikNo: string | null;
             phone: string | null;
             address: string | null;
             birthDate: Date | null;
+            membershipType: import("@prisma/client").$Enums.MembershipType;
+            points: import("@prisma/client/runtime/library").Decimal;
+            trustScore: number;
             hasKvkkApproval: boolean;
             hasContractApproval: boolean;
-            points: import("@prisma/client/runtime/library").Decimal;
             allowedInsuranceTypes: string[];
-            userId: string;
         } | null;
     } & {
         id: string;
@@ -29,17 +30,18 @@ export declare class UserController {
     findAll(): Promise<({
         taliProfile: {
             id: string;
-            membershipType: import("@prisma/client").$Enums.MembershipType;
+            userId: string;
             fullName: string;
             tcKimlikNo: string | null;
             phone: string | null;
             address: string | null;
             birthDate: Date | null;
+            membershipType: import("@prisma/client").$Enums.MembershipType;
+            points: import("@prisma/client/runtime/library").Decimal;
+            trustScore: number;
             hasKvkkApproval: boolean;
             hasContractApproval: boolean;
-            points: import("@prisma/client/runtime/library").Decimal;
             allowedInsuranceTypes: string[];
-            userId: string;
         } | null;
     } & {
         id: string;
@@ -72,16 +74,47 @@ export declare class UserController {
         allowedTypes: string[];
     }): Promise<{
         id: string;
-        membershipType: import("@prisma/client").$Enums.MembershipType;
+        userId: string;
         fullName: string;
         tcKimlikNo: string | null;
         phone: string | null;
         address: string | null;
         birthDate: Date | null;
+        membershipType: import("@prisma/client").$Enums.MembershipType;
+        points: import("@prisma/client/runtime/library").Decimal;
+        trustScore: number;
         hasKvkkApproval: boolean;
         hasContractApproval: boolean;
-        points: import("@prisma/client/runtime/library").Decimal;
         allowedInsuranceTypes: string[];
+    } | null>;
+    updateProfile(req: any, body: any): Promise<{
+        id: string;
         userId: string;
+        fullName: string;
+        tcKimlikNo: string | null;
+        phone: string | null;
+        address: string | null;
+        birthDate: Date | null;
+        membershipType: import("@prisma/client").$Enums.MembershipType;
+        points: import("@prisma/client/runtime/library").Decimal;
+        trustScore: number;
+        hasKvkkApproval: boolean;
+        hasContractApproval: boolean;
+        allowedInsuranceTypes: string[];
+    } | null>;
+    adminUpdateProfile(id: string, body: any): Promise<{
+        id: string;
+        userId: string;
+        fullName: string;
+        tcKimlikNo: string | null;
+        phone: string | null;
+        address: string | null;
+        birthDate: Date | null;
+        membershipType: import("@prisma/client").$Enums.MembershipType;
+        points: import("@prisma/client/runtime/library").Decimal;
+        trustScore: number;
+        hasKvkkApproval: boolean;
+        hasContractApproval: boolean;
+        allowedInsuranceTypes: string[];
     } | null>;
 }

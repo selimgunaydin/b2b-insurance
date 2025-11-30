@@ -11,17 +11,18 @@ export declare class AdminController {
             user: {
                 taliProfile: {
                     id: string;
-                    membershipType: import("@prisma/client").$Enums.MembershipType;
+                    userId: string;
                     fullName: string;
                     tcKimlikNo: string | null;
                     phone: string | null;
                     address: string | null;
                     birthDate: Date | null;
+                    membershipType: import("@prisma/client").$Enums.MembershipType;
+                    points: import("@prisma/client/runtime/library").Decimal;
+                    trustScore: number;
                     hasKvkkApproval: boolean;
                     hasContractApproval: boolean;
-                    points: import("@prisma/client/runtime/library").Decimal;
                     allowedInsuranceTypes: string[];
-                    userId: string;
                 } | null;
             } & {
                 id: string;
@@ -36,8 +37,8 @@ export declare class AdminController {
             id: string;
             createdAt: Date;
             userId: string;
-            action: string;
             details: import("@prisma/client/runtime/library").JsonValue | null;
+            action: string;
             ipAddress: string | null;
         })[];
     }>;
@@ -54,5 +55,13 @@ export declare class AdminController {
         totalCommissionPoints: number;
         policiesByType: Record<string, number>;
         policiesByMonth: Record<string, number>;
+    }>;
+    managePoints(id: string, body: {
+        amount: number;
+        type: string;
+        description: string;
+    }): Promise<{
+        success: boolean;
+        newPoints: number;
     }>;
 }

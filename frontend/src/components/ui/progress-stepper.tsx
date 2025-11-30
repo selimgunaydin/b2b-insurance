@@ -1,4 +1,4 @@
-import { Check, Circle, Clock } from "lucide-react";
+import { Check, Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ProgressStepperProps {

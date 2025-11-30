@@ -25,7 +25,7 @@ let UserController = class UserController {
     constructor(userService) {
         this.userService = userService;
     }
-    async getProfile(req) {
+    getProfile(req) {
         return this.userService.findOne(req.user.id);
     }
     async findAll() {
@@ -40,6 +40,12 @@ let UserController = class UserController {
     async updatePermissions(id, body) {
         return this.userService.updatePermissions(id, body.allowedTypes);
     }
+    async updateProfile(req, body) {
+        return this.userService.updateProfile(req.user.id, body);
+    }
+    async adminUpdateProfile(id, body) {
+        return this.userService.adminUpdateProfile(id, body);
+    }
 };
 exports.UserController = UserController;
 __decorate([
@@ -48,7 +54,7 @@ __decorate([
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], UserController.prototype, "getProfile", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
@@ -86,6 +92,25 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "updatePermissions", null);
+__decorate([
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
+    (0, common_1.Put)('profile'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "updateProfile", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    (0, common_1.Put)(':id/profile'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "adminUpdateProfile", null);
 exports.UserController = UserController = __decorate([
     (0, common_1.Controller)('user'),
     __metadata("design:paramtypes", [user_service_1.UserService])

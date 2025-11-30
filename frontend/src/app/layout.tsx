@@ -12,6 +12,7 @@ export const metadata: Metadata = {
 
 import { Toaster } from "@/components/ui/toaster";
 import { WhatsAppButton } from "@/components/whatsapp-button";
+import { MaintenanceCheck } from "@/components/maintenance-check";
 
 export default function RootLayout({
   children,
@@ -22,8 +23,10 @@ export default function RootLayout({
     <html lang="tr">
       <body className={inter.className}>
         <Providers>
-          {children}
-          <WhatsAppButton />
+          <MaintenanceCheck>
+            {children}
+            <WhatsAppButton />
+          </MaintenanceCheck>
         </Providers>
         <Toaster />
       </body>

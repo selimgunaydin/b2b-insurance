@@ -47,6 +47,13 @@ let SettingsService = class SettingsService {
                 description: 'Yeni üye alımı açık mı?',
             },
             {
+                key: 'premium_system_active',
+                value: 'false',
+                type: 'BOOLEAN',
+                category: 'GENERAL',
+                description: 'Premium sistemi aktif mi?',
+            },
+            {
                 key: 'insurance_type_TRAFIK_enabled',
                 value: 'true',
                 type: 'BOOLEAN',

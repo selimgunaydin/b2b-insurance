@@ -4,6 +4,6 @@ export declare class WhatsAppService {
     private apiKey;
     private senderNumber;
     configure(enabled: boolean, apiKey: string, senderNumber: string): void;
-    sendPolicyNotification(phoneNumber: string, customerName: string, policyNumber: string, company: string, premium: number, startDate: Date, endDate: Date, policyUrl: string): Promise<boolean>;
+    sendPolicyNotification(to: string, customerName: string, policyNumber: string, company: string, premium: number, startDate: Date, endDate: Date, pdfUrl: string): Promise<boolean>;
     private formatPolicyMessage;
 }

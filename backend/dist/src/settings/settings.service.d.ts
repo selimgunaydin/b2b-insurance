@@ -10,19 +10,19 @@ export declare class SettingsService implements OnModuleInit {
     getSettings(): Promise<{
         id: string;
         updatedAt: Date;
+        type: string;
+        description: string | null;
         key: string;
         value: string;
-        type: string;
         category: string;
-        description: string | null;
     }[]>;
     updateSetting(key: string, value: string, userId: string): Promise<{
         id: string;
         updatedAt: Date;
+        type: string;
+        description: string | null;
         key: string;
         value: string;
-        type: string;
         category: string;
-        description: string | null;
     }>;
 }

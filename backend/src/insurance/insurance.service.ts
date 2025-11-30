@@ -6,8 +6,10 @@ import { RequestStatus, PolicyStatus } from '@prisma/client';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationType } from '@prisma/client';
 import { SupabaseService } from '../supabase/supabase.service';
+import { PaymentService } from '../payment/payment.service';
 import { GoalService } from '../goal/goal.service';
 import { WhatsAppService } from '../whatsapp/whatsapp.service';
+import { TrustScoreService } from '../user/trust-score.service';
 
 @Injectable()
 export class InsuranceService {
@@ -18,6 +20,8 @@ export class InsuranceService {
     private notificationService: NotificationService,
     private goalService: GoalService,
     private whatsappService: WhatsAppService,
+    private paymentService: PaymentService,
+    private trustScoreService: TrustScoreService,
   ) { }
 
   async getStats(userId: string) {
@@ -25,20 +29,22 @@ export class InsuranceService {
       where: { userId },
     });
 
-    if (!taliProfile) {
-      return {
-        activePolicies: 0,
-        pendingOffers: 0,
-        totalEarnings: 0,
-      };
-    }
+    if (!taliProfile) return null;
 
-    const taliId = taliProfile.id;
+    const totalEarnings = await this.prisma.transactions.aggregate({
+      where: {
+        userId: taliProfile.userId,
+        type: 'COMMISSION',
+      },
+      _sum: {
+        points: true,
+      },
+    });
 
     const activePolicies = await this.prisma.policy.count({
       where: {
         insuranceRequest: {
-          taliId,
+          taliId: taliProfile.id,
         },
         status: 'ACTIVE',
       },
@@ -46,34 +52,15 @@ export class InsuranceService {
 
     const pendingOffers = await this.prisma.insuranceRequest.count({
       where: {
-        taliId,
-        status: {
-          in: [RequestStatus.PENDING_OFFER, RequestStatus.OFFER_READY],
-        },
+        taliId: taliProfile.id,
+        status: 'OFFER_READY',
       },
     });
 
-    // Calculate total earnings (sum of commissions)
-    // Assuming commission is stored in Policy or calculated from premium
-    // For now, let's sum up the 'commission' field in Policy if it exists, or calculate it.
-    // Checking schema... Policy has 'commission' Decimal?
-    // I'll check schema first. If not, I'll assume 0 for now or sum premiums * rate.
-    // Wait, I should check schema.
-
-    const policies = await this.prisma.policy.findMany({
-      where: { insuranceRequest: { taliId } },
-      select: { commissionPoints: true },
-    });
-
-    const totalEarnings = policies.reduce(
-      (sum, p) => sum + (Number(p.commissionPoints) || 0),
-      0,
-    );
-
     return {
+      totalEarnings: totalEarnings._sum.points || 0,
       activePolicies,
       pendingOffers,
-      totalEarnings,
     };
   }
 
@@ -85,14 +72,63 @@ export class InsuranceService {
     if (!taliProfile) return [];
 
     return this.prisma.insuranceRequest.findMany({
-      where: { taliId: taliProfile.id },
-      orderBy: { createdAt: 'desc' },
+      where: {
+        taliId: taliProfile.id,
+      },
       take: 5,
+      orderBy: {
+        createdAt: 'desc',
+      },
       include: {
         customer: true,
-        policy: true,
       },
     });
+  }
+
+  async getAdminStats() {
+    const totalPolicies = await this.prisma.policy.count();
+    const activePolicies = await this.prisma.policy.count({
+      where: { status: 'ACTIVE' },
+    });
+
+    // Calculate total premium (sum of all policy premiums)
+    const totalPremiumResult = await this.prisma.policy.aggregate({
+      _sum: {
+        premium: true,
+      },
+    });
+
+    // Calculate total commission (sum of all transactions of type COMMISSION)
+    const totalCommissionResult = await this.prisma.transactions.aggregate({
+      where: { type: 'COMMISSION' },
+      _sum: {
+        points: true,
+      },
+    });
+
+    const recentPolicies = await this.prisma.policy.findMany({
+      take: 5,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        insuranceRequest: {
+          include: {
+            tali: {
+              include: {
+                user: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return {
+      totalPolicies,
+      activePolicies,
+      totalPremium: totalPremiumResult._sum.premium || 0,
+      totalCommission: totalCommissionResult._sum.points || 0,
+      recentPolicies,
+    };
   }
 
   async create(userId: string, dto: CreateInsuranceRequestDto) {
@@ -447,7 +483,9 @@ export class InsuranceService {
             policyNumber: 'PENDING', // Will be updated by admin
             company: 'PENDING', // Will be updated by admin
             startDate: new Date(),
-            endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)), // 1 Year default
+            endDate: new Date(
+              new Date().setFullYear(new Date().getFullYear() + 1),
+            ), // 1 Year default
             premium: request.adminOfferPrice || 0,
             commissionPoints: pointsEarned,
             status: 'ACTIVE',
@@ -482,7 +520,9 @@ export class InsuranceService {
           requestId: id,
           policyId: result.policy.id,
         });
-      } catch (e) { console.error("Audit log failed", e); }
+      } catch (e) {
+        console.error('Audit log failed', e);
+      }
 
       // Notify user
       try {
@@ -494,18 +534,29 @@ export class InsuranceService {
             NotificationType.SYSTEM,
           );
         }
-      } catch (e) { console.error("Notification failed", e); }
+      } catch (e) {
+        console.error('Notification failed', e);
+      }
 
       // Track goal progress
       try {
-        if (request) {
+        if (request && result.policy) {
+          // Update Goal Progress
           await this.goalService.checkProgress(
             request.taliId,
             request.type,
-            Number(request.adminOfferPrice || 0),
+            Number(result.policy.premium),
+          );
+
+          // Update Trust Score
+          await this.trustScoreService.updateTrustScore(
+            request.taliId,
+            'POLICY_COMPLETED',
           );
         }
-      } catch (e) { console.error("Goal progress check failed", e); }
+      } catch (e) {
+        console.error('Goal progress check failed', e);
+      }
 
       // Send WhatsApp notification to customer
       try {
@@ -514,20 +565,23 @@ export class InsuranceService {
             where: { id: request.customerId || '' },
           });
 
-          if (customer?.phone) {
+          const policyUrl = (result.policy as any).policyUrl;
+          if (customer && customer.phone && policyUrl) {
             await this.whatsappService.sendPolicyNotification(
               customer.phone,
-              customer.fullName || 'Değerli Müşterimiz',
+              customer.fullName,
               result.policy.policyNumber,
               result.policy.company,
               Number(result.policy.premium),
               result.policy.startDate,
               result.policy.endDate,
-              result.policy.policyUrl || '',
+              policyUrl,
             );
           }
         }
-      } catch (e) { console.error("WhatsApp notification failed", e); }
+      } catch (e) {
+        console.error('WhatsApp notification failed', e);
+      }
 
       return result.updatedRequest;
     } catch (error) {
@@ -585,7 +639,9 @@ export class InsuranceService {
         company: data.company || request.adminOfferCompany || 'Unknown',
         premium: data.premium || request.adminOfferPrice || 0,
         startDate: data.startDate || new Date(),
-        endDate: data.endDate || new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+        endDate:
+          data.endDate ||
+          new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
         policyUrl: policyPdfUrl,
         status: 'ACTIVE',
       },

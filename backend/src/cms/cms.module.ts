@@ -4,9 +4,9 @@ import { CmsController } from './cms.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
-    imports: [PrismaModule],
-    controllers: [CmsController],
-    providers: [CmsService],
-    exports: [CmsService],
+  imports: [PrismaModule],
+  controllers: [CmsController],
+  providers: [CmsService],
+  exports: [CmsService],
 })
-export class CmsModule { }
+export class CmsModule {}

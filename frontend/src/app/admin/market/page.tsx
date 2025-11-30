@@ -1,6 +1,4 @@
-"use client";
-
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -11,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Plus, Edit, Trash2, CheckCircle, XCircle, Truck } from "lucide-react";
+import { Loader2, Plus, Edit, Trash2, CheckCircle, XCircle, Truck, Upload, Package, Gift } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -38,6 +36,8 @@ interface Product {
   pointCost: number;
   stock: number;
   isActive: boolean;
+  type: "PHYSICAL" | "DIGITAL";
+  category?: string;
 }
 
 interface Purchase {
@@ -53,6 +53,9 @@ interface Purchase {
   };
   pointCost: number;
   status: string;
+  details?: any;
+  fulfillmentData?: any;
+  adminNote?: string;
   createdAt: string;
 }
 
@@ -67,7 +70,11 @@ export default function AdminMarketPage() {
     imageUrl: "",
     pointCost: "",
     stock: "",
+    type: "PHYSICAL",
+    category: "",
   });
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Get Products (Admin sees all)
   const { data: products, isLoading: productsLoading } = useQuery<Product[]>({
@@ -105,7 +112,7 @@ export default function AdminMarketPage() {
       });
       setIsProductDialogOpen(false);
       setEditingProduct(null);
-      setFormData({ name: "", description: "", imageUrl: "", pointCost: "", stock: "" });
+      setFormData({ name: "", description: "", imageUrl: "", pointCost: "", stock: "", type: "PHYSICAL", category: "" });
       queryClient.invalidateQueries({ queryKey: ["admin-products"] });
     },
     onError: (error: any) => {
@@ -133,8 +140,8 @@ export default function AdminMarketPage() {
 
   // Update Purchase Status Mutation
   const updateStatusMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      const res = await api.put(`/market/purchase/${id}/status`, { status });
+    mutationFn: async ({ id, status, fulfillmentData, adminNote }: { id: string; status: string; fulfillmentData?: any; adminNote?: string }) => {
+      const res = await api.put(`/market/purchase/${id}/status`, { status, fulfillmentData, adminNote });
       return res.data;
     },
     onSuccess: () => {
@@ -145,6 +152,27 @@ export default function AdminMarketPage() {
       queryClient.invalidateQueries({ queryKey: ["admin-purchases"] });
     },
   });
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await api.post("/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setFormData((prev) => ({ ...prev, imageUrl: res.data.url }));
+      toast({ title: "Başarılı", description: "Görsel yüklendi." });
+    } catch (error) {
+      toast({ title: "Hata", description: "Görsel yüklenemedi.", variant: "destructive" });
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -163,13 +191,15 @@ export default function AdminMarketPage() {
       imageUrl: product.imageUrl || "",
       pointCost: product.pointCost.toString(),
       stock: product.stock.toString(),
+      type: product.type,
+      category: product.category || "",
     });
     setIsProductDialogOpen(true);
   };
 
   const openCreateDialog = () => {
     setEditingProduct(null);
-    setFormData({ name: "", description: "", imageUrl: "", pointCost: "", stock: "" });
+    setFormData({ name: "", description: "", imageUrl: "", pointCost: "", stock: "", type: "PHYSICAL", category: "" });
     setIsProductDialogOpen(true);
   };
 
@@ -206,7 +236,9 @@ export default function AdminMarketPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead>Görsel</TableHead>
                     <TableHead>Ürün Adı</TableHead>
+                    <TableHead>Tip</TableHead>
                     <TableHead>Puan Bedeli</TableHead>
                     <TableHead>Stok</TableHead>
                     <TableHead>Durum</TableHead>
@@ -216,7 +248,19 @@ export default function AdminMarketPage() {
                 <TableBody>
                   {products?.map((product) => (
                     <TableRow key={product.id}>
+                      <TableCell>
+                        {product.imageUrl ? (
+                          <img src={product.imageUrl} alt={product.name} className="h-10 w-10 object-cover rounded" />
+                        ) : (
+                          <div className="h-10 w-10 bg-gray-100 rounded flex items-center justify-center">
+                            <Package className="h-5 w-5 text-gray-400" />
+                          </div>
+                        )}
+                      </TableCell>
                       <TableCell className="font-medium">{product.name}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{product.type === "PHYSICAL" ? "Fiziksel" : "Dijital"}</Badge>
+                      </TableCell>
                       <TableCell>{product.pointCost} Puan</TableCell>
                       <TableCell>{product.stock}</TableCell>
                       <TableCell>
@@ -247,7 +291,7 @@ export default function AdminMarketPage() {
                   ))}
                   {(!products || products.length === 0) && (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center text-muted-foreground">
+                      <TableCell colSpan={7} className="text-center text-muted-foreground">
                         Ürün bulunamadı.
                       </TableCell>
                     </TableRow>
@@ -271,7 +315,7 @@ export default function AdminMarketPage() {
                     <TableHead>Tarih</TableHead>
                     <TableHead>Tali</TableHead>
                     <TableHead>Ürün</TableHead>
-                    <TableHead>Bedel</TableHead>
+                    <TableHead>Detaylar</TableHead>
                     <TableHead>Durum</TableHead>
                     <TableHead className="text-right">İşlem</TableHead>
                   </TableRow>
@@ -286,8 +330,24 @@ export default function AdminMarketPage() {
                           <span className="text-xs text-muted-foreground">{purchase.tali.user.email}</span>
                         </div>
                       </TableCell>
-                      <TableCell>{purchase.product.name}</TableCell>
-                      <TableCell>{purchase.pointCost} Puan</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          {purchase.product.type === "PHYSICAL" ? <Package className="h-4 w-4" /> : <Gift className="h-4 w-4" />}
+                          {purchase.product.name}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {purchase.product.type === "PHYSICAL" && purchase.details?.address && (
+                          <div className="text-xs max-w-[200px] truncate" title={purchase.details.address}>
+                            📍 {purchase.details.address}
+                          </div>
+                        )}
+                        {purchase.fulfillmentData && (
+                          <div className="text-xs text-blue-600 mt-1">
+                            {purchase.product.type === "PHYSICAL" ? `Kargo: ${purchase.fulfillmentData.trackingCode}` : `Kod: ${purchase.fulfillmentData.couponCode}`}
+                          </div>
+                        )}
+                      </TableCell>
                       <TableCell>
                         <Badge variant={
                           purchase.status === "COMPLETED" || purchase.status === "DELIVERED" ? "default" : 
@@ -297,21 +357,63 @@ export default function AdminMarketPage() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Select 
-                          defaultValue={purchase.status} 
-                          onValueChange={(val) => updateStatusMutation.mutate({ id: purchase.id, status: val })}
-                        >
-                          <SelectTrigger className="w-[140px] ml-auto">
-                            <SelectValue placeholder="Durum Seç" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="PENDING">Bekliyor</SelectItem>
-                            <SelectItem value="APPROVED">Onaylandı</SelectItem>
-                            <SelectItem value="DELIVERED">Teslim Edildi</SelectItem>
-                            <SelectItem value="COMPLETED">Tamamlandı</SelectItem>
-                            <SelectItem value="REJECTED">Reddedildi</SelectItem>
-                          </SelectContent>
-                        </Select>
+                         <Dialog>
+                            <DialogTrigger asChild>
+                                <Button variant="outline" size="sm">Yönet</Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Sipariş Yönetimi</DialogTitle>
+                                    <DialogDescription>
+                                        {purchase.product.name} - {purchase.tali.user.taliProfile.fullName}
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="space-y-4">
+                                    {purchase.product.type === "PHYSICAL" && (
+                                        <div className="p-3 bg-gray-50 rounded text-sm">
+                                            <strong>Teslimat Adresi:</strong>
+                                            <p>{purchase.details?.address || "Adres girilmemiş"}</p>
+                                        </div>
+                                    )}
+                                    
+                                    <div className="space-y-2">
+                                        <Label>Durum Güncelle</Label>
+                                        <Select 
+                                            defaultValue={purchase.status} 
+                                            onValueChange={(val) => updateStatusMutation.mutate({ id: purchase.id, status: val })}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Durum Seç" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="PENDING">Bekliyor</SelectItem>
+                                                <SelectItem value="APPROVED">Onaylandı</SelectItem>
+                                                <SelectItem value="SHIPPED">Kargolandı</SelectItem>
+                                                <SelectItem value="DELIVERED">Teslim Edildi</SelectItem>
+                                                <SelectItem value="COMPLETED">Tamamlandı</SelectItem>
+                                                <SelectItem value="REJECTED">Reddedildi</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label>{purchase.product.type === "PHYSICAL" ? "Kargo Takip Kodu" : "Kupon Kodu"}</Label>
+                                        <div className="flex gap-2">
+                                            <Input 
+                                                id={`fulfillment-${purchase.id}`} 
+                                                placeholder={purchase.product.type === "PHYSICAL" ? "Takip No" : "Kupon Kodu"}
+                                                defaultValue={purchase.product.type === "PHYSICAL" ? purchase.fulfillmentData?.trackingCode : purchase.fulfillmentData?.couponCode}
+                                            />
+                                            <Button onClick={() => {
+                                                const val = (document.getElementById(`fulfillment-${purchase.id}`) as HTMLInputElement).value;
+                                                const data = purchase.product.type === "PHYSICAL" ? { trackingCode: val } : { couponCode: val };
+                                                updateStatusMutation.mutate({ id: purchase.id, status: purchase.status, fulfillmentData: data });
+                                            }}>Kaydet</Button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </DialogContent>
+                         </Dialog>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -339,6 +441,33 @@ export default function AdminMarketPage() {
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="flex items-center gap-4">
+                <div className="h-20 w-20 bg-gray-100 rounded flex items-center justify-center overflow-hidden border">
+                    {formData.imageUrl ? (
+                        <img src={formData.imageUrl} alt="Preview" className="h-full w-full object-cover" />
+                    ) : (
+                        <Package className="h-8 w-8 text-gray-400" />
+                    )}
+                </div>
+                <div className="flex-1">
+                    <Label htmlFor="image" className="cursor-pointer">
+                        <div className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700">
+                            <Upload className="h-4 w-4" />
+                            Görsel Yükle
+                        </div>
+                        <Input 
+                            id="image" 
+                            type="file" 
+                            className="hidden" 
+                            accept="image/*"
+                            onChange={handleFileUpload}
+                            disabled={isUploading}
+                        />
+                    </Label>
+                    {isUploading && <p className="text-xs text-muted-foreground mt-1">Yükleniyor...</p>}
+                </div>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="name">Ürün Adı</Label>
               <Input 
@@ -348,6 +477,34 @@ export default function AdminMarketPage() {
                 required 
               />
             </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <Label htmlFor="type">Ürün Tipi</Label>
+                    <Select 
+                        value={formData.type} 
+                        onValueChange={(val) => setFormData({...formData, type: val})}
+                    >
+                        <SelectTrigger>
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="PHYSICAL">Fiziksel Ürün</SelectItem>
+                            <SelectItem value="DIGITAL">Dijital Kod/Kupon</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="category">Kategori</Label>
+                    <Input 
+                        id="category" 
+                        value={formData.category} 
+                        onChange={(e) => setFormData({...formData, category: e.target.value})} 
+                        placeholder="Örn: Teknoloji"
+                    />
+                </div>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="description">Açıklama</Label>
               <Textarea 
@@ -356,15 +513,7 @@ export default function AdminMarketPage() {
                 onChange={(e) => setFormData({...formData, description: e.target.value})} 
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="imageUrl">Görsel URL</Label>
-              <Input 
-                id="imageUrl" 
-                value={formData.imageUrl} 
-                onChange={(e) => setFormData({...formData, imageUrl: e.target.value})} 
-                placeholder="https://..."
-              />
-            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="pointCost">Puan Bedeli</Label>
@@ -389,7 +538,7 @@ export default function AdminMarketPage() {
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setIsProductDialogOpen(false)}>İptal</Button>
-              <Button type="submit" disabled={productMutation.isPending}>
+              <Button type="submit" disabled={productMutation.isPending || isUploading}>
                 {productMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {editingProduct ? "Güncelle" : "Oluştur"}
               </Button>

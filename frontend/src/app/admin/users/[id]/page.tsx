@@ -3,11 +3,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Users, FileText, Wallet, TrendingUp, Loader2, ArrowLeft } from "lucide-react";
+import { Users, FileText, Wallet, TrendingUp, Loader2, ArrowLeft, ShieldCheck } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { AdminUserEditModal } from "@/components/admin/admin-user-edit-modal";
+import { AdminPointsModal } from "@/components/admin/admin-points-modal";
 
 export default function AdminUserDetailPage() {
   const params = useParams();
@@ -37,13 +39,25 @@ export default function AdminUserDetailPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => router.back()}>
-            <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-            <h1 className="text-3xl font-bold">{tali.fullName || tali.user?.email}</h1>
-            <p className="text-muted-foreground">Tali Detayları ve İstatistikleri</p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => router.back()}>
+              <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+              <h1 className="text-3xl font-bold">{tali.fullName || tali.user?.email}</h1>
+              <p className="text-muted-foreground">Tali Detayları ve İstatistikleri</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <AdminUserEditModal userId={tali.user.id} initialData={{
+            fullName: tali.fullName,
+            tcKimlikNo: tali.tcKimlikNo,
+            phone: tali.phone,
+            address: tali.address,
+            birthDate: tali.birthDate,
+          }} />
+          <AdminPointsModal userId={tali.user.id} currentPoints={Number(tali.points)} />
         </div>
       </div>
 
@@ -71,12 +85,12 @@ export default function AdminUserDetailPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Komisyon</CardTitle>
+            <CardTitle className="text-sm font-medium">Puan Durumu</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₺{Number(totalCommission).toLocaleString('tr-TR')}</div>
-            <p className="text-xs text-muted-foreground">Toplam kazanç</p>
+            <div className="text-2xl font-bold">{Number(tali.points).toLocaleString('tr-TR')} Puan</div>
+            <p className="text-xs text-muted-foreground">Mevcut puan bakiyesi</p>
           </CardContent>
         </Card>
         <Card>
@@ -89,6 +103,16 @@ export default function AdminUserDetailPage() {
                     {totalPolicies > 0 ? Math.round((activePolicies / totalPolicies) * 100) : 0}%
                 </div>
                 <p className="text-xs text-muted-foreground">Aktiflik oranı</p>
+            </CardContent>
+        </Card>
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Güven Puanı</CardTitle>
+                <ShieldCheck className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold">{tali.trustScore || 100}</div>
+                <p className="text-xs text-muted-foreground">Hesap güvenilirliği</p>
             </CardContent>
         </Card>
       </div>

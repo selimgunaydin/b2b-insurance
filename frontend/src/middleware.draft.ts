@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { jwtVerify } from 'jose';
+// import { jwtVerify } from 'jose';
 
-const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || 'super-secret');
+// const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || 'super-secret');
 
-export async function middleware(request: NextRequest) {
-    const token = request.cookies.get('token')?.value; // Or from Authorization header if you store it there
+export function middleware(_req: NextRequest) {
+    // const token = req.cookies.get('token')?.value; // Or from Authorization header if you store it there
     // Note: In this app, we might be storing token in localStorage, which middleware can't access directly.
     // If we want middleware protection, we MUST store token in cookies or rely on client-side checks + backend protection.
     // Let's assume for "strict security" we should move to cookies or at least have a client-side wrapper.

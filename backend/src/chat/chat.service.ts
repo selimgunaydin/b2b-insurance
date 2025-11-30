@@ -42,7 +42,12 @@ export class ChatService {
     });
   }
 
-  async sendMessage(requestId: string, userId: string, content: string) {
+  async sendMessage(
+    userId: string,
+    requestId: string,
+    content: string,
+    attachmentUrl?: string,
+  ) {
     const request = await this.prisma.insuranceRequest.findUnique({
       where: { id: requestId },
       include: { tali: true },

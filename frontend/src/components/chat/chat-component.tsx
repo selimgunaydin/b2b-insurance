@@ -4,13 +4,14 @@ import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, Loader2, User, Shield } from "lucide-react";
+import { Send, Loader2, User, Shield, Paperclip } from "lucide-react";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 
 interface Message {
     id: string;
     content: string;
+    attachmentUrl?: string;
     senderId: string;
     createdAt: string;
     sender: {
@@ -30,6 +31,8 @@ interface ChatComponentProps {
 
 export function ChatComponent({ requestId, currentUserRole }: ChatComponentProps) {
     const [newMessage, setNewMessage] = useState("");
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
     const queryClient = useQueryClient();
 
@@ -43,14 +46,36 @@ export function ChatComponent({ requestId, currentUserRole }: ChatComponentProps
     });
 
     const sendMessageMutation = useMutation({
-        mutationFn: async (content: string) => {
-            await api.post(`/chat/${requestId}`, { content });
+        mutationFn: async (data: { content: string; attachmentUrl?: string }) => {
+            await api.post(`/chat/${requestId}`, data);
         },
         onSuccess: () => {
             setNewMessage("");
             queryClient.invalidateQueries({ queryKey: ["chat", requestId] });
         },
     });
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const res = await api.post("/upload", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+            const attachmentUrl = res.data.url;
+            sendMessageMutation.mutate({ content: "Görsel gönderildi", attachmentUrl });
+        } catch (error) {
+            console.error("Upload failed", error);
+        } finally {
+            setIsUploading(false);
+            if (fileInputRef.current) fileInputRef.current.value = "";
+        }
+    };
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -61,7 +86,7 @@ export function ChatComponent({ requestId, currentUserRole }: ChatComponentProps
     const handleSend = (e: React.FormEvent) => {
         e.preventDefault();
         if (!newMessage.trim()) return;
-        sendMessageMutation.mutate(newMessage);
+        sendMessageMutation.mutate({ content: newMessage });
     };
 
     return (
@@ -76,19 +101,7 @@ export function ChatComponent({ requestId, currentUserRole }: ChatComponentProps
                 <div className="space-y-4">
                     {messages?.map((msg) => {
                         const isMe = (currentUserRole === "ADMIN" && msg.sender.role === "ADMIN") || 
-                                     (currentUserRole === "TALI" && msg.sender.role === "TALI"); // Simplified check, ideally check ID
-                        
-                        // Better check: we don't have current user ID passed easily, but role is a good proxy for this context
-                        // Actually, let's rely on alignment. Admin messages on right for Admin, left for Tali?
-                        // Standard chat: My messages on right.
-                        
-                        // Let's assume the backend check ensures we only see relevant messages.
-                        // We need to know "is this message from me?".
-                        // Since we don't have auth context easily here without a hook, let's use role.
-                        // If I am ADMIN, and sender is ADMIN -> Me.
-                        // If I am TALI, and sender is TALI -> Me.
-                        // Wait, multiple Talis? No, request is specific to one Tali.
-                        // So this logic holds for this specific context.
+                                     (currentUserRole === "TALI" && msg.sender.role === "TALI");
                         
                         const isMyMessage = msg.sender.role === currentUserRole;
 
@@ -118,6 +131,19 @@ export function ChatComponent({ requestId, currentUserRole }: ChatComponentProps
                                             {msg.sender.role === "ADMIN" ? "Admin" : msg.sender.taliProfile?.fullName || "Tali"}
                                         </div>
                                         {msg.content}
+                                        {msg.attachmentUrl && (
+                                            <div className="mt-2">
+                                                <a href={msg.attachmentUrl} target="_blank" rel="noopener noreferrer">
+                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                    <img 
+                                                        src={msg.attachmentUrl} 
+                                                        alt="Attachment" 
+                                                        className="max-w-full rounded-lg max-h-60 object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                                                        onClick={() => window.open(msg.attachmentUrl, "_blank")}
+                                                    />
+                                                </a>
+                                            </div>
+                                        )}
                                         <div className="text-[10px] mt-1 opacity-70 text-right">
                                             {format(new Date(msg.createdAt), "HH:mm", { locale: tr })}
                                         </div>
@@ -131,13 +157,29 @@ export function ChatComponent({ requestId, currentUserRole }: ChatComponentProps
             <div className="p-3 border-t mt-auto">
                 <form onSubmit={handleSend} className="flex gap-2">
                     <Input
+                        type="file"
+                        ref={fileInputRef}
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleFileUpload}
+                    />
+                    <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="icon" 
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploading || sendMessageMutation.isPending}
+                    >
+                        {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Paperclip className="h-4 w-4" />}
+                    </Button>
+                    <Input
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
                         placeholder="Mesajınızı yazın..."
-                        disabled={sendMessageMutation.isPending}
+                        disabled={sendMessageMutation.isPending || isUploading}
                         className="flex-1"
                     />
-                    <Button type="submit" size="icon" disabled={sendMessageMutation.isPending}>
+                    <Button type="submit" size="icon" disabled={sendMessageMutation.isPending || isUploading}>
                         {sendMessageMutation.isPending ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (

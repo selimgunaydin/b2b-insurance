@@ -20,14 +20,23 @@ let WhatsAppService = WhatsAppService_1 = class WhatsAppService {
         this.senderNumber = senderNumber;
         this.logger.log(`WhatsApp configured: enabled=${enabled}`);
     }
-    async sendPolicyNotification(phoneNumber, customerName, policyNumber, company, premium, startDate, endDate, policyUrl) {
+    async sendPolicyNotification(to, customerName, policyNumber, company, premium, startDate, endDate, pdfUrl) {
         if (!this.enabled) {
             this.logger.warn('WhatsApp is not enabled');
             return false;
         }
-        const message = this.formatPolicyMessage(customerName, policyNumber, company, premium, startDate, endDate, policyUrl);
+        const message = `Sayın *${customerName}*,\n\n` +
+            `Poliçeniz başarıyla oluşturulmuştur. ✅\n\n` +
+            `📄 *Poliçe No:* ${policyNumber}\n` +
+            `🏢 *Sigorta Şirketi:* ${company}\n` +
+            `💰 *Prim:* ${premium} TL\n` +
+            `📅 *Başlangıç:* ${startDate.toLocaleDateString('tr-TR')}\n` +
+            `📅 *Bitiş:* ${endDate.toLocaleDateString('tr-TR')}\n\n` +
+            `Poliçenizi aşağıdaki linkten indirebilirsiniz:\n` +
+            `${pdfUrl}\n\n` +
+            `Bizi tercih ettiğiniz için teşekkür ederiz. 🙏`;
         try {
-            this.logger.log(`[MOCK] Sending WhatsApp to ${phoneNumber}:`);
+            this.logger.log(`[MOCK] Sending WhatsApp to ${to}:`);
             this.logger.log(message);
             return true;
         }
@@ -41,7 +50,7 @@ let WhatsAppService = WhatsAppService_1 = class WhatsAppService {
             return date.toLocaleDateString('tr-TR', {
                 day: '2-digit',
                 month: '2-digit',
-                year: 'numeric'
+                year: 'numeric',
             });
         };
         return `Merhaba ${customerName},

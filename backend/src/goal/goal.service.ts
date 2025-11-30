@@ -6,7 +6,7 @@ import { GoalTargetType, RewardType, InsuranceType } from '@prisma/client';
 export class GoalService {
   private readonly logger = new Logger(GoalService.name);
 
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(data: {
     title: string;
@@ -52,8 +52,6 @@ export class GoalService {
       throw error;
     }
   }
-
-
 
   async findAll() {
     return this.prisma.goal.findMany({

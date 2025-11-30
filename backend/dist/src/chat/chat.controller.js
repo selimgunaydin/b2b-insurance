@@ -25,8 +25,8 @@ let ChatController = class ChatController {
     async getMessages(requestId, req) {
         return this.chatService.getMessages(requestId, req.user.id);
     }
-    async sendMessage(requestId, body, req) {
-        return this.chatService.sendMessage(requestId, req.user.id, body.content);
+    async sendMessage(req, requestId, body) {
+        return this.chatService.sendMessage(req.user.id, requestId, body.content, body.attachmentUrl);
     }
 };
 exports.ChatController = ChatController;
@@ -40,11 +40,11 @@ __decorate([
 ], ChatController.prototype, "getMessages", null);
 __decorate([
     (0, common_1.Post)(':requestId'),
-    __param(0, (0, common_1.Param)('requestId')),
-    __param(1, (0, common_1.Body)()),
-    __param(2, (0, common_1.Request)()),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('requestId')),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, Object]),
+    __metadata("design:paramtypes", [Object, String, Object]),
     __metadata("design:returntype", Promise)
 ], ChatController.prototype, "sendMessage", null);
 exports.ChatController = ChatController = __decorate([

@@ -17,8 +17,10 @@ const client_1 = require("@prisma/client");
 const notification_service_1 = require("../notification/notification.service");
 const client_2 = require("@prisma/client");
 const supabase_service_1 = require("../supabase/supabase.service");
+const payment_service_1 = require("../payment/payment.service");
 const goal_service_1 = require("../goal/goal.service");
 const whatsapp_service_1 = require("../whatsapp/whatsapp.service");
+const trust_score_service_1 = require("../user/trust-score.service");
 let InsuranceService = class InsuranceService {
     prisma;
     auditService;
@@ -26,51 +28,51 @@ let InsuranceService = class InsuranceService {
     notificationService;
     goalService;
     whatsappService;
-    constructor(prisma, auditService, supabaseService, notificationService, goalService, whatsappService) {
+    paymentService;
+    trustScoreService;
+    constructor(prisma, auditService, supabaseService, notificationService, goalService, whatsappService, paymentService, trustScoreService) {
         this.prisma = prisma;
         this.auditService = auditService;
         this.supabaseService = supabaseService;
         this.notificationService = notificationService;
         this.goalService = goalService;
         this.whatsappService = whatsappService;
+        this.paymentService = paymentService;
+        this.trustScoreService = trustScoreService;
     }
     async getStats(userId) {
         const taliProfile = await this.prisma.taliProfile.findUnique({
             where: { userId },
         });
-        if (!taliProfile) {
-            return {
-                activePolicies: 0,
-                pendingOffers: 0,
-                totalEarnings: 0,
-            };
-        }
-        const taliId = taliProfile.id;
+        if (!taliProfile)
+            return null;
+        const totalEarnings = await this.prisma.transactions.aggregate({
+            where: {
+                userId: taliProfile.userId,
+                type: 'COMMISSION',
+            },
+            _sum: {
+                points: true,
+            },
+        });
         const activePolicies = await this.prisma.policy.count({
             where: {
                 insuranceRequest: {
-                    taliId,
+                    taliId: taliProfile.id,
                 },
                 status: 'ACTIVE',
             },
         });
         const pendingOffers = await this.prisma.insuranceRequest.count({
             where: {
-                taliId,
-                status: {
-                    in: [client_1.RequestStatus.PENDING_OFFER, client_1.RequestStatus.OFFER_READY],
-                },
+                taliId: taliProfile.id,
+                status: 'OFFER_READY',
             },
         });
-        const policies = await this.prisma.policy.findMany({
-            where: { insuranceRequest: { taliId } },
-            select: { commissionPoints: true },
-        });
-        const totalEarnings = policies.reduce((sum, p) => sum + (Number(p.commissionPoints) || 0), 0);
         return {
+            totalEarnings: totalEarnings._sum.points || 0,
             activePolicies,
             pendingOffers,
-            totalEarnings,
         };
     }
     async getRecentRequests(userId) {
@@ -80,14 +82,56 @@ let InsuranceService = class InsuranceService {
         if (!taliProfile)
             return [];
         return this.prisma.insuranceRequest.findMany({
-            where: { taliId: taliProfile.id },
-            orderBy: { createdAt: 'desc' },
+            where: {
+                taliId: taliProfile.id,
+            },
             take: 5,
+            orderBy: {
+                createdAt: 'desc',
+            },
             include: {
                 customer: true,
-                policy: true,
             },
         });
+    }
+    async getAdminStats() {
+        const totalPolicies = await this.prisma.policy.count();
+        const activePolicies = await this.prisma.policy.count({
+            where: { status: 'ACTIVE' },
+        });
+        const totalPremiumResult = await this.prisma.policy.aggregate({
+            _sum: {
+                premium: true,
+            },
+        });
+        const totalCommissionResult = await this.prisma.transactions.aggregate({
+            where: { type: 'COMMISSION' },
+            _sum: {
+                points: true,
+            },
+        });
+        const recentPolicies = await this.prisma.policy.findMany({
+            take: 5,
+            orderBy: { createdAt: 'desc' },
+            include: {
+                insuranceRequest: {
+                    include: {
+                        tali: {
+                            include: {
+                                user: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+        return {
+            totalPolicies,
+            activePolicies,
+            totalPremium: totalPremiumResult._sum.premium || 0,
+            totalCommission: totalCommissionResult._sum.points || 0,
+            recentPolicies,
+        };
     }
     async create(userId, dto) {
         const taliProfile = await this.prisma.taliProfile.findUnique({
@@ -373,7 +417,7 @@ let InsuranceService = class InsuranceService {
                 });
             }
             catch (e) {
-                console.error("Audit log failed", e);
+                console.error('Audit log failed', e);
             }
             try {
                 if (request) {
@@ -381,28 +425,30 @@ let InsuranceService = class InsuranceService {
                 }
             }
             catch (e) {
-                console.error("Notification failed", e);
+                console.error('Notification failed', e);
             }
             try {
-                if (request) {
-                    await this.goalService.checkProgress(request.taliId, request.type, Number(request.adminOfferPrice || 0));
+                if (request && result.policy) {
+                    await this.goalService.checkProgress(request.taliId, request.type, Number(result.policy.premium));
+                    await this.trustScoreService.updateTrustScore(request.taliId, 'POLICY_COMPLETED');
                 }
             }
             catch (e) {
-                console.error("Goal progress check failed", e);
+                console.error('Goal progress check failed', e);
             }
             try {
                 if (request && result.policy) {
                     const customer = await this.prisma.customer.findUnique({
                         where: { id: request.customerId || '' },
                     });
-                    if (customer?.phone) {
-                        await this.whatsappService.sendPolicyNotification(customer.phone, customer.fullName || 'Değerli Müşterimiz', result.policy.policyNumber, result.policy.company, Number(result.policy.premium), result.policy.startDate, result.policy.endDate, result.policy.policyUrl || '');
+                    const policyUrl = result.policy.policyUrl;
+                    if (customer && customer.phone && policyUrl) {
+                        await this.whatsappService.sendPolicyNotification(customer.phone, customer.fullName, result.policy.policyNumber, result.policy.company, Number(result.policy.premium), result.policy.startDate, result.policy.endDate, policyUrl);
                     }
                 }
             }
             catch (e) {
-                console.error("WhatsApp notification failed", e);
+                console.error('WhatsApp notification failed', e);
             }
             return result.updatedRequest;
         }
@@ -444,7 +490,8 @@ let InsuranceService = class InsuranceService {
                 company: data.company || request.adminOfferCompany || 'Unknown',
                 premium: data.premium || request.adminOfferPrice || 0,
                 startDate: data.startDate || new Date(),
-                endDate: data.endDate || new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+                endDate: data.endDate ||
+                    new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
                 policyUrl: policyPdfUrl,
                 status: 'ACTIVE',
             },
@@ -650,6 +697,8 @@ exports.InsuranceService = InsuranceService = __decorate([
         supabase_service_1.SupabaseService,
         notification_service_1.NotificationService,
         goal_service_1.GoalService,
-        whatsapp_service_1.WhatsAppService])
+        whatsapp_service_1.WhatsAppService,
+        payment_service_1.PaymentService,
+        trust_score_service_1.TrustScoreService])
 ], InsuranceService);
 //# sourceMappingURL=insurance.service.js.map

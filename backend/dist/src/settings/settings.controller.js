@@ -24,6 +24,10 @@ let SettingsController = class SettingsController {
     constructor(settingsService) {
         this.settingsService = settingsService;
     }
+    async getPublicConfig() {
+        const settings = await this.settingsService.getSettings();
+        return settings.filter((s) => ['maintenance_mode', 'site_title', 'allow_new_registration'].includes(s.key));
+    }
     async getSettings() {
         return this.settingsService.getSettings();
     }
@@ -31,13 +35,20 @@ let SettingsController = class SettingsController {
         const settings = await this.settingsService.getSettings();
         return settings.filter((s) => s.key.startsWith('insurance_type_') && s.key.endsWith('_enabled'));
     }
-    async updateSetting(key, body, req) {
-        return this.settingsService.updateSetting(key, body.value, req.user.id);
+    async updateSetting(key, value, req) {
+        return this.settingsService.updateSetting(key, value, req.user.id);
     }
 };
 exports.SettingsController = SettingsController;
 __decorate([
+    (0, common_1.Get)('public-config'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], SettingsController.prototype, "getPublicConfig", null);
+__decorate([
     (0, common_1.Get)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
@@ -51,17 +62,16 @@ __decorate([
 ], SettingsController.prototype, "getConfig", null);
 __decorate([
     (0, common_1.Put)(':key'),
-    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    (0, roles_decorator_1.Roles)('ADMIN'),
     __param(0, (0, common_1.Param)('key')),
-    __param(1, (0, common_1.Body)()),
+    __param(1, (0, common_1.Body)('value')),
     __param(2, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, Object]),
+    __metadata("design:paramtypes", [String, String, Object]),
     __metadata("design:returntype", Promise)
 ], SettingsController.prototype, "updateSetting", null);
 exports.SettingsController = SettingsController = __decorate([
     (0, common_1.Controller)('settings'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     __metadata("design:paramtypes", [settings_service_1.SettingsService])
 ], SettingsController);
 //# sourceMappingURL=settings.controller.js.map

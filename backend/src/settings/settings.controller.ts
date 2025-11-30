@@ -14,11 +14,22 @@ import { Roles } from '../auth/roles.decorator';
 import { Role } from '@prisma/client';
 
 @Controller('settings')
-@UseGuards(JwtAuthGuard, RolesGuard)
 export class SettingsController {
-  constructor(private readonly settingsService: SettingsService) {}
+  constructor(private readonly settingsService: SettingsService) { }
+
+  @Get('public-config')
+  async getPublicConfig() {
+    const settings = await this.settingsService.getSettings();
+    // Filter only public settings
+    return settings.filter((s) =>
+      ['maintenance_mode', 'site_title', 'allow_new_registration'].includes(
+        s.key,
+      ),
+    );
+  }
 
   @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   async getSettings() {
     return this.settingsService.getSettings();
@@ -34,12 +45,13 @@ export class SettingsController {
   }
 
   @Put(':key')
-  @Roles(Role.ADMIN)
+  @Roles('ADMIN')
   async updateSetting(
     @Param('key') key: string,
-    @Body() body: { value: string },
+    @Body('value') value: string,
     @Request() req: any,
   ) {
-    return this.settingsService.updateSetting(key, body.value, req.user.id);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    return this.settingsService.updateSetting(key, value, req.user.id);
   }
 }

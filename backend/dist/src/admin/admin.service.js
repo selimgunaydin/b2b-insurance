@@ -122,6 +122,34 @@ let AdminService = class AdminService {
             policiesByMonth,
         };
     }
+    async managePoints(userId, amount, type, description) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            include: { taliProfile: true },
+        });
+        if (!user || !user.taliProfile) {
+            throw new Error('User or Tali profile not found');
+        }
+        const points = Number(amount);
+        const currentPoints = Number(user.taliProfile.points);
+        await this.prisma.taliProfile.update({
+            where: { id: user.taliProfile.id },
+            data: {
+                points: {
+                    increment: points,
+                },
+            },
+        });
+        await this.prisma.transactions.create({
+            data: {
+                userId: userId,
+                points: points,
+                type: type,
+                status: 'SUCCESS',
+            },
+        });
+        return { success: true, newPoints: currentPoints + points };
+    }
 };
 exports.AdminService = AdminService;
 exports.AdminService = AdminService = __decorate([

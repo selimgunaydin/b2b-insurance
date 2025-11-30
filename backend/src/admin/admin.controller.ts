@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Param } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -26,5 +26,19 @@ export class AdminController {
   @Roles(Role.ADMIN)
   async getTaliStats(@Param('id') id: string) {
     return this.adminService.getTaliStats(id);
+  }
+
+  @Post('users/:id/points')
+  @Roles(Role.ADMIN)
+  async managePoints(
+    @Param('id') id: string,
+    @Body() body: { amount: number; type: string; description: string },
+  ) {
+    return this.adminService.managePoints(
+      id,
+      body.amount,
+      body.type,
+      body.description,
+    );
   }
 }

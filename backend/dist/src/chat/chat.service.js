@@ -48,7 +48,7 @@ let ChatService = class ChatService {
             orderBy: { createdAt: 'asc' },
         });
     }
-    async sendMessage(requestId, userId, content) {
+    async sendMessage(userId, requestId, content, attachmentUrl) {
         const request = await this.prisma.insuranceRequest.findUnique({
             where: { id: requestId },
             include: { tali: true },

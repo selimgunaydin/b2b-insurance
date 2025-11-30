@@ -26,10 +26,15 @@ export class ChatController {
 
   @Post(':requestId')
   async sendMessage(
-    @Param('requestId') requestId: string,
-    @Body() body: { content: string },
     @Request() req: any,
+    @Param('requestId') requestId: string,
+    @Body() body: { content: string; attachmentUrl?: string },
   ) {
-    return this.chatService.sendMessage(requestId, req.user.id, body.content);
+    return this.chatService.sendMessage(
+      req.user.id,
+      requestId,
+      body.content,
+      body.attachmentUrl,
+    );
   }
 }

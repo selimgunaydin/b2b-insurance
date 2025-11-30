@@ -12,23 +12,23 @@ export declare class NotificationController {
         message: string;
         count?: undefined;
     }>;
-    findAll(req: any): Promise<{
+    getMyNotifications(req: any): Promise<{
         id: string;
         createdAt: Date;
         message: string;
-        type: import("@prisma/client").$Enums.NotificationType;
         userId: string;
         title: string;
         isRead: boolean;
+        type: import("@prisma/client").$Enums.NotificationType;
     }[]>;
     markAsRead(id: string, req: any): Promise<{
         id: string;
         createdAt: Date;
         message: string;
-        type: import("@prisma/client").$Enums.NotificationType;
         userId: string;
         title: string;
         isRead: boolean;
+        type: import("@prisma/client").$Enums.NotificationType;
     }>;
     markAllAsRead(req: any): Promise<import("@prisma/client").Prisma.BatchPayload>;
 }

@@ -37,17 +37,17 @@ let MarketController = class MarketController {
     async deleteProduct(id) {
         return this.marketService.deleteProduct(id);
     }
-    async purchaseProduct(req, productId) {
-        return this.marketService.purchaseProduct(req.user.id, productId);
+    purchaseProduct(productId, req, body) {
+        return this.marketService.purchaseProduct(productId, req.user.id, body.details);
     }
-    async getMyPurchases(req) {
+    getMyPurchases(req) {
         return this.marketService.getMyPurchases(req.user.id);
     }
     async getAllPurchases() {
         return this.marketService.getAllPurchases();
     }
-    async updatePurchaseStatus(id, status) {
-        return this.marketService.updatePurchaseStatus(id, status);
+    async updatePurchaseStatus(id, body) {
+        return this.marketService.updatePurchaseStatus(id, body.status, body.fulfillmentData, body.adminNote);
     }
 };
 exports.MarketController = MarketController;
@@ -85,20 +85,21 @@ __decorate([
 ], MarketController.prototype, "deleteProduct", null);
 __decorate([
     (0, common_1.Post)('purchase/:productId'),
-    (0, roles_decorator_1.Roles)(client_1.Role.TALI),
-    __param(0, (0, common_1.Request)()),
-    __param(1, (0, common_1.Param)('productId')),
+    (0, roles_decorator_1.Roles)('TALI'),
+    __param(0, (0, common_1.Param)('productId')),
+    __param(1, (0, common_1.Request)()),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:paramtypes", [String, Object, Object]),
+    __metadata("design:returntype", void 0)
 ], MarketController.prototype, "purchaseProduct", null);
 __decorate([
     (0, common_1.Get)('my-purchases'),
-    (0, roles_decorator_1.Roles)(client_1.Role.TALI),
+    (0, roles_decorator_1.Roles)('TALI'),
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], MarketController.prototype, "getMyPurchases", null);
 __decorate([
     (0, common_1.Get)('purchases'),
@@ -111,9 +112,9 @@ __decorate([
     (0, common_1.Put)('purchase/:id/status'),
     (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)('status')),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], MarketController.prototype, "updatePurchaseStatus", null);
 exports.MarketController = MarketController = __decorate([

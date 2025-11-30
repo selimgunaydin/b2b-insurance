@@ -20,7 +20,7 @@ import {
 @Controller('goals')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
 export class GoalController {
-  constructor(private readonly goalService: GoalService) { }
+  constructor(private readonly goalService: GoalService) {}
 
   @Post()
   @Roles(Role.ADMIN)

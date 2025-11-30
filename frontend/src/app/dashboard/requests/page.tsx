@@ -4,12 +4,12 @@ import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ProgressStepper } from "@/components/ui/progress-stepper";
-import { Loader2, Search, Filter, FileText, Calendar, User } from "lucide-react";
+import { Loader2, Search, User } from "lucide-react";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 

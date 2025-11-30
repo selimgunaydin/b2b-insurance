@@ -30,6 +30,7 @@ let MarketService = class MarketService {
                 ...data,
                 pointCost: Number(data.pointCost),
                 stock: Number(data.stock),
+                type: data.type || 'PHYSICAL',
             },
         });
     }
@@ -48,7 +49,7 @@ let MarketService = class MarketService {
             where: { id },
         });
     }
-    async purchaseProduct(userId, productId) {
+    async purchaseProduct(userId, productId, details) {
         const taliProfile = await this.prisma.taliProfile.findUnique({
             where: { userId },
         });
@@ -65,14 +66,20 @@ let MarketService = class MarketService {
             throw new common_1.BadRequestException('Product is not active');
         }
         if (product.stock <= 0) {
-            throw new common_1.BadRequestException('Product is out of stock');
+            throw new common_1.BadRequestException('Out of stock');
         }
-        if (Number(taliProfile.points) < product.pointCost) {
+        const profile = await this.prisma.taliProfile.findUnique({
+            where: { userId },
+        });
+        if (!profile) {
+            throw new common_1.NotFoundException('Tali profile not found');
+        }
+        if (Number(profile.points) < product.pointCost) {
             throw new common_1.BadRequestException('Insufficient points');
         }
         return this.prisma.$transaction(async (prisma) => {
             await prisma.taliProfile.update({
-                where: { id: taliProfile.id },
+                where: { id: profile.id },
                 data: { points: { decrement: product.pointCost } },
             });
             await prisma.product.update({
@@ -85,6 +92,7 @@ let MarketService = class MarketService {
                     productId: product.id,
                     pointCost: product.pointCost,
                     status: client_1.PurchaseStatus.PENDING,
+                    details: details || {},
                 },
             });
             await prisma.transactions.create({
@@ -121,10 +129,14 @@ let MarketService = class MarketService {
             orderBy: { createdAt: 'desc' },
         });
     }
-    async updatePurchaseStatus(id, status) {
+    async updatePurchaseStatus(id, status, fulfillmentData, adminNote) {
         return this.prisma.marketPurchase.update({
             where: { id },
-            data: { status },
+            data: {
+                status,
+                fulfillmentData: fulfillmentData || undefined,
+                adminNote: adminNote || undefined,
+            },
         });
     }
 };

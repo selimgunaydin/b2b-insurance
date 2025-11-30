@@ -30,6 +30,7 @@ const upload_module_1 = require("./upload/upload.module");
 const goal_module_1 = require("./goal/goal.module");
 const cms_module_1 = require("./cms/cms.module");
 const market_module_1 = require("./market/market.module");
+const premium_module_1 = require("./premium/premium.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -56,6 +57,7 @@ exports.AppModule = AppModule = __decorate([
             goal_module_1.GoalModule,
             cms_module_1.CmsModule,
             market_module_1.MarketModule,
+            premium_module_1.PremiumModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

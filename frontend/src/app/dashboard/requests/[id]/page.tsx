@@ -11,7 +11,7 @@ import { Loader2, ArrowLeft, CreditCard, FileText, CheckCircle } from "lucide-re
 import Link from "next/link";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ChatComponent } from "@/components/chat/chat-component";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
@@ -131,10 +131,7 @@ export default function TaliRequestDetailPage() {
   if (!request) return <div>Talep bulunamadı.</div>;
 
   const details = request.details as Record<string, unknown>;
-  const isOfferReady = request.status === "OFFER_READY";
-  const isPaymentPending = request.status === "PAYMENT_PENDING";
-  const isPaymentReview = request.status === "PAYMENT_REVIEW";
-  const isCompleted = request.status === "COMPLETED";
+
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">

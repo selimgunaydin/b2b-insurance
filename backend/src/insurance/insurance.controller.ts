@@ -22,7 +22,7 @@ import { Role } from '@prisma/client';
 @Controller('insurance')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class InsuranceController {
-  constructor(private readonly insuranceService: InsuranceService) { }
+  constructor(private readonly insuranceService: InsuranceService) {}
 
   @Post()
   @Roles(Role.TALI)
@@ -115,7 +115,12 @@ export class InsuranceController {
       startDate: body.startDate ? new Date(body.startDate) : undefined,
       endDate: body.endDate ? new Date(body.endDate) : undefined,
     };
-    return this.insuranceService.updatePolicyDetails(id, data, file, req.user.id);
+    return this.insuranceService.updatePolicyDetails(
+      id,
+      data,
+      file,
+      req.user.id,
+    );
   }
 
   @Post(':id/approve-offer')

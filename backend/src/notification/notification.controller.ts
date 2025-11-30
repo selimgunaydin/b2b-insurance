@@ -18,7 +18,7 @@ import { Role } from '@prisma/client';
 @Controller('notification')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
 export class NotificationController {
-  constructor(private readonly notificationService: NotificationService) {}
+  constructor(private readonly notificationService: NotificationService) { }
 
   @Post('send')
   @Roles(Role.ADMIN)
@@ -27,17 +27,23 @@ export class NotificationController {
   }
 
   @Get()
-  async findAll(@Request() req: any) {
-    return this.notificationService.findAll(req.user.id as string);
+  @Roles('TALI')
+  getMyNotifications(@Request() req: any) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    return this.notificationService.findAll(req.user.id);
   }
 
-  @Put(':id/read')
-  async markAsRead(@Param('id') id: string, @Request() req: any) {
-    return this.notificationService.markAsRead(id, req.user.id as string);
+  @Post('read/:id')
+  @Roles('TALI')
+  markAsRead(@Param('id') id: string, @Request() req: any) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    return this.notificationService.markAsRead(id, req.user.id);
   }
 
-  @Put('read-all')
-  async markAllAsRead(@Request() req: any) {
-    return this.notificationService.markAllAsRead(req.user.id as string);
+  @Post('read-all')
+  @Roles('TALI')
+  markAllAsRead(@Request() req: any) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    return this.notificationService.markAllAsRead(req.user.id);
   }
 }

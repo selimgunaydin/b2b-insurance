@@ -2,9 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Loader2, User, Phone, MapPin, Calendar, CreditCard, ShieldCheck } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Loader2, User, Phone, Mail, FileText, Shield, Award, Edit, ShieldCheck, CreditCard } from "lucide-react";
+import { ProfileEditModal } from "@/components/profile/profile-edit-modal";
 
 export default function ProfilePage() {
   const { data: profile, isLoading } = useQuery({
@@ -37,9 +39,16 @@ export default function ProfilePage() {
         {/* Personal Info */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
-              Kişisel Bilgiler
+            <CardTitle className="flex items-center justify-between w-full">
+              <div className="flex items-center gap-2">
+                <User className="h-5 w-5" />
+                Kişisel Bilgiler
+              </div>
+              <ProfileEditModal initialData={{
+                phone: tali.phone || "",
+                address: tali.address || "",
+                birthDate: tali.birthDate || "",
+              }} />
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">

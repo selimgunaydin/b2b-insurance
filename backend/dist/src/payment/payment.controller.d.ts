@@ -6,9 +6,9 @@ export declare class PaymentController {
     create(createPaymentDto: CreatePaymentDto): Promise<{
         id: string;
         createdAt: Date;
-        type: import("@prisma/client").$Enums.TransactionType;
-        points: import("@prisma/client/runtime/library").Decimal;
         userId: string;
+        points: import("@prisma/client/runtime/library").Decimal;
+        type: import("@prisma/client").$Enums.TransactionType;
         status: import("@prisma/client").$Enums.TransactionStatus;
     }>;
 }

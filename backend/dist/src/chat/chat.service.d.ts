@@ -19,8 +19,9 @@ export declare class ChatService {
         insuranceRequestId: string;
         content: string;
         senderId: string;
+        attachmentUrl: string | null;
     })[]>;
-    sendMessage(requestId: string, userId: string, content: string): Promise<{
+    sendMessage(userId: string, requestId: string, content: string, attachmentUrl?: string): Promise<{
         sender: {
             id: string;
             email: string;
@@ -35,5 +36,6 @@ export declare class ChatService {
         insuranceRequestId: string;
         content: string;
         senderId: string;
+        attachmentUrl: string | null;
     }>;
 }

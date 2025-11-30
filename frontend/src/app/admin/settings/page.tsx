@@ -2,15 +2,16 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { api } from "@/lib/api";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Settings, Bell, DollarSign, Megaphone } from "lucide-react";
+import { Loader2, Settings, Bell, DollarSign, Megaphone, Save, LayoutDashboard, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 
 interface SystemSetting {
   id: string;
@@ -25,6 +26,7 @@ export default function AdminSettingsPage() {
   const [settings, setSettings] = useState<SystemSetting[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [savingKey, setSavingKey] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState("GENERAL");
   const { toast } = useToast();
 
   const fetchSettings = useCallback(async () => {
@@ -108,6 +110,8 @@ export default function AdminSettingsPage() {
   };
 
   const categories = Array.from(new Set(settings.map(s => s.category)));
+  // Ensure BROADCAST is not in categories derived from settings if it's a manual tab
+  // But here we treat BROADCAST as a special category for the UI
 
   if (isLoading) {
     return (
@@ -119,153 +123,155 @@ export default function AdminSettingsPage() {
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case "NOTIFICATIONS": return <Bell className="h-5 w-5" />;
-      case "COMMISSION": return <DollarSign className="h-5 w-5" />;
-      default: return <Settings className="h-5 w-5" />;
+      case "NOTIFICATIONS": return <Bell className="h-4 w-4" />;
+      case "COMMISSION": return <DollarSign className="h-4 w-4" />;
+      case "BROADCAST": return <Megaphone className="h-4 w-4" />;
+      case "SECURITY": return <Shield className="h-4 w-4" />;
+      default: return <LayoutDashboard className="h-4 w-4" />;
     }
   };
 
-  const getCategoryTitle = (category: string) => {
+  const getCategoryLabel = (category: string) => {
     switch (category) {
       case "GENERAL": return "Genel Ayarlar";
-      case "NOTIFICATIONS": return "Bildirim Ayarları";
-      case "COMMISSION": return "Komisyon Ayarları";
+      case "NOTIFICATIONS": return "Bildirimler";
+      case "COMMISSION": return "Komisyon & Finans";
+      case "BROADCAST": return "Duyuru Merkezi";
       default: return category;
     }
   };
 
   return (
-    <div className="p-8 space-y-6">
-      <div className="flex items-center gap-3 mb-6">
-        <Settings className="h-8 w-8 text-slate-700" />
-        <div>
-          <h1 className="text-3xl font-bold">Sistem Ayarları</h1>
-          <p className="text-muted-foreground">Sistem genelindeki ayarları yönetin</p>
+    <div className="space-y-6 pb-10">
+      <div className="space-y-0.5">
+        <h2 className="text-2xl font-bold tracking-tight">Sistem Ayarları</h2>
+        <p className="text-muted-foreground">
+          Platform genelindeki yapılandırmaları ve tercihleri yönetin.
+        </p>
+      </div>
+      <Separator className="my-6" />
+      <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
+        <aside className="-mx-4 lg:w-1/5">
+          <nav className="flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1 overflow-x-auto px-4 lg:px-0 pb-2 lg:pb-0">
+            {categories.map((category) => (
+              <Button
+                key={category}
+                variant={activeCategory === category ? "secondary" : "ghost"}
+                className={`justify-start ${activeCategory === category ? "bg-muted hover:bg-muted" : "hover:bg-transparent hover:underline"}`}
+                onClick={() => setActiveCategory(category)}
+              >
+                <span className="mr-2">{getCategoryIcon(category)}</span>
+                {getCategoryLabel(category)}
+              </Button>
+            ))}
+            <Button
+              variant={activeCategory === "BROADCAST" ? "secondary" : "ghost"}
+              className={`justify-start ${activeCategory === "BROADCAST" ? "bg-muted hover:bg-muted" : "hover:bg-transparent hover:underline"}`}
+              onClick={() => setActiveCategory("BROADCAST")}
+            >
+              <span className="mr-2">{getCategoryIcon("BROADCAST")}</span>
+              {getCategoryLabel("BROADCAST")}
+            </Button>
+          </nav>
+        </aside>
+        <div className="flex-1 lg:max-w-2xl">
+          {activeCategory === "BROADCAST" ? (
+             <Card>
+                <CardHeader>
+                  <CardTitle>Duyuru Gönder</CardTitle>
+                  <CardDescription>
+                    Tüm Tali kullanıcılarına anlık sistem bildirimi gönderin.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="broadcast-title">Bildirim Başlığı</Label>
+                    <Input 
+                      id="broadcast-title" 
+                      placeholder="Örn: Sistem Bakım Çalışması" 
+                      value={broadcastTitle}
+                      onChange={(e) => setBroadcastTitle(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="broadcast-message">Bildirim İçeriği</Label>
+                    <Textarea 
+                      id="broadcast-message" 
+                      placeholder="Duyuru detaylarını buraya yazınız..." 
+                      value={broadcastMessage}
+                      onChange={(e) => setBroadcastMessage(e.target.value)}
+                      rows={5}
+                    />
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-end">
+                  <Button onClick={handleSendBroadcast} disabled={isSending}>
+                    {isSending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    <Megaphone className="mr-2 h-4 w-4" />
+                    Herkese Gönder
+                  </Button>
+                </CardFooter>
+              </Card>
+          ) : (
+            <div className="space-y-6">
+              {settings.filter(s => s.category === activeCategory).map((setting) => (
+                <Card key={setting.key}>
+                    <CardHeader className="pb-3">
+                        <div className="flex items-center justify-between">
+                            <CardTitle className="text-base font-medium">{setting.description || setting.key}</CardTitle>
+                            <Badge variant="outline" className="font-mono text-xs">{setting.key}</Badge>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex items-center gap-4">
+                            {setting.type === "BOOLEAN" ? (
+                                <div className="flex items-center space-x-2">
+                                    <Switch
+                                        id={setting.key}
+                                        checked={setting.value === "true"}
+                                        onCheckedChange={(checked) => handleUpdate(setting.key, String(checked))}
+                                        disabled={savingKey === setting.key}
+                                    />
+                                    <Label htmlFor={setting.key}>
+                                        {setting.value === "true" ? "Aktif" : "Pasif"}
+                                    </Label>
+                                    {savingKey === setting.key && <Loader2 className="h-4 w-4 animate-spin ml-2" />}
+                                </div>
+                            ) : (
+                                <div className="flex-1 flex gap-2">
+                                    <Input
+                                        id={setting.key}
+                                        type={setting.type === "NUMBER" ? "number" : "text"}
+                                        defaultValue={setting.value}
+                                        onBlur={(e) => {
+                                            if (e.target.value !== setting.value) {
+                                                handleUpdate(setting.key, e.target.value);
+                                            }
+                                        }}
+                                        disabled={savingKey === setting.key}
+                                        className="max-w-md"
+                                    />
+                                    {savingKey === setting.key && (
+                                        <div className="flex items-center text-sm text-muted-foreground">
+                                            <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                                            Kaydediliyor...
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+              ))}
+              {settings.filter(s => s.category === activeCategory).length === 0 && (
+                 <div className="text-center py-10 text-muted-foreground">
+                    Bu kategoride ayar bulunamadı.
+                 </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
-
-      <Tabs defaultValue={categories[0] || "GENERAL"} className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-4">
-          {categories.map(category => (
-            <TabsTrigger key={category} value={category} className="flex items-center gap-2">
-              {getCategoryIcon(category)}
-              <span className="hidden sm:inline">
-                {category === "GENERAL" ? "Genel" : 
-                 category === "NOTIFICATIONS" ? "Bildirim" : 
-                 category === "COMMISSION" ? "Komisyon" : category}
-              </span>
-            </TabsTrigger>
-          ))}
-          <TabsTrigger value="BROADCAST" className="flex items-center gap-2">
-            <Megaphone className="h-5 w-5" />
-            <span className="hidden sm:inline">Duyuru</span>
-          </TabsTrigger>
-        </TabsList>
-
-        {categories.map(category => (
-          <TabsContent key={category} value={category} className="mt-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  {getCategoryIcon(category)}
-                  <div>
-                    <CardTitle>{getCategoryTitle(category)}</CardTitle>
-                    <CardDescription>Bu kategorideki sistem ayarlarını yönetin</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {settings.filter(s => s.category === category).map(setting => (
-                  <div key={setting.key} className="p-4 border rounded-lg hover:bg-slate-50/50 transition-colors">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 space-y-1">
-                        <Label htmlFor={setting.key} className="text-base font-medium cursor-pointer">
-                          {setting.description || setting.key}
-                        </Label>
-                        <p className="text-xs text-muted-foreground font-mono bg-slate-100 px-2 py-1 rounded inline-block">
-                          {setting.key}
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-3">
-                        {setting.type === "BOOLEAN" ? (
-                          <div className="flex items-center gap-2">
-                            <Switch
-                              id={setting.key}
-                              checked={setting.value === "true"}
-                              onCheckedChange={(checked) => handleUpdate(setting.key, String(checked))}
-                              disabled={savingKey === setting.key}
-                            />
-                            {savingKey === setting.key && <Loader2 className="h-4 w-4 animate-spin" />}
-                          </div>
-                        ) : (
-                          <div className="flex gap-2 w-80">
-                            <Input
-                              id={setting.key}
-                              type={setting.type === "NUMBER" ? "number" : "text"}
-                              defaultValue={setting.value}
-                              onBlur={(e) => {
-                                if (e.target.value !== setting.value) {
-                                  handleUpdate(setting.key, e.target.value);
-                                }
-                              }}
-                              disabled={savingKey === setting.key}
-                              className="text-sm"
-                            />
-                            {savingKey === setting.key && <Loader2 className="h-4 w-4 animate-spin" />}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        ))}
-
-        <TabsContent value="BROADCAST" className="mt-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <Megaphone className="h-5 w-5" />
-                <div>
-                  <CardTitle>Duyuru Gönder</CardTitle>
-                  <CardDescription>Tüm Tali kullanıcılarına bildirim gönderin</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="broadcast-title">Başlık</Label>
-                <Input 
-                  id="broadcast-title" 
-                  placeholder="Duyuru Başlığı" 
-                  value={broadcastTitle}
-                  onChange={(e) => setBroadcastTitle(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="broadcast-message">Mesaj</Label>
-                <Textarea 
-                  id="broadcast-message" 
-                  placeholder="Duyuru içeriği..." 
-                  value={broadcastMessage}
-                  onChange={(e) => setBroadcastMessage(e.target.value)}
-                  rows={4}
-                />
-              </div>
-              <div className="flex justify-end">
-                <Button onClick={handleSendBroadcast} disabled={isSending}>
-                  {isSending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  <Megaphone className="mr-2 h-4 w-4" />
-                  Gönder
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
     </div>
   );
 }

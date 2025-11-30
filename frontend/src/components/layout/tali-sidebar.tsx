@@ -3,8 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { Home, FileText, User, LogOut, PlusCircle, XCircle, ChevronLeft, ChevronRight, Users, Shield, Bell, Target,
-  ShoppingBag, Menu, X } from "lucide-react";
+import { LayoutDashboard, FileText, User, LogOut, PlusCircle, Wallet, Target, Settings, MessageSquare, Home, Users, Shield, ShoppingBag, XCircle, Bell, X, Menu, ChevronRight, ChevronLeft } from "lucide-react";
 
 export function TaliSidebar() {
   const router = useRouter();

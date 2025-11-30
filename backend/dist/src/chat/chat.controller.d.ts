@@ -17,10 +17,12 @@ export declare class ChatController {
         insuranceRequestId: string;
         content: string;
         senderId: string;
+        attachmentUrl: string | null;
     })[]>;
-    sendMessage(requestId: string, body: {
+    sendMessage(req: any, requestId: string, body: {
         content: string;
-    }, req: any): Promise<{
+        attachmentUrl?: string;
+    }): Promise<{
         sender: {
             id: string;
             email: string;
@@ -35,5 +37,6 @@ export declare class ChatController {
         insuranceRequestId: string;
         content: string;
         senderId: string;
+        attachmentUrl: string | null;
     }>;
 }

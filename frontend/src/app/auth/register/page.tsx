@@ -26,7 +26,7 @@ const registerSchema = z.object({
   fullName: z.string().min(2, "Ad Soyad en az 2 karakter olmalıdır"),
   email: z.string().email("Geçersiz email adresi"),
   tcKimlikNo: z.string().length(11, "TC Kimlik No 11 haneli olmalıdır"),
-  phone: z.string().min(10, "Geçerli bir telefon numarası giriniz"),
+  phone: z.string().regex(/^(05\d{9})$/, "Geçerli bir telefon numarası giriniz (05xxxxxxxxx)"),
   address: z.string().optional(),
   birthDate: z.string().optional(),
   password: z.string().min(6, "Şifre en az 6 karakter olmalıdır"),
@@ -198,7 +198,7 @@ export default function RegisterPage() {
                     <FormItem>
                       <FormLabel>Telefon</FormLabel>
                       <FormControl>
-                        <Input placeholder="0555 555 55 55" className="h-11" {...field} />
+                        <Input placeholder="05555555555" maxLength={11} className="h-11" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

@@ -48,4 +48,55 @@ export class UserService {
     }
     return null;
   }
+  async updateProfile(
+    userId: string,
+    data: { phone?: string; address?: string; birthDate?: string },
+  ) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { taliProfile: true },
+    });
+
+    if (user && user.taliProfile) {
+      return this.prisma.taliProfile.update({
+        where: { id: user.taliProfile.id },
+        data: {
+          phone: data.phone,
+          address: data.address,
+          birthDate: data.birthDate ? new Date(data.birthDate) : undefined,
+        },
+      });
+    }
+    return null;
+  }
+
+  async adminUpdateProfile(
+    userId: string,
+    data: {
+      fullName?: string;
+      tcKimlikNo?: string;
+      phone?: string;
+      address?: string;
+      birthDate?: string;
+    },
+  ) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { taliProfile: true },
+    });
+
+    if (user && user.taliProfile) {
+      return this.prisma.taliProfile.update({
+        where: { id: user.taliProfile.id },
+        data: {
+          fullName: data.fullName,
+          tcKimlikNo: data.tcKimlikNo,
+          phone: data.phone,
+          address: data.address,
+          birthDate: data.birthDate ? new Date(data.birthDate) : undefined,
+        },
+      });
+    }
+    return null;
+  }
 }

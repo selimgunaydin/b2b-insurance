@@ -5,7 +5,7 @@ import { TransactionStatus } from '@prisma/client';
 
 @Injectable()
 export class PaymentService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async processPayment(dto: CreatePaymentDto) {
     // Mock payment processing logic here (e.g. call Iyzico/Stripe)
@@ -26,7 +26,11 @@ export class PaymentService {
         where: { userId: dto.userId },
         data: { points: { increment: dto.amount } },
       });
-    } else if (dto.type === 'PAYMENT' || dto.type === 'REFUND' || dto.type === 'MARKET_PURCHASE') {
+    } else if (
+      dto.type === 'PAYMENT' ||
+      dto.type === 'REFUND' ||
+      dto.type === 'MARKET_PURCHASE'
+    ) {
       await this.prisma.taliProfile.update({
         where: { userId: dto.userId },
         data: { points: { decrement: dto.amount } },

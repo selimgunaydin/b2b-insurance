@@ -21,4 +21,4 @@ import { WhatsAppModule } from '../whatsapp/whatsapp.module';
   controllers: [InsuranceController],
   providers: [InsuranceService],
 })
-export class InsuranceModule { }
+export class InsuranceModule {}
