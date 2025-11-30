@@ -376,7 +376,7 @@ export class InsuranceService {
         where: { id },
         data: {
           status: RequestStatus.COMPLETED,
-          policyUrl: existingPolicy.pdfUrl,
+          policyUrl: existingPolicy.policyUrl,
         },
       });
       return existingPolicy;
@@ -403,88 +403,170 @@ export class InsuranceService {
     }
 
     try {
-      // Transaction: Update Request -> Create Policy -> Log Audit
-      const result = await this.prisma
-        .$transaction(async (prisma) => {
-          // 1. Update Request Status
-          const updatedRequest = await prisma.insuranceRequest.update({
-            where: { id },
-            data: {
-              status: RequestStatus.COMPLETED,
-              policyUrl: policyPdfUrl, // Update if new file uploaded
-            },
-          });
-
-          // 2. Create Policy
-          const policy = await prisma.policy.create({
-            data: {
-              insuranceRequestId: id,
-              policyNumber: `POL - ${Math.floor(Math.random() * 1000000)} `, // Mock Policy Number
-              company: request.adminOfferCompany || 'Unknown',
-              startDate: new Date(),
-              endDate: new Date(
-                new Date().setFullYear(new Date().getFullYear() + 1),
-              ), // 1 Year default
-              premium: request.adminOfferPrice || 0,
-              status: 'ACTIVE',
-              pdfUrl: policyPdfUrl,
-            },
-          });
-
-          return { updatedRequest, policy };
-        })
-        .then(async (res) => {
-          await this.auditService.log(userId, 'CONFIRM_PAYMENT', {
-            requestId: id,
-            policyId: res.policy.id,
-          });
-          return res; // Return both updatedRequest and policy
+      // Transaction: Update Request -> Create Policy
+      const result = await this.prisma.$transaction(async (prisma) => {
+        // 1. Update Request Status
+        const updatedRequest = await prisma.insuranceRequest.update({
+          where: { id },
+          data: {
+            status: RequestStatus.COMPLETED,
+            policyUrl: policyPdfUrl, // Update if new file uploaded
+          },
         });
+
+        // 2. Create Policy
+        const policy = await prisma.policy.create({
+          data: {
+            insuranceRequestId: id,
+            policyNumber: `POL - ${Math.floor(Math.random() * 1000000)} `, // Mock Policy Number
+            company: request.adminOfferCompany || 'Unknown',
+            startDate: new Date(),
+            endDate: new Date(
+              new Date().setFullYear(new Date().getFullYear() + 1),
+            ), // 1 Year default
+            premium: request.adminOfferPrice || 0,
+            status: 'ACTIVE',
+            policyUrl: policyPdfUrl,
+          },
+        });
+
+        return { updatedRequest, policy };
+      });
+
+      // Post-transaction side effects (wrapped in try-catch)
+
+      // Audit
+      try {
+        await this.auditService.log(userId, 'CONFIRM_PAYMENT', {
+          requestId: id,
+          policyId: result.policy.id,
+        });
+      } catch (e) { console.error("Audit log failed", e); }
 
       // Notify user
-      if (request) {
-        await this.notificationService.createSystemNotification(
-          request.taliId,
-          'Poliçe Onaylandı',
-          `#${request.id.slice(0, 8)} numaralı talebiniz onaylandı ve poliçeniz oluşturuldu.`,
-          NotificationType.SYSTEM,
-        );
-      }
-
-      // Track goal progress
-      if (request) {
-        await this.goalService.checkProgress(
-          request.taliId,
-          request.type,
-          Number(request.adminOfferPrice || 0),
-        );
-      }
-
-      // Send WhatsApp notification to customer
-      if (request && result.policy) {
-        const customer = await this.prisma.customer.findUnique({
-          where: { id: request.customerId || '' },
-        });
-
-        if (customer?.phone) {
-          await this.whatsappService.sendPolicyNotification(
-            customer.phone,
-            customer.fullName || 'Değerli Müşterimiz',
-            result.policy.policyNumber,
-            result.policy.company,
-            Number(result.policy.premium),
-            result.policy.startDate,
-            result.policy.endDate,
-            result.policy.pdfUrl || '',
+      try {
+        if (request) {
+          await this.notificationService.createSystemNotification(
+            request.taliId,
+            'Poliçe Onaylandı',
+            `#${request.id.slice(0, 8)} numaralı talebiniz onaylandı ve poliçeniz oluşturuldu.`,
+            NotificationType.SYSTEM,
           );
         }
-      }
+      } catch (e) { console.error("Notification failed", e); }
+
+      // Track goal progress
+      try {
+        if (request) {
+          await this.goalService.checkProgress(
+            request.taliId,
+            request.type,
+            Number(request.adminOfferPrice || 0),
+          );
+        }
+      } catch (e) { console.error("Goal progress check failed", e); }
+
+      // Send WhatsApp notification to customer
+      try {
+        if (request && result.policy) {
+          const customer = await this.prisma.customer.findUnique({
+            where: { id: request.customerId || '' },
+          });
+
+          if (customer?.phone) {
+            await this.whatsappService.sendPolicyNotification(
+              customer.phone,
+              customer.fullName || 'Değerli Müşterimiz',
+              result.policy.policyNumber,
+              result.policy.company,
+              Number(result.policy.premium),
+              result.policy.startDate,
+              result.policy.endDate,
+              result.policy.policyUrl || '',
+            );
+          }
+        }
+      } catch (e) { console.error("WhatsApp notification failed", e); }
 
       return result.updatedRequest;
     } catch (error) {
       console.error('Confirm Payment Error:', error);
       throw error;
     }
+  }
+
+  async updatePolicyDetails(
+    id: string,
+    data: {
+      policyNumber?: string;
+      company?: string;
+      premium?: number;
+      startDate?: Date;
+      endDate?: Date;
+    },
+    file?: Express.Multer.File,
+    userId?: string,
+  ) {
+    const request = await this.prisma.insuranceRequest.findUnique({
+      where: { id },
+      include: { policy: true },
+    });
+
+    if (!request) throw new NotFoundException('Request not found');
+
+    let policyPdfUrl = request.policyUrl;
+    if (file) {
+      const sanitizedOriginalName = file.originalname
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-zA-Z0-9.-]/g, '_');
+      const filename = `${id}-${Date.now()}-${sanitizedOriginalName}`;
+      policyPdfUrl = await this.supabaseService.uploadFile(file, filename);
+    }
+
+    // Update Request
+    await this.prisma.insuranceRequest.update({
+      where: { id },
+      data: {
+        policyUrl: policyPdfUrl,
+        adminOfferCompany: data.company || request.adminOfferCompany,
+        adminOfferPrice: data.premium || request.adminOfferPrice,
+        status: RequestStatus.COMPLETED,
+      },
+    });
+
+    // Update Policy
+    const policy = await this.prisma.policy.upsert({
+      where: { insuranceRequestId: id },
+      create: {
+        insuranceRequestId: id,
+        policyNumber: data.policyNumber || `POL-${Date.now()}`,
+        company: data.company || request.adminOfferCompany || 'Unknown',
+        premium: data.premium || request.adminOfferPrice || 0,
+        startDate: data.startDate || new Date(),
+        endDate: data.endDate || new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+        policyUrl: policyPdfUrl,
+        status: 'ACTIVE',
+      },
+      update: {
+        policyNumber: data.policyNumber,
+        company: data.company,
+        premium: data.premium,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        policyUrl: policyPdfUrl,
+      },
+    });
+
+    if (userId) {
+      await this.auditService.log(userId, 'UPDATE_POLICY', {
+        requestId: id,
+        updates: data,
+        hasFile: !!file,
+      });
+    }
+
+    return policy;
   }
 
   async getMyCustomers(userId: string) {

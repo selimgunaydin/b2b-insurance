@@ -22,7 +22,7 @@ export class WhatsAppService {
         premium: number,
         startDate: Date,
         endDate: Date,
-        pdfUrl: string
+        policyUrl: string
     ): Promise<boolean> {
         if (!this.enabled) {
             this.logger.warn('WhatsApp is not enabled');
@@ -36,7 +36,7 @@ export class WhatsAppService {
             premium,
             startDate,
             endDate,
-            pdfUrl
+            policyUrl
         );
 
         try {
@@ -66,7 +66,7 @@ export class WhatsAppService {
         premium: number,
         startDate: Date,
         endDate: Date,
-        pdfUrl: string
+        policyUrl: string
     ): string {
         const formatDate = (date: Date) => {
             return date.toLocaleDateString('tr-TR', {
@@ -85,7 +85,7 @@ Poliçeniz başarıyla oluşturuldu! 🎉
 💰 Prim: ${premium.toFixed(2)} TL
 📅 Geçerlilik: ${formatDate(startDate)} - ${formatDate(endDate)}
 
-Poliçe belgeniz: ${pdfUrl}
+Poliçe belgeniz: ${policyUrl}
 
 B2B Sigorta ekibi olarak hizmetinizdeyiz.`;
     }

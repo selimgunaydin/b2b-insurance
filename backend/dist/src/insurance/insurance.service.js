@@ -293,7 +293,7 @@ let InsuranceService = class InsuranceService {
                 where: { id },
                 data: {
                     status: client_1.RequestStatus.COMPLETED,
-                    policyUrl: existingPolicy.pdfUrl,
+                    policyUrl: existingPolicy.policyUrl,
                 },
             });
             return existingPolicy;
@@ -312,8 +312,7 @@ let InsuranceService = class InsuranceService {
             policyPdfUrl = await this.supabaseService.uploadFile(file, filename);
         }
         try {
-            const result = await this.prisma
-                .$transaction(async (prisma) => {
+            const result = await this.prisma.$transaction(async (prisma) => {
                 const updatedRequest = await prisma.insuranceRequest.update({
                     where: { id },
                     data: {
@@ -330,31 +329,48 @@ let InsuranceService = class InsuranceService {
                         endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
                         premium: request.adminOfferPrice || 0,
                         status: 'ACTIVE',
-                        pdfUrl: policyPdfUrl,
+                        policyUrl: policyPdfUrl,
                     },
                 });
                 return { updatedRequest, policy };
-            })
-                .then(async (res) => {
+            });
+            try {
                 await this.auditService.log(userId, 'CONFIRM_PAYMENT', {
                     requestId: id,
-                    policyId: res.policy.id,
+                    policyId: result.policy.id,
                 });
-                return res;
-            });
-            if (request) {
-                await this.notificationService.createSystemNotification(request.taliId, 'Poliçe Onaylandı', `#${request.id.slice(0, 8)} numaralı talebiniz onaylandı ve poliçeniz oluşturuldu.`, client_2.NotificationType.SYSTEM);
             }
-            if (request) {
-                await this.goalService.checkProgress(request.taliId, request.type, Number(request.adminOfferPrice || 0));
+            catch (e) {
+                console.error("Audit log failed", e);
             }
-            if (request && result.policy) {
-                const customer = await this.prisma.customer.findUnique({
-                    where: { id: request.customerId || '' },
-                });
-                if (customer?.phone) {
-                    await this.whatsappService.sendPolicyNotification(customer.phone, customer.fullName || 'Değerli Müşterimiz', result.policy.policyNumber, result.policy.company, Number(result.policy.premium), result.policy.startDate, result.policy.endDate, result.policy.pdfUrl || '');
+            try {
+                if (request) {
+                    await this.notificationService.createSystemNotification(request.taliId, 'Poliçe Onaylandı', `#${request.id.slice(0, 8)} numaralı talebiniz onaylandı ve poliçeniz oluşturuldu.`, client_2.NotificationType.SYSTEM);
                 }
+            }
+            catch (e) {
+                console.error("Notification failed", e);
+            }
+            try {
+                if (request) {
+                    await this.goalService.checkProgress(request.taliId, request.type, Number(request.adminOfferPrice || 0));
+                }
+            }
+            catch (e) {
+                console.error("Goal progress check failed", e);
+            }
+            try {
+                if (request && result.policy) {
+                    const customer = await this.prisma.customer.findUnique({
+                        where: { id: request.customerId || '' },
+                    });
+                    if (customer?.phone) {
+                        await this.whatsappService.sendPolicyNotification(customer.phone, customer.fullName || 'Değerli Müşterimiz', result.policy.policyNumber, result.policy.company, Number(result.policy.premium), result.policy.startDate, result.policy.endDate, result.policy.policyUrl || '');
+                    }
+                }
+            }
+            catch (e) {
+                console.error("WhatsApp notification failed", e);
             }
             return result.updatedRequest;
         }
@@ -362,6 +378,61 @@ let InsuranceService = class InsuranceService {
             console.error('Confirm Payment Error:', error);
             throw error;
         }
+    }
+    async updatePolicyDetails(id, data, file, userId) {
+        const request = await this.prisma.insuranceRequest.findUnique({
+            where: { id },
+            include: { policy: true },
+        });
+        if (!request)
+            throw new common_1.NotFoundException('Request not found');
+        let policyPdfUrl = request.policyUrl;
+        if (file) {
+            const sanitizedOriginalName = file.originalname
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-zA-Z0-9.-]/g, '_');
+            const filename = `${id}-${Date.now()}-${sanitizedOriginalName}`;
+            policyPdfUrl = await this.supabaseService.uploadFile(file, filename);
+        }
+        await this.prisma.insuranceRequest.update({
+            where: { id },
+            data: {
+                policyUrl: policyPdfUrl,
+                adminOfferCompany: data.company || request.adminOfferCompany,
+                adminOfferPrice: data.premium || request.adminOfferPrice,
+                status: client_1.RequestStatus.COMPLETED,
+            },
+        });
+        const policy = await this.prisma.policy.upsert({
+            where: { insuranceRequestId: id },
+            create: {
+                insuranceRequestId: id,
+                policyNumber: data.policyNumber || `POL-${Date.now()}`,
+                company: data.company || request.adminOfferCompany || 'Unknown',
+                premium: data.premium || request.adminOfferPrice || 0,
+                startDate: data.startDate || new Date(),
+                endDate: data.endDate || new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+                policyUrl: policyPdfUrl,
+                status: 'ACTIVE',
+            },
+            update: {
+                policyNumber: data.policyNumber,
+                company: data.company,
+                premium: data.premium,
+                startDate: data.startDate,
+                endDate: data.endDate,
+                policyUrl: policyPdfUrl,
+            },
+        });
+        if (userId) {
+            await this.auditService.log(userId, 'UPDATE_POLICY', {
+                requestId: id,
+                updates: data,
+                hasFile: !!file,
+            });
+        }
+        return policy;
     }
     async getMyCustomers(userId) {
         const taliProfile = await this.prisma.taliProfile.findUnique({

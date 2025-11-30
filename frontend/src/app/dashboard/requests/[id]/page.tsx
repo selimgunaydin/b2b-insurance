@@ -350,13 +350,11 @@ export default function TaliRequestDetailPage() {
                         </div>
                         </AlertDescription>
                     </Alert>
-                    {request.policyPdfUrl ? (
-                        <Button className="w-full" variant="outline" asChild>
-                            <a href={request.policyPdfUrl} target="_blank" rel="noopener noreferrer">
-                                <FileText className="mr-2 h-4 w-4" />
-                                Poliçeyi Görüntüle / İndir
-                            </a>
-                        </Button>
+                    {request?.policyUrl ? (
+                        <Link href={request.policyUrl} target="_blank" className="text-blue-600 hover:underline flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    Poliçeyi Görüntüle
+                  </Link>                   
                     ) : (
                         <Alert className="bg-yellow-50 border-yellow-200">
                             <AlertDescription className="text-yellow-800">

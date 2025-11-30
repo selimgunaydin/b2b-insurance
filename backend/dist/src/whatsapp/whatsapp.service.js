@@ -20,12 +20,12 @@ let WhatsAppService = WhatsAppService_1 = class WhatsAppService {
         this.senderNumber = senderNumber;
         this.logger.log(`WhatsApp configured: enabled=${enabled}`);
     }
-    async sendPolicyNotification(phoneNumber, customerName, policyNumber, company, premium, startDate, endDate, pdfUrl) {
+    async sendPolicyNotification(phoneNumber, customerName, policyNumber, company, premium, startDate, endDate, policyUrl) {
         if (!this.enabled) {
             this.logger.warn('WhatsApp is not enabled');
             return false;
         }
-        const message = this.formatPolicyMessage(customerName, policyNumber, company, premium, startDate, endDate, pdfUrl);
+        const message = this.formatPolicyMessage(customerName, policyNumber, company, premium, startDate, endDate, policyUrl);
         try {
             this.logger.log(`[MOCK] Sending WhatsApp to ${phoneNumber}:`);
             this.logger.log(message);
@@ -36,7 +36,7 @@ let WhatsAppService = WhatsAppService_1 = class WhatsAppService {
             return false;
         }
     }
-    formatPolicyMessage(customerName, policyNumber, company, premium, startDate, endDate, pdfUrl) {
+    formatPolicyMessage(customerName, policyNumber, company, premium, startDate, endDate, policyUrl) {
         const formatDate = (date) => {
             return date.toLocaleDateString('tr-TR', {
                 day: '2-digit',
@@ -53,7 +53,7 @@ Poliçeniz başarıyla oluşturuldu! 🎉
 💰 Prim: ${premium.toFixed(2)} TL
 📅 Geçerlilik: ${formatDate(startDate)} - ${formatDate(endDate)}
 
-Poliçe belgeniz: ${pdfUrl}
+Poliçe belgeniz: ${policyUrl}
 
 B2B Sigorta ekibi olarak hizmetinizdeyiz.`;
     }

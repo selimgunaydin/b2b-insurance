@@ -44,7 +44,7 @@ interface CancellationRequest {
         email: string;
       };
     };
-    policyPdfUrl?: string;
+    policyUrl?: string;
   };
 }
 
@@ -164,9 +164,9 @@ export default function AdminCancellationsPage() {
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">{req.policy.type}</Badge>
-                      {req.policy.policyPdfUrl && (
+                      {req.policy.policyUrl && (
                         <a 
-                          href={req.policy.policyPdfUrl} 
+                          href={req.policy.policyUrl} 
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="ml-2 inline-block"

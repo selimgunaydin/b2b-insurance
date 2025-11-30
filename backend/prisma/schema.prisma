@@ -154,7 +154,7 @@ model Policy {
   endDate      DateTime
   premium      Decimal
   commission   Decimal      @default(0)
-  pdfUrl       String?
+  policyUrl    String?
   status       PolicyStatus @default(ACTIVE)
 
   createdAt DateTime @default(now())

@@ -20,27 +20,35 @@ let GoalService = GoalService_1 = class GoalService {
         this.prisma = prisma;
     }
     async create(data) {
-        const goal = await this.prisma.goal.create({
-            data: {
-                ...data,
-                rewardValue: data.rewardValue,
-            },
-        });
-        await this.assignGoalToAllTalis(goal.id);
-        return goal;
-    }
-    async assignGoalToAllTalis(goalId) {
-        const talis = await this.prisma.taliProfile.findMany();
-        const taliGoals = talis.map((tali) => ({
-            taliId: tali.id,
-            goalId,
-            currentValue: 0,
-            isCompleted: false,
-        }));
-        await this.prisma.taliGoal.createMany({
-            data: taliGoals,
-            skipDuplicates: true,
-        });
+        try {
+            return await this.prisma.$transaction(async (prisma) => {
+                const goal = await prisma.goal.create({
+                    data: {
+                        ...data,
+                        targetValue: Math.floor(data.targetValue || 0),
+                        rewardValue: data.rewardValue,
+                    },
+                });
+                const talis = await prisma.taliProfile.findMany();
+                if (talis.length > 0) {
+                    const taliGoals = talis.map((tali) => ({
+                        taliId: tali.id,
+                        goalId: goal.id,
+                        currentValue: 0,
+                        isCompleted: false,
+                    }));
+                    await prisma.taliGoal.createMany({
+                        data: taliGoals,
+                        skipDuplicates: true,
+                    });
+                }
+                return goal;
+            });
+        }
+        catch (error) {
+            this.logger.error('Failed to create goal:', error);
+            throw error;
+        }
     }
     async findAll() {
         return this.prisma.goal.findMany({

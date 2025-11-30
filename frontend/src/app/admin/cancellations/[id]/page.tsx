@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
-import { Loader2, CheckCircle, XCircle, FileText, ArrowLeft, Calendar, User, CreditCard, Shield } from "lucide-react";
+import { ArrowLeft, CheckCircle, XCircle, FileText, AlertTriangle, Download, Loader2, Calendar, User, Shield } from "lucide-react";
+import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 
@@ -39,7 +40,7 @@ interface CancellationRequest {
         email: string;
       };
     };
-    policyPdfUrl?: string;
+    policyUrl?: string;
   };
 }
 
@@ -215,14 +216,17 @@ export default function CancellationDetailPage() {
                 </div>
               </div>
 
-              {request.policy.policyPdfUrl && (
-                <div className="mt-4 pt-4 border-t">
-                  <Button variant="outline" className="w-full" asChild>
-                    <a href={request.policy.policyPdfUrl} target="_blank" rel="noopener noreferrer">
-                      <FileText className="mr-2 h-4 w-4" />
-                      Poliçe Belgesini Görüntüle
-                    </a>
-                  </Button>
+              {request.policy.policyUrl && (
+                <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-700">Poliçe Dosyası</span>
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href={request.policy.policyUrl} target="_blank" className="flex items-center gap-2">
+                        <FileText className="h-4 w-4" />
+                        Görüntüle
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
               )}
             </CardContent>

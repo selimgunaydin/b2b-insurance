@@ -4,13 +4,13 @@ export declare class InsuranceController {
     private readonly insuranceService;
     constructor(insuranceService: InsuranceService);
     create(req: any, createInsuranceRequestDto: CreateInsuranceRequestDto): Promise<{
+        status: import("@prisma/client").$Enums.RequestStatus;
+        id: string;
+        taliId: string;
         customerId: string | null;
         type: import("@prisma/client").$Enums.InsuranceType;
         details: import("@prisma/client/runtime/library").JsonValue;
         offers: import("@prisma/client/runtime/library").JsonValue | null;
-        id: string;
-        status: import("@prisma/client").$Enums.RequestStatus;
-        taliId: string;
         selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
         adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
         adminOfferCompany: string | null;
@@ -22,23 +22,23 @@ export declare class InsuranceController {
     findAll(req: any): Promise<({
         customer: {
             id: string;
-            fullName: string;
-            phone: string;
             taliId: string;
             createdAt: Date;
             updatedAt: Date;
-            email: string | null;
+            fullName: string;
+            phone: string;
             tc_kn: string;
+            email: string | null;
             notes: string | null;
         } | null;
     } & {
+        status: import("@prisma/client").$Enums.RequestStatus;
+        id: string;
+        taliId: string;
         customerId: string | null;
         type: import("@prisma/client").$Enums.InsuranceType;
         details: import("@prisma/client/runtime/library").JsonValue;
         offers: import("@prisma/client/runtime/library").JsonValue | null;
-        id: string;
-        status: import("@prisma/client").$Enums.RequestStatus;
-        taliId: string;
         selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
         adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
         adminOfferCompany: string | null;
@@ -55,37 +55,37 @@ export declare class InsuranceController {
     getRecent(req: any): Promise<({
         customer: {
             id: string;
-            fullName: string;
-            phone: string;
             taliId: string;
             createdAt: Date;
             updatedAt: Date;
-            email: string | null;
+            fullName: string;
+            phone: string;
             tc_kn: string;
+            email: string | null;
             notes: string | null;
         } | null;
         policy: {
-            company: string;
-            id: string;
             status: import("@prisma/client").$Enums.PolicyStatus;
+            id: string;
+            policyUrl: string | null;
             createdAt: Date;
             updatedAt: Date;
             insuranceRequestId: string;
             policyNumber: string;
+            company: string;
             startDate: Date;
             endDate: Date;
             premium: import("@prisma/client/runtime/library").Decimal;
             commission: import("@prisma/client/runtime/library").Decimal;
-            pdfUrl: string | null;
         } | null;
     } & {
+        status: import("@prisma/client").$Enums.RequestStatus;
+        id: string;
+        taliId: string;
         customerId: string | null;
         type: import("@prisma/client").$Enums.InsuranceType;
         details: import("@prisma/client/runtime/library").JsonValue;
         offers: import("@prisma/client/runtime/library").JsonValue | null;
-        id: string;
-        status: import("@prisma/client").$Enums.RequestStatus;
-        taliId: string;
         selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
         adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
         adminOfferCompany: string | null;
@@ -96,36 +96,36 @@ export declare class InsuranceController {
     })[]>;
     getMyCustomers(req: any): Promise<{
         id: string;
-        fullName: string;
-        phone: string;
         taliId: string;
         createdAt: Date;
         updatedAt: Date;
-        email: string | null;
+        fullName: string;
+        phone: string;
         tc_kn: string;
+        email: string | null;
         notes: string | null;
     }[]>;
     getMyPolicies(req: any): Promise<({
         insuranceRequest: {
             customer: {
                 id: string;
-                fullName: string;
-                phone: string;
                 taliId: string;
                 createdAt: Date;
                 updatedAt: Date;
-                email: string | null;
+                fullName: string;
+                phone: string;
                 tc_kn: string;
+                email: string | null;
                 notes: string | null;
             } | null;
         } & {
+            status: import("@prisma/client").$Enums.RequestStatus;
+            id: string;
+            taliId: string;
             customerId: string | null;
             type: import("@prisma/client").$Enums.InsuranceType;
             details: import("@prisma/client/runtime/library").JsonValue;
             offers: import("@prisma/client/runtime/library").JsonValue | null;
-            id: string;
-            status: import("@prisma/client").$Enums.RequestStatus;
-            taliId: string;
             selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
             adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
             adminOfferCompany: string | null;
@@ -135,18 +135,18 @@ export declare class InsuranceController {
             updatedAt: Date;
         };
     } & {
-        company: string;
-        id: string;
         status: import("@prisma/client").$Enums.PolicyStatus;
+        id: string;
+        policyUrl: string | null;
         createdAt: Date;
         updatedAt: Date;
         insuranceRequestId: string;
         policyNumber: string;
+        company: string;
         startDate: Date;
         endDate: Date;
         premium: import("@prisma/client/runtime/library").Decimal;
         commission: import("@prisma/client/runtime/library").Decimal;
-        pdfUrl: string | null;
     })[]>;
     getAllCustomers(): Promise<({
         tali: {
@@ -190,13 +190,13 @@ export declare class InsuranceController {
         };
     } & {
         id: string;
-        fullName: string;
-        phone: string;
         taliId: string;
         createdAt: Date;
         updatedAt: Date;
-        email: string | null;
+        fullName: string;
+        phone: string;
         tc_kn: string;
+        email: string | null;
         notes: string | null;
     })[]>;
     getAllPolicies(): Promise<({
@@ -242,23 +242,23 @@ export declare class InsuranceController {
             };
             customer: {
                 id: string;
-                fullName: string;
-                phone: string;
                 taliId: string;
                 createdAt: Date;
                 updatedAt: Date;
-                email: string | null;
+                fullName: string;
+                phone: string;
                 tc_kn: string;
+                email: string | null;
                 notes: string | null;
             } | null;
         } & {
+            status: import("@prisma/client").$Enums.RequestStatus;
+            id: string;
+            taliId: string;
             customerId: string | null;
             type: import("@prisma/client").$Enums.InsuranceType;
             details: import("@prisma/client/runtime/library").JsonValue;
             offers: import("@prisma/client/runtime/library").JsonValue | null;
-            id: string;
-            status: import("@prisma/client").$Enums.RequestStatus;
-            taliId: string;
             selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
             adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
             adminOfferCompany: string | null;
@@ -268,18 +268,18 @@ export declare class InsuranceController {
             updatedAt: Date;
         };
     } & {
-        company: string;
-        id: string;
         status: import("@prisma/client").$Enums.PolicyStatus;
+        id: string;
+        policyUrl: string | null;
         createdAt: Date;
         updatedAt: Date;
         insuranceRequestId: string;
         policyNumber: string;
+        company: string;
         startDate: Date;
         endDate: Date;
         premium: import("@prisma/client/runtime/library").Decimal;
         commission: import("@prisma/client/runtime/library").Decimal;
-        pdfUrl: string | null;
     })[]>;
     findOne(id: string): Promise<{
         tali: {
@@ -298,37 +298,37 @@ export declare class InsuranceController {
         };
         customer: {
             id: string;
-            fullName: string;
-            phone: string;
             taliId: string;
             createdAt: Date;
             updatedAt: Date;
-            email: string | null;
+            fullName: string;
+            phone: string;
             tc_kn: string;
+            email: string | null;
             notes: string | null;
         } | null;
         policy: {
-            company: string;
-            id: string;
             status: import("@prisma/client").$Enums.PolicyStatus;
+            id: string;
+            policyUrl: string | null;
             createdAt: Date;
             updatedAt: Date;
             insuranceRequestId: string;
             policyNumber: string;
+            company: string;
             startDate: Date;
             endDate: Date;
             premium: import("@prisma/client/runtime/library").Decimal;
             commission: import("@prisma/client/runtime/library").Decimal;
-            pdfUrl: string | null;
         } | null;
     } & {
+        status: import("@prisma/client").$Enums.RequestStatus;
+        id: string;
+        taliId: string;
         customerId: string | null;
         type: import("@prisma/client").$Enums.InsuranceType;
         details: import("@prisma/client/runtime/library").JsonValue;
         offers: import("@prisma/client/runtime/library").JsonValue | null;
-        id: string;
-        status: import("@prisma/client").$Enums.RequestStatus;
-        taliId: string;
         selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
         adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
         adminOfferCompany: string | null;
@@ -338,13 +338,13 @@ export declare class InsuranceController {
         updatedAt: Date;
     }>;
     updateOffers(id: string, updateOfferDto: UpdateOfferDto): Promise<{
+        status: import("@prisma/client").$Enums.RequestStatus;
+        id: string;
+        taliId: string;
         customerId: string | null;
         type: import("@prisma/client").$Enums.InsuranceType;
         details: import("@prisma/client/runtime/library").JsonValue;
         offers: import("@prisma/client/runtime/library").JsonValue | null;
-        id: string;
-        status: import("@prisma/client").$Enums.RequestStatus;
-        taliId: string;
         selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
         adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
         adminOfferCompany: string | null;
@@ -354,13 +354,13 @@ export declare class InsuranceController {
         updatedAt: Date;
     }>;
     uploadPolicy(id: string, file: Express.Multer.File, req: any): Promise<{
+        status: import("@prisma/client").$Enums.RequestStatus;
+        id: string;
+        taliId: string;
         customerId: string | null;
         type: import("@prisma/client").$Enums.InsuranceType;
         details: import("@prisma/client/runtime/library").JsonValue;
         offers: import("@prisma/client/runtime/library").JsonValue | null;
-        id: string;
-        status: import("@prisma/client").$Enums.RequestStatus;
-        taliId: string;
         selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
         adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
         adminOfferCompany: string | null;
@@ -369,6 +369,20 @@ export declare class InsuranceController {
         createdAt: Date;
         updatedAt: Date;
     }>;
+    updatePolicy(id: string, file: Express.Multer.File, body: any, req: any): Promise<{
+        status: import("@prisma/client").$Enums.PolicyStatus;
+        id: string;
+        policyUrl: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        insuranceRequestId: string;
+        policyNumber: string;
+        company: string;
+        startDate: Date;
+        endDate: Date;
+        premium: import("@prisma/client/runtime/library").Decimal;
+        commission: import("@prisma/client/runtime/library").Decimal;
+    }>;
     approveOffer(id: string, body: {
         selectedOffer: {
             company: string;
@@ -376,13 +390,13 @@ export declare class InsuranceController {
             description?: string;
         };
     }, req: any): Promise<{
+        status: import("@prisma/client").$Enums.RequestStatus;
+        id: string;
+        taliId: string;
         customerId: string | null;
         type: import("@prisma/client").$Enums.InsuranceType;
         details: import("@prisma/client/runtime/library").JsonValue;
         offers: import("@prisma/client/runtime/library").JsonValue | null;
-        id: string;
-        status: import("@prisma/client").$Enums.RequestStatus;
-        taliId: string;
         selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
         adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
         adminOfferCompany: string | null;
@@ -392,13 +406,26 @@ export declare class InsuranceController {
         updatedAt: Date;
     }>;
     confirmPayment(id: string, req: any, file?: Express.Multer.File): Promise<{
+        status: import("@prisma/client").$Enums.PolicyStatus;
+        id: string;
+        policyUrl: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        insuranceRequestId: string;
+        policyNumber: string;
+        company: string;
+        startDate: Date;
+        endDate: Date;
+        premium: import("@prisma/client/runtime/library").Decimal;
+        commission: import("@prisma/client/runtime/library").Decimal;
+    } | {
+        status: import("@prisma/client").$Enums.RequestStatus;
+        id: string;
+        taliId: string;
         customerId: string | null;
         type: import("@prisma/client").$Enums.InsuranceType;
         details: import("@prisma/client/runtime/library").JsonValue;
         offers: import("@prisma/client/runtime/library").JsonValue | null;
-        id: string;
-        status: import("@prisma/client").$Enums.RequestStatus;
-        taliId: string;
         selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
         adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
         adminOfferCompany: string | null;
@@ -406,30 +433,17 @@ export declare class InsuranceController {
         policyUrl: string | null;
         createdAt: Date;
         updatedAt: Date;
-    } | {
-        company: string;
-        id: string;
-        status: import("@prisma/client").$Enums.PolicyStatus;
-        createdAt: Date;
-        updatedAt: Date;
-        insuranceRequestId: string;
-        policyNumber: string;
-        startDate: Date;
-        endDate: Date;
-        premium: import("@prisma/client/runtime/library").Decimal;
-        commission: import("@prisma/client/runtime/library").Decimal;
-        pdfUrl: string | null;
     }>;
     notifyPayment(id: string, body: {
         method: string;
     }, req: any): Promise<{
+        status: import("@prisma/client").$Enums.RequestStatus;
+        id: string;
+        taliId: string;
         customerId: string | null;
         type: import("@prisma/client").$Enums.InsuranceType;
         details: import("@prisma/client/runtime/library").JsonValue;
         offers: import("@prisma/client/runtime/library").JsonValue | null;
-        id: string;
-        status: import("@prisma/client").$Enums.RequestStatus;
-        taliId: string;
         selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
         adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
         adminOfferCompany: string | null;
@@ -442,13 +456,13 @@ export declare class InsuranceController {
         policyId: string;
         reason: string;
     }, req: any): Promise<{
-        id: string;
         status: import("@prisma/client").$Enums.CancellationStatus;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
-        policyId: string;
         reason: string;
         proofFiles: string[];
+        policyId: string;
     }>;
     getCancellationRequests(req: any): Promise<({
         policy: {
@@ -478,23 +492,23 @@ export declare class InsuranceController {
             };
             customer: {
                 id: string;
-                fullName: string;
-                phone: string;
                 taliId: string;
                 createdAt: Date;
                 updatedAt: Date;
-                email: string | null;
+                fullName: string;
+                phone: string;
                 tc_kn: string;
+                email: string | null;
                 notes: string | null;
             } | null;
         } & {
+            status: import("@prisma/client").$Enums.RequestStatus;
+            id: string;
+            taliId: string;
             customerId: string | null;
             type: import("@prisma/client").$Enums.InsuranceType;
             details: import("@prisma/client/runtime/library").JsonValue;
             offers: import("@prisma/client/runtime/library").JsonValue | null;
-            id: string;
-            status: import("@prisma/client").$Enums.RequestStatus;
-            taliId: string;
             selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
             adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
             adminOfferCompany: string | null;
@@ -504,13 +518,13 @@ export declare class InsuranceController {
             updatedAt: Date;
         };
     } & {
-        id: string;
         status: import("@prisma/client").$Enums.CancellationStatus;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
-        policyId: string;
         reason: string;
         proofFiles: string[];
+        policyId: string;
     })[]>;
     getCancellationRequest(id: string, req: any): Promise<{
         policy: {
@@ -540,23 +554,23 @@ export declare class InsuranceController {
             };
             customer: {
                 id: string;
-                fullName: string;
-                phone: string;
                 taliId: string;
                 createdAt: Date;
                 updatedAt: Date;
-                email: string | null;
+                fullName: string;
+                phone: string;
                 tc_kn: string;
+                email: string | null;
                 notes: string | null;
             } | null;
         } & {
+            status: import("@prisma/client").$Enums.RequestStatus;
+            id: string;
+            taliId: string;
             customerId: string | null;
             type: import("@prisma/client").$Enums.InsuranceType;
             details: import("@prisma/client/runtime/library").JsonValue;
             offers: import("@prisma/client/runtime/library").JsonValue | null;
-            id: string;
-            status: import("@prisma/client").$Enums.RequestStatus;
-            taliId: string;
             selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
             adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
             adminOfferCompany: string | null;
@@ -566,23 +580,23 @@ export declare class InsuranceController {
             updatedAt: Date;
         };
     } & {
-        id: string;
         status: import("@prisma/client").$Enums.CancellationStatus;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
-        policyId: string;
         reason: string;
         proofFiles: string[];
+        policyId: string;
     }>;
     updateCancellationStatus(id: string, body: {
         status: 'APPROVED' | 'REJECTED';
     }, req: any): Promise<{
-        id: string;
         status: import("@prisma/client").$Enums.CancellationStatus;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
-        policyId: string;
         reason: string;
         proofFiles: string[];
+        policyId: string;
     }>;
 }

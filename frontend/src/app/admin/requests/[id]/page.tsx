@@ -18,6 +18,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { ChatComponent } from "@/components/chat/chat-component";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 interface Offer {
     company: string;
@@ -133,31 +134,65 @@ export default function AdminRequestDetailPage() {
     }
   };
 
+  const [editPolicyModal, setEditPolicyModal] = useState<{
+    isOpen: boolean;
+    policyNumber: string;
+    company: string;
+    premium: string;
+    startDate: string;
+    endDate: string;
+    policyUrl?: string;
+  }>({
+    isOpen: false,
+    policyNumber: "",
+    company: "",
+    premium: "",
+    startDate: "",
+    endDate: "",
+  });
+
   const handleUpdatePolicyClick = () => {
-    if (!file) {
-      alert("Lütfen bir dosya seçiniz.");
-      return;
+    if (request?.policy) {
+        setEditPolicyModal({
+            isOpen: true,
+            policyNumber: request.policy.policyNumber || "",
+            company: request.policy.company || "",
+            premium: request.policy.premium?.toString() || "",
+            startDate: request.policy.startDate ? new Date(request.policy.startDate).toISOString().split('T')[0] : "",
+            endDate: request.policy.endDate ? new Date(request.policy.endDate).toISOString().split('T')[0] : "",
+        });
+    } else {
+        // Fallback if no policy exists yet (shouldn't happen in this view usually)
+        setEditPolicyModal({
+            isOpen: true,
+            policyNumber: "",
+            company: request?.adminOfferCompany || "",
+            premium: request?.adminOfferPrice?.toString() || "",
+            startDate: new Date().toISOString().split('T')[0],
+            endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
+        });
     }
-    setConfirmModal({
-      isOpen: true,
-      title: "Poliçeyi Güncelle",
-      description: "Mevcut poliçeyi güncellemek istediğinize emin misiniz?",
-      onConfirm: handleUpdatePolicy,
-      variant: "destructive",
-    });
   };
 
-  const handleUpdatePolicy = async () => {
-    if (!file) return;
+  const handleUpdatePolicySubmit = async () => {
     setConfirmModal((prev) => ({ ...prev, isLoading: true }));
     try {
       const formData = new FormData();
-      formData.append("file", file);
-      await api.post(`/insurance/${id}/policy-upload`, formData, {
+      if (file) {
+        formData.append("file", file);
+      }
+      formData.append("policyNumber", editPolicyModal.policyNumber);
+      formData.append("company", editPolicyModal.company);
+      formData.append("premium", editPolicyModal.premium);
+      formData.append("startDate", editPolicyModal.startDate);
+      formData.append("endDate", editPolicyModal.endDate);
+
+      await api.put(`/insurance/${id}/policy`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
       });
       toast({ title: "Başarılı", description: "Poliçe güncellendi." });
       setFile(null);
+      setEditPolicyModal(prev => ({ ...prev, isOpen: false }));
       await refetch();
       setConfirmModal((prev) => ({ ...prev, isOpen: false, isLoading: false }));
     } catch(e) {
@@ -410,13 +445,13 @@ export default function AdminRequestDetailPage() {
                     </AlertDescription>
                   </Alert>
                   
-                  {request.policyPdfUrl && (
+                  {request?.policyUrl && (
                       <div className="mt-4 space-y-4">
                         <Button className="w-full" variant="outline" asChild>
-                            <a href={request.policyPdfUrl} target="_blank" rel="noopener noreferrer">
-                                <FileText className="mr-2 h-4 w-4" />
-                                Poliçeyi Görüntüle / İndir
-                            </a>
+                            <Link href={request.policyUrl} target="_blank" className="text-blue-600 hover:underline flex items-center gap-2">
+                              <FileText className="h-4 w-4" />
+                              Poliçeyi Görüntüle
+                            </Link>
                         </Button>
 
                         <div className="pt-4 border-t border-gray-100">
@@ -457,6 +492,80 @@ export default function AdminRequestDetailPage() {
         variant={confirmModal.variant}
         isLoading={confirmModal.isLoading}
       />
+
+      <Dialog open={editPolicyModal.isOpen} onOpenChange={(open) => setEditPolicyModal(prev => ({ ...prev, isOpen: open }))}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Poliçe Düzenle</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="policyNumber" className="text-right">Poliçe No</Label>
+              <Input
+                id="policyNumber"
+                value={editPolicyModal.policyNumber}
+                onChange={(e) => setEditPolicyModal(prev => ({ ...prev, policyNumber: e.target.value }))}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="company" className="text-right">Şirket</Label>
+              <Input
+                id="company"
+                value={editPolicyModal.company}
+                onChange={(e) => setEditPolicyModal(prev => ({ ...prev, company: e.target.value }))}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="premium" className="text-right">Prim</Label>
+              <Input
+                id="premium"
+                type="number"
+                value={editPolicyModal.premium}
+                onChange={(e) => setEditPolicyModal(prev => ({ ...prev, premium: e.target.value }))}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="startDate" className="text-right">Başlangıç</Label>
+              <Input
+                id="startDate"
+                type="date"
+                value={editPolicyModal.startDate}
+                onChange={(e) => setEditPolicyModal(prev => ({ ...prev, startDate: e.target.value }))}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="endDate" className="text-right">Bitiş</Label>
+              <Input
+                id="endDate"
+                type="date"
+                value={editPolicyModal.endDate}
+                onChange={(e) => setEditPolicyModal(prev => ({ ...prev, endDate: e.target.value }))}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="file" className="text-right">Poliçe Dosyası</Label>
+              <Input
+                id="file"
+                type="file"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                className="col-span-3"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditPolicyModal(prev => ({ ...prev, isOpen: false }))}>İptal</Button>
+            <Button onClick={handleUpdatePolicySubmit} disabled={confirmModal.isLoading}>
+                {confirmModal.isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Kaydet
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

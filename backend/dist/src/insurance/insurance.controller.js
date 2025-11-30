@@ -59,6 +59,16 @@ let InsuranceController = class InsuranceController {
     async uploadPolicy(id, file, req) {
         return this.insuranceService.uploadPolicy(id, file, req.user.id);
     }
+    async updatePolicy(id, file, body, req) {
+        const data = {
+            policyNumber: body.policyNumber,
+            company: body.company,
+            premium: body.premium ? Number(body.premium) : undefined,
+            startDate: body.startDate ? new Date(body.startDate) : undefined,
+            endDate: body.endDate ? new Date(body.endDate) : undefined,
+        };
+        return this.insuranceService.updatePolicyDetails(id, data, file, req.user.id);
+    }
     async approveOffer(id, body, req) {
         return this.insuranceService.approveOffer(id, req.user.id, body.selectedOffer);
     }
@@ -171,6 +181,18 @@ __decorate([
     __metadata("design:paramtypes", [String, Object, Object]),
     __metadata("design:returntype", Promise)
 ], InsuranceController.prototype, "uploadPolicy", null);
+__decorate([
+    (0, common_1.Put)(':id/policy'),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.UploadedFile)()),
+    __param(2, (0, common_1.Body)()),
+    __param(3, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object, Object, Object]),
+    __metadata("design:returntype", Promise)
+], InsuranceController.prototype, "updatePolicy", null);
 __decorate([
     (0, common_1.Post)(':id/approve-offer'),
     (0, roles_decorator_1.Roles)(client_1.Role.TALI),

@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Search, FileText, Download } from "lucide-react";
+import { Download, Search, Filter, FileText, Loader2 } from "lucide-react";
+import Link from "next/link";
 import { format, isWithinInterval, parseISO } from "date-fns";
 import { tr } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,7 @@ interface Policy {
   endDate: string;
   premium: number;
   status: string;
-  pdfUrl?: string;
+  policyUrl?: string;
   insuranceRequest: {
     customer: {
       fullName: string;
@@ -139,13 +140,12 @@ export default function MyPoliciesPage() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    {policy.pdfUrl && (
-                        <a href={policy.pdfUrl} target="_blank" rel="noopener noreferrer">
-                            <Button size="sm" variant="outline">
-                                <Download className="h-4 w-4 mr-1" />
-                                İndir
-                            </Button>
-                        </a>
+                    {policy.policyUrl && (
+                        <Link href={policy.policyUrl || '#'} target="_blank">
+                        <Button variant="ghost" size="sm">
+                          <Download className="h-4 w-4" />
+                        </Button>
+                      </Link>
                     )}
                   </TableCell>
                 </TableRow>

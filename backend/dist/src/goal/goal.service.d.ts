@@ -29,7 +29,6 @@ export declare class GoalService {
         endDate: Date;
         isActive: boolean;
     }>;
-    assignGoalToAllTalis(goalId: string): Promise<void>;
     findAll(): Promise<{
         id: string;
         createdAt: Date;

@@ -6,7 +6,7 @@ import { GoalTargetType, RewardType, InsuranceType } from '@prisma/client';
 export class GoalService {
   private readonly logger = new Logger(GoalService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(data: {
     title: string;
@@ -19,36 +19,41 @@ export class GoalService {
     startDate: Date;
     endDate: Date;
   }) {
-    const goal = await this.prisma.goal.create({
-      data: {
-        ...data,
-        rewardValue: data.rewardValue,
-      },
-    });
+    try {
+      return await this.prisma.$transaction(async (prisma) => {
+        const goal = await prisma.goal.create({
+          data: {
+            ...data,
+            targetValue: Math.floor(data.targetValue || 0), // Ensure integer and prevent NaN
+            rewardValue: data.rewardValue,
+          },
+        });
 
-    // Assign to all existing Talis
-    await this.assignGoalToAllTalis(goal.id);
+        // Assign to all existing Talis
+        const talis = await prisma.taliProfile.findMany();
+        if (talis.length > 0) {
+          const taliGoals = talis.map((tali) => ({
+            taliId: tali.id,
+            goalId: goal.id,
+            currentValue: 0,
+            isCompleted: false,
+          }));
 
-    return goal;
+          await prisma.taliGoal.createMany({
+            data: taliGoals,
+            skipDuplicates: true,
+          });
+        }
+
+        return goal;
+      });
+    } catch (error) {
+      this.logger.error('Failed to create goal:', error);
+      throw error;
+    }
   }
 
-  async assignGoalToAllTalis(goalId: string) {
-    const talis = await this.prisma.taliProfile.findMany();
 
-    const taliGoals = talis.map((tali) => ({
-      taliId: tali.id,
-      goalId,
-      currentValue: 0,
-      isCompleted: false,
-    }));
-
-    // Use createMany with skipDuplicates if possible, but TaliGoal has unique constraint
-    // Prisma createMany skipDuplicates is supported in some DBs. Postgres supports it.
-    await this.prisma.taliGoal.createMany({
-      data: taliGoals,
-      skipDuplicates: true,
-    });
-  }
 
   async findAll() {
     return this.prisma.goal.findMany({

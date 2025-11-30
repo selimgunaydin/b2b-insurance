@@ -22,7 +22,7 @@ import { Role } from '@prisma/client';
 @Controller('insurance')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class InsuranceController {
-  constructor(private readonly insuranceService: InsuranceService) {}
+  constructor(private readonly insuranceService: InsuranceService) { }
 
   @Post()
   @Roles(Role.TALI)
@@ -97,6 +97,25 @@ export class InsuranceController {
     @Request() req: any,
   ) {
     return this.insuranceService.uploadPolicy(id, file, req.user.id);
+  }
+
+  @Put(':id/policy')
+  @Roles(Role.ADMIN)
+  @UseInterceptors(FileInterceptor('file'))
+  async updatePolicy(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: any,
+    @Request() req: any,
+  ) {
+    const data = {
+      policyNumber: body.policyNumber,
+      company: body.company,
+      premium: body.premium ? Number(body.premium) : undefined,
+      startDate: body.startDate ? new Date(body.startDate) : undefined,
+      endDate: body.endDate ? new Date(body.endDate) : undefined,
+    };
+    return this.insuranceService.updatePolicyDetails(id, data, file, req.user.id);
   }
 
   @Post(':id/approve-offer')
