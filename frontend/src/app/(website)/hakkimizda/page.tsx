@@ -9,7 +9,7 @@ export const metadata = {
 export default function AboutPage() {
   return (
     <div className="py-16">
-      <div className="container px-4 max-w-4xl">
+      <div className="container mx-auto px-4 max-w-4xl">
         <h1 className="text-4xl md:text-5xl font-bold text-center mb-8">Hakkımızda</h1>
         
         <div className="prose prose-lg max-w-none space-y-6 mb-16">
