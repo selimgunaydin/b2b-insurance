@@ -25,18 +25,18 @@ export declare class PremiumController {
             };
         } & {
             id: string;
-            membershipType: import("@prisma/client").$Enums.MembershipType;
+            userId: string;
             fullName: string;
             tcKimlikNo: string | null;
             phone: string | null;
             address: string | null;
             birthDate: Date | null;
-            hasKvkkApproval: boolean;
-            hasContractApproval: boolean;
+            membershipType: import("@prisma/client").$Enums.MembershipType;
             points: import("@prisma/client/runtime/library").Decimal;
             trustScore: number;
+            hasKvkkApproval: boolean;
+            hasContractApproval: boolean;
             allowedInsuranceTypes: string[];
-            userId: string;
         };
     } & {
         id: string;
@@ -55,18 +55,18 @@ export declare class PremiumController {
         paymentMethod: string;
     }, {
         id: string;
-        membershipType: import("@prisma/client").$Enums.MembershipType;
+        userId: string;
         fullName: string;
         tcKimlikNo: string | null;
         phone: string | null;
         address: string | null;
         birthDate: Date | null;
-        hasKvkkApproval: boolean;
-        hasContractApproval: boolean;
+        membershipType: import("@prisma/client").$Enums.MembershipType;
         points: import("@prisma/client/runtime/library").Decimal;
         trustScore: number;
+        hasKvkkApproval: boolean;
+        hasContractApproval: boolean;
         allowedInsuranceTypes: string[];
-        userId: string;
     }]>;
     rejectRequest(id: string): Promise<{
         id: string;

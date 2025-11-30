@@ -50,9 +50,11 @@ let MarketService = class MarketService {
         });
     }
     async purchaseProduct(userId, productId, details) {
+        console.log('purchaseProduct called with userId:', userId);
         const taliProfile = await this.prisma.taliProfile.findUnique({
             where: { userId },
         });
+        console.log('TaliProfile found:', taliProfile);
         if (!taliProfile) {
             throw new common_1.BadRequestException('Tali profile not found');
         }
@@ -68,18 +70,12 @@ let MarketService = class MarketService {
         if (product.stock <= 0) {
             throw new common_1.BadRequestException('Out of stock');
         }
-        const profile = await this.prisma.taliProfile.findUnique({
-            where: { userId },
-        });
-        if (!profile) {
-            throw new common_1.NotFoundException('Tali profile not found');
-        }
-        if (Number(profile.points) < product.pointCost) {
+        if (Number(taliProfile.points) < product.pointCost) {
             throw new common_1.BadRequestException('Insufficient points');
         }
         return this.prisma.$transaction(async (prisma) => {
             await prisma.taliProfile.update({
-                where: { id: profile.id },
+                where: { id: taliProfile.id },
                 data: { points: { decrement: product.pointCost } },
             });
             await prisma.product.update({

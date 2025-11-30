@@ -139,18 +139,18 @@ export declare class InsuranceController {
             user: {
                 taliProfile: {
                     id: string;
-                    membershipType: import("@prisma/client").$Enums.MembershipType;
+                    userId: string;
                     fullName: string;
                     tcKimlikNo: string | null;
                     phone: string | null;
                     address: string | null;
                     birthDate: Date | null;
-                    hasKvkkApproval: boolean;
-                    hasContractApproval: boolean;
+                    membershipType: import("@prisma/client").$Enums.MembershipType;
                     points: import("@prisma/client/runtime/library").Decimal;
                     trustScore: number;
+                    hasKvkkApproval: boolean;
+                    hasContractApproval: boolean;
                     allowedInsuranceTypes: string[];
-                    userId: string;
                 } | null;
             } & {
                 id: string;
@@ -163,18 +163,18 @@ export declare class InsuranceController {
             };
         } & {
             id: string;
-            membershipType: import("@prisma/client").$Enums.MembershipType;
+            userId: string;
             fullName: string;
             tcKimlikNo: string | null;
             phone: string | null;
             address: string | null;
             birthDate: Date | null;
-            hasKvkkApproval: boolean;
-            hasContractApproval: boolean;
+            membershipType: import("@prisma/client").$Enums.MembershipType;
             points: import("@prisma/client/runtime/library").Decimal;
             trustScore: number;
+            hasKvkkApproval: boolean;
+            hasContractApproval: boolean;
             allowedInsuranceTypes: string[];
-            userId: string;
         };
     } & {
         id: string;
@@ -204,18 +204,18 @@ export declare class InsuranceController {
                 user: {
                     taliProfile: {
                         id: string;
-                        membershipType: import("@prisma/client").$Enums.MembershipType;
+                        userId: string;
                         fullName: string;
                         tcKimlikNo: string | null;
                         phone: string | null;
                         address: string | null;
                         birthDate: Date | null;
-                        hasKvkkApproval: boolean;
-                        hasContractApproval: boolean;
+                        membershipType: import("@prisma/client").$Enums.MembershipType;
                         points: import("@prisma/client/runtime/library").Decimal;
                         trustScore: number;
+                        hasKvkkApproval: boolean;
+                        hasContractApproval: boolean;
                         allowedInsuranceTypes: string[];
-                        userId: string;
                     } | null;
                 } & {
                     id: string;
@@ -228,18 +228,18 @@ export declare class InsuranceController {
                 };
             } & {
                 id: string;
-                membershipType: import("@prisma/client").$Enums.MembershipType;
+                userId: string;
                 fullName: string;
                 tcKimlikNo: string | null;
                 phone: string | null;
                 address: string | null;
                 birthDate: Date | null;
-                hasKvkkApproval: boolean;
-                hasContractApproval: boolean;
+                membershipType: import("@prisma/client").$Enums.MembershipType;
                 points: import("@prisma/client/runtime/library").Decimal;
                 trustScore: number;
+                hasKvkkApproval: boolean;
+                hasContractApproval: boolean;
                 allowedInsuranceTypes: string[];
-                userId: string;
             };
         } & {
             id: string;
@@ -299,18 +299,18 @@ export declare class InsuranceController {
         } | null;
         tali: {
             id: string;
-            membershipType: import("@prisma/client").$Enums.MembershipType;
+            userId: string;
             fullName: string;
             tcKimlikNo: string | null;
             phone: string | null;
             address: string | null;
             birthDate: Date | null;
-            hasKvkkApproval: boolean;
-            hasContractApproval: boolean;
+            membershipType: import("@prisma/client").$Enums.MembershipType;
             points: import("@prisma/client/runtime/library").Decimal;
             trustScore: number;
+            hasKvkkApproval: boolean;
+            hasContractApproval: boolean;
             allowedInsuranceTypes: string[];
-            userId: string;
         };
     } & {
         id: string;
@@ -480,18 +480,18 @@ export declare class InsuranceController {
                 };
             } & {
                 id: string;
-                membershipType: import("@prisma/client").$Enums.MembershipType;
+                userId: string;
                 fullName: string;
                 tcKimlikNo: string | null;
                 phone: string | null;
                 address: string | null;
                 birthDate: Date | null;
-                hasKvkkApproval: boolean;
-                hasContractApproval: boolean;
+                membershipType: import("@prisma/client").$Enums.MembershipType;
                 points: import("@prisma/client/runtime/library").Decimal;
                 trustScore: number;
+                hasKvkkApproval: boolean;
+                hasContractApproval: boolean;
                 allowedInsuranceTypes: string[];
-                userId: string;
             };
         } & {
             id: string;
@@ -543,18 +543,18 @@ export declare class InsuranceController {
                 };
             } & {
                 id: string;
-                membershipType: import("@prisma/client").$Enums.MembershipType;
+                userId: string;
                 fullName: string;
                 tcKimlikNo: string | null;
                 phone: string | null;
                 address: string | null;
                 birthDate: Date | null;
-                hasKvkkApproval: boolean;
-                hasContractApproval: boolean;
+                membershipType: import("@prisma/client").$Enums.MembershipType;
                 points: import("@prisma/client/runtime/library").Decimal;
                 trustScore: number;
+                hasKvkkApproval: boolean;
+                hasContractApproval: boolean;
                 allowedInsuranceTypes: string[];
-                userId: string;
             };
         } & {
             id: string;

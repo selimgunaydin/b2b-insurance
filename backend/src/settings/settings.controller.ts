@@ -45,6 +45,7 @@ export class SettingsController {
   }
 
   @Put(':key')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   async updateSetting(
     @Param('key') key: string,

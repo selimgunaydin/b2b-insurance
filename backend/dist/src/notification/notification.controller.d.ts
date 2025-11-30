@@ -15,18 +15,18 @@ export declare class NotificationController {
     getMyNotifications(req: any): Promise<{
         id: string;
         createdAt: Date;
+        userId: string;
         message: string;
         type: import("@prisma/client").$Enums.NotificationType;
-        userId: string;
         title: string;
         isRead: boolean;
     }[]>;
     markAsRead(id: string, req: any): Promise<{
         id: string;
         createdAt: Date;
+        userId: string;
         message: string;
         type: import("@prisma/client").$Enums.NotificationType;
-        userId: string;
         title: string;
         isRead: boolean;
     }>;

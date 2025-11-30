@@ -69,8 +69,8 @@ export class MarketController {
   ) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return this.marketService.purchaseProduct(
-      productId,
       req.user.id,
+      productId,
       body.details,
     );
   }

@@ -17,27 +17,27 @@ export declare class NotificationService {
     createSystemNotification(userId: string, title: string, message: string, type?: NotificationType): Promise<{
         id: string;
         createdAt: Date;
+        userId: string;
         message: string;
         type: import("@prisma/client").$Enums.NotificationType;
-        userId: string;
         title: string;
         isRead: boolean;
     }>;
     findAll(userId: string): Promise<{
         id: string;
         createdAt: Date;
+        userId: string;
         message: string;
         type: import("@prisma/client").$Enums.NotificationType;
-        userId: string;
         title: string;
         isRead: boolean;
     }[]>;
     markAsRead(id: string, userId: string): Promise<{
         id: string;
         createdAt: Date;
+        userId: string;
         message: string;
         type: import("@prisma/client").$Enums.NotificationType;
-        userId: string;
         title: string;
         isRead: boolean;
     }>;

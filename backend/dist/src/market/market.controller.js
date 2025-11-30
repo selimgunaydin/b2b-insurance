@@ -38,7 +38,7 @@ let MarketController = class MarketController {
         return this.marketService.deleteProduct(id);
     }
     purchaseProduct(productId, req, body) {
-        return this.marketService.purchaseProduct(productId, req.user.id, body.details);
+        return this.marketService.purchaseProduct(req.user.id, productId, body.details);
     }
     getMyPurchases(req) {
         return this.marketService.getMyPurchases(req.user.id);

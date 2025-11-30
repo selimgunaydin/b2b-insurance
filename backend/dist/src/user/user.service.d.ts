@@ -5,18 +5,18 @@ export declare class UserService {
     findOne(id: string): Promise<({
         taliProfile: {
             id: string;
-            membershipType: import("@prisma/client").$Enums.MembershipType;
+            userId: string;
             fullName: string;
             tcKimlikNo: string | null;
             phone: string | null;
             address: string | null;
             birthDate: Date | null;
-            hasKvkkApproval: boolean;
-            hasContractApproval: boolean;
+            membershipType: import("@prisma/client").$Enums.MembershipType;
             points: import("@prisma/client/runtime/library").Decimal;
             trustScore: number;
+            hasKvkkApproval: boolean;
+            hasContractApproval: boolean;
             allowedInsuranceTypes: string[];
-            userId: string;
         } | null;
     } & {
         id: string;
@@ -30,18 +30,18 @@ export declare class UserService {
     findAll(): Promise<({
         taliProfile: {
             id: string;
-            membershipType: import("@prisma/client").$Enums.MembershipType;
+            userId: string;
             fullName: string;
             tcKimlikNo: string | null;
             phone: string | null;
             address: string | null;
             birthDate: Date | null;
-            hasKvkkApproval: boolean;
-            hasContractApproval: boolean;
+            membershipType: import("@prisma/client").$Enums.MembershipType;
             points: import("@prisma/client/runtime/library").Decimal;
             trustScore: number;
+            hasKvkkApproval: boolean;
+            hasContractApproval: boolean;
             allowedInsuranceTypes: string[];
-            userId: string;
         } | null;
     } & {
         id: string;
@@ -72,18 +72,18 @@ export declare class UserService {
     }>;
     updatePermissions(userId: string, allowedTypes: string[]): Promise<{
         id: string;
-        membershipType: import("@prisma/client").$Enums.MembershipType;
+        userId: string;
         fullName: string;
         tcKimlikNo: string | null;
         phone: string | null;
         address: string | null;
         birthDate: Date | null;
-        hasKvkkApproval: boolean;
-        hasContractApproval: boolean;
+        membershipType: import("@prisma/client").$Enums.MembershipType;
         points: import("@prisma/client/runtime/library").Decimal;
         trustScore: number;
+        hasKvkkApproval: boolean;
+        hasContractApproval: boolean;
         allowedInsuranceTypes: string[];
-        userId: string;
     } | null>;
     updateProfile(userId: string, data: {
         phone?: string;
@@ -91,18 +91,18 @@ export declare class UserService {
         birthDate?: string;
     }): Promise<{
         id: string;
-        membershipType: import("@prisma/client").$Enums.MembershipType;
+        userId: string;
         fullName: string;
         tcKimlikNo: string | null;
         phone: string | null;
         address: string | null;
         birthDate: Date | null;
-        hasKvkkApproval: boolean;
-        hasContractApproval: boolean;
+        membershipType: import("@prisma/client").$Enums.MembershipType;
         points: import("@prisma/client/runtime/library").Decimal;
         trustScore: number;
+        hasKvkkApproval: boolean;
+        hasContractApproval: boolean;
         allowedInsuranceTypes: string[];
-        userId: string;
     } | null>;
     adminUpdateProfile(userId: string, data: {
         fullName?: string;
@@ -112,17 +112,17 @@ export declare class UserService {
         birthDate?: string;
     }): Promise<{
         id: string;
-        membershipType: import("@prisma/client").$Enums.MembershipType;
+        userId: string;
         fullName: string;
         tcKimlikNo: string | null;
         phone: string | null;
         address: string | null;
         birthDate: Date | null;
-        hasKvkkApproval: boolean;
-        hasContractApproval: boolean;
+        membershipType: import("@prisma/client").$Enums.MembershipType;
         points: import("@prisma/client/runtime/library").Decimal;
         trustScore: number;
+        hasKvkkApproval: boolean;
+        hasContractApproval: boolean;
         allowedInsuranceTypes: string[];
-        userId: string;
     } | null>;
 }

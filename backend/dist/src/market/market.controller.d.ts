@@ -5,16 +5,16 @@ export declare class MarketController {
     constructor(marketService: MarketService);
     getAllProducts(activeOnly?: string): Promise<{
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         name: string;
-        type: import("@prisma/client").$Enums.ProductType;
-        category: string | null;
         description: string | null;
-        isActive: boolean;
         imageUrl: string | null;
         pointCost: number;
         stock: number;
+        isActive: boolean;
+        type: import("@prisma/client").$Enums.ProductType;
+        category: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     }[]>;
     createProduct(data: {
         name: string;
@@ -26,132 +26,132 @@ export declare class MarketController {
         category?: string;
     }): Promise<{
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         name: string;
-        type: import("@prisma/client").$Enums.ProductType;
-        category: string | null;
         description: string | null;
-        isActive: boolean;
         imageUrl: string | null;
         pointCost: number;
         stock: number;
+        isActive: boolean;
+        type: import("@prisma/client").$Enums.ProductType;
+        category: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     updateProduct(id: string, data: any): Promise<{
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         name: string;
-        type: import("@prisma/client").$Enums.ProductType;
-        category: string | null;
         description: string | null;
-        isActive: boolean;
         imageUrl: string | null;
         pointCost: number;
         stock: number;
+        isActive: boolean;
+        type: import("@prisma/client").$Enums.ProductType;
+        category: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     deleteProduct(id: string): Promise<{
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         name: string;
-        type: import("@prisma/client").$Enums.ProductType;
-        category: string | null;
         description: string | null;
-        isActive: boolean;
         imageUrl: string | null;
         pointCost: number;
         stock: number;
+        isActive: boolean;
+        type: import("@prisma/client").$Enums.ProductType;
+        category: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     purchaseProduct(productId: string, req: any, body: {
         details?: any;
     }): Promise<{
         id: string;
+        pointCost: number;
         createdAt: Date;
         updatedAt: Date;
-        details: import("@prisma/client/runtime/library").JsonValue | null;
-        taliId: string;
         status: import("@prisma/client").$Enums.PurchaseStatus;
-        pointCost: number;
+        details: import("@prisma/client/runtime/library").JsonValue | null;
         fulfillmentData: import("@prisma/client/runtime/library").JsonValue | null;
         adminNote: string | null;
+        taliId: string;
         productId: string;
     }>;
     getMyPurchases(req: any): Promise<({
         product: {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
             name: string;
-            type: import("@prisma/client").$Enums.ProductType;
-            category: string | null;
             description: string | null;
-            isActive: boolean;
             imageUrl: string | null;
             pointCost: number;
             stock: number;
+            isActive: boolean;
+            type: import("@prisma/client").$Enums.ProductType;
+            category: string | null;
+            createdAt: Date;
+            updatedAt: Date;
         };
     } & {
         id: string;
+        pointCost: number;
         createdAt: Date;
         updatedAt: Date;
-        details: import("@prisma/client/runtime/library").JsonValue | null;
-        taliId: string;
         status: import("@prisma/client").$Enums.PurchaseStatus;
-        pointCost: number;
+        details: import("@prisma/client/runtime/library").JsonValue | null;
         fulfillmentData: import("@prisma/client/runtime/library").JsonValue | null;
         adminNote: string | null;
+        taliId: string;
         productId: string;
     })[]>;
     getAllPurchases(): Promise<({
         product: {
             id: string;
-            createdAt: Date;
-            updatedAt: Date;
             name: string;
-            type: import("@prisma/client").$Enums.ProductType;
-            category: string | null;
             description: string | null;
-            isActive: boolean;
             imageUrl: string | null;
             pointCost: number;
             stock: number;
+            isActive: boolean;
+            type: import("@prisma/client").$Enums.ProductType;
+            category: string | null;
+            createdAt: Date;
+            updatedAt: Date;
         };
         tali: {
             user: {
                 id: string;
+                createdAt: Date;
+                updatedAt: Date;
                 email: string;
                 password: string;
                 role: import("@prisma/client").$Enums.Role;
                 isApproved: boolean;
-                createdAt: Date;
-                updatedAt: Date;
             };
         } & {
             id: string;
-            membershipType: import("@prisma/client").$Enums.MembershipType;
+            userId: string;
             fullName: string;
             tcKimlikNo: string | null;
             phone: string | null;
             address: string | null;
             birthDate: Date | null;
-            hasKvkkApproval: boolean;
-            hasContractApproval: boolean;
+            membershipType: import("@prisma/client").$Enums.MembershipType;
             points: import("@prisma/client/runtime/library").Decimal;
             trustScore: number;
+            hasKvkkApproval: boolean;
+            hasContractApproval: boolean;
             allowedInsuranceTypes: string[];
-            userId: string;
         };
     } & {
         id: string;
+        pointCost: number;
         createdAt: Date;
         updatedAt: Date;
-        details: import("@prisma/client/runtime/library").JsonValue | null;
-        taliId: string;
         status: import("@prisma/client").$Enums.PurchaseStatus;
-        pointCost: number;
+        details: import("@prisma/client/runtime/library").JsonValue | null;
         fulfillmentData: import("@prisma/client/runtime/library").JsonValue | null;
         adminNote: string | null;
+        taliId: string;
         productId: string;
     })[]>;
     updatePurchaseStatus(id: string, body: {
@@ -160,14 +160,14 @@ export declare class MarketController {
         adminNote?: string;
     }): Promise<{
         id: string;
+        pointCost: number;
         createdAt: Date;
         updatedAt: Date;
-        details: import("@prisma/client/runtime/library").JsonValue | null;
-        taliId: string;
         status: import("@prisma/client").$Enums.PurchaseStatus;
-        pointCost: number;
+        details: import("@prisma/client/runtime/library").JsonValue | null;
         fulfillmentData: import("@prisma/client/runtime/library").JsonValue | null;
         adminNote: string | null;
+        taliId: string;
         productId: string;
     }>;
 }

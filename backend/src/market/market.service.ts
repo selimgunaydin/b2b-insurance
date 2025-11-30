@@ -8,7 +8,7 @@ import { PurchaseStatus } from '@prisma/client';
 
 @Injectable()
 export class MarketService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async getAllProducts(activeOnly = true) {
     return this.prisma.product.findMany({
@@ -54,9 +54,11 @@ export class MarketService {
   }
 
   async purchaseProduct(userId: string, productId: string, details?: any) {
+    console.log('purchaseProduct called with userId:', userId);
     const taliProfile = await this.prisma.taliProfile.findUnique({
       where: { userId },
     });
+    console.log('TaliProfile found:', taliProfile);
 
     if (!taliProfile) {
       throw new BadRequestException('Tali profile not found');
@@ -78,22 +80,16 @@ export class MarketService {
       throw new BadRequestException('Out of stock');
     }
 
-    const profile = await this.prisma.taliProfile.findUnique({
-      where: { userId },
-    });
 
-    if (!profile) {
-      throw new NotFoundException('Tali profile not found');
-    }
 
-    if (Number(profile.points) < product.pointCost) {
+    if (Number(taliProfile.points) < product.pointCost) {
       throw new BadRequestException('Insufficient points');
     }
 
     return this.prisma.$transaction(async (prisma) => {
       // Deduct points
       await prisma.taliProfile.update({
-        where: { id: profile.id },
+        where: { id: taliProfile.id },
         data: { points: { decrement: product.pointCost } },
       });
 
