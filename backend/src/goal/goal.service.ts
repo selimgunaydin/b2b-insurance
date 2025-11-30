@@ -15,7 +15,7 @@ export class GoalService {
     policyType?: InsuranceType;
     targetValue: number;
     rewardType: RewardType;
-    rewardValue: number;
+    rewardPoints: number;
     startDate: Date;
     endDate: Date;
   }) {
@@ -25,7 +25,7 @@ export class GoalService {
           data: {
             ...data,
             targetValue: Math.floor(data.targetValue || 0), // Ensure integer and prevent NaN
-            rewardValue: data.rewardValue,
+            rewardPoints: data.rewardPoints,
           },
         });
 
@@ -129,20 +129,20 @@ export class GoalService {
   }
 
   private async grantReward(taliId: string, goal: any) {
-    if (goal.rewardType === 'CASH') {
-      // Add to balance
+    if (goal.rewardType === RewardType.POINTS) {
+      // Add to points
       await this.prisma.taliProfile.update({
         where: { id: taliId },
         data: {
-          balance: { increment: goal.rewardValue },
+          points: { increment: goal.rewardPoints },
         },
       });
 
-      // Log reward
+      // Create Reward Record
       await this.prisma.reward.create({
         data: {
           taliId,
-          amount: goal.rewardValue,
+          points: goal.rewardPoints,
           description: `Hedef Tamamlandı: ${goal.title}`,
         },
       });

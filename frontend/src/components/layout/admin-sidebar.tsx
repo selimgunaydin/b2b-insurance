@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, Users, Settings, LogOut, ShieldAlert, ChevronLeft, ChevronRight, XCircle, Shield, UserCog, BarChart3, Building2, Target, Globe, Menu, X } from "lucide-react";
+import { LayoutDashboard, FileText, Users, Settings, LogOut, ShieldAlert, ChevronLeft, ChevronRight, XCircle, Shield, UserCog, BarChart3, Building2, Target,
+  ShoppingBag, Globe, Menu, X } from "lucide-react";
 
 export function AdminSidebar() {
   const router = useRouter();
@@ -23,6 +24,7 @@ export function AdminSidebar() {
     { href: "/admin/customers", label: "Müşteriler", icon: Users },
     { href: "/admin/cancellations", label: "İptal Talepleri", icon: XCircle },
     { href: "/admin/users", label: "Kullanıcılar", icon: UserCog },
+    { href: "/admin/market", label: "Market", icon: ShoppingBag },
     { href: "/admin/goals", label: "Hedefler", icon: Target },
     { href: "/admin/statistics", label: "İstatistikler", icon: BarChart3 },
     { href: "/admin/companies", label: "Şirketler", icon: Building2 },

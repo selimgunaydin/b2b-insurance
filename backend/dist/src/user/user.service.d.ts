@@ -13,7 +13,7 @@ export declare class UserService {
             birthDate: Date | null;
             hasKvkkApproval: boolean;
             hasContractApproval: boolean;
-            balance: import("@prisma/client/runtime/library").Decimal;
+            points: import("@prisma/client/runtime/library").Decimal;
             allowedInsuranceTypes: string[];
             userId: string;
         } | null;
@@ -37,7 +37,7 @@ export declare class UserService {
             birthDate: Date | null;
             hasKvkkApproval: boolean;
             hasContractApproval: boolean;
-            balance: import("@prisma/client/runtime/library").Decimal;
+            points: import("@prisma/client/runtime/library").Decimal;
             allowedInsuranceTypes: string[];
             userId: string;
         } | null;
@@ -78,7 +78,7 @@ export declare class UserService {
         birthDate: Date | null;
         hasKvkkApproval: boolean;
         hasContractApproval: boolean;
-        balance: import("@prisma/client/runtime/library").Decimal;
+        points: import("@prisma/client/runtime/library").Decimal;
         allowedInsuranceTypes: string[];
         userId: string;
     } | null>;

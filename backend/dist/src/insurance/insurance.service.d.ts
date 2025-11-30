@@ -42,7 +42,7 @@ export declare class InsuranceService {
             insuranceRequestId: string;
             policyNumber: string;
             premium: import("@prisma/client/runtime/library").Decimal;
-            commission: import("@prisma/client/runtime/library").Decimal;
+            commissionPoints: import("@prisma/client/runtime/library").Decimal;
         } | null;
     } & {
         id: string;
@@ -128,7 +128,7 @@ export declare class InsuranceService {
             insuranceRequestId: string;
             policyNumber: string;
             premium: import("@prisma/client/runtime/library").Decimal;
-            commission: import("@prisma/client/runtime/library").Decimal;
+            commissionPoints: import("@prisma/client/runtime/library").Decimal;
         } | null;
         tali: {
             id: string;
@@ -140,7 +140,7 @@ export declare class InsuranceService {
             birthDate: Date | null;
             hasKvkkApproval: boolean;
             hasContractApproval: boolean;
-            balance: import("@prisma/client/runtime/library").Decimal;
+            points: import("@prisma/client/runtime/library").Decimal;
             allowedInsuranceTypes: string[];
             userId: string;
         };
@@ -271,7 +271,7 @@ export declare class InsuranceService {
         insuranceRequestId: string;
         policyNumber: string;
         premium: import("@prisma/client/runtime/library").Decimal;
-        commission: import("@prisma/client/runtime/library").Decimal;
+        commissionPoints: import("@prisma/client/runtime/library").Decimal;
     }>;
     updatePolicyDetails(id: string, data: {
         policyNumber?: string;
@@ -291,7 +291,7 @@ export declare class InsuranceService {
         insuranceRequestId: string;
         policyNumber: string;
         premium: import("@prisma/client/runtime/library").Decimal;
-        commission: import("@prisma/client/runtime/library").Decimal;
+        commissionPoints: import("@prisma/client/runtime/library").Decimal;
     }>;
     getMyCustomers(userId: string): Promise<{
         id: string;
@@ -345,7 +345,7 @@ export declare class InsuranceService {
         insuranceRequestId: string;
         policyNumber: string;
         premium: import("@prisma/client/runtime/library").Decimal;
-        commission: import("@prisma/client/runtime/library").Decimal;
+        commissionPoints: import("@prisma/client/runtime/library").Decimal;
     })[]>;
     getAllCustomers(): Promise<({
         tali: {
@@ -360,7 +360,7 @@ export declare class InsuranceService {
                     birthDate: Date | null;
                     hasKvkkApproval: boolean;
                     hasContractApproval: boolean;
-                    balance: import("@prisma/client/runtime/library").Decimal;
+                    points: import("@prisma/client/runtime/library").Decimal;
                     allowedInsuranceTypes: string[];
                     userId: string;
                 } | null;
@@ -383,7 +383,7 @@ export declare class InsuranceService {
             birthDate: Date | null;
             hasKvkkApproval: boolean;
             hasContractApproval: boolean;
-            balance: import("@prisma/client/runtime/library").Decimal;
+            points: import("@prisma/client/runtime/library").Decimal;
             allowedInsuranceTypes: string[];
             userId: string;
         };
@@ -423,7 +423,7 @@ export declare class InsuranceService {
                         birthDate: Date | null;
                         hasKvkkApproval: boolean;
                         hasContractApproval: boolean;
-                        balance: import("@prisma/client/runtime/library").Decimal;
+                        points: import("@prisma/client/runtime/library").Decimal;
                         allowedInsuranceTypes: string[];
                         userId: string;
                     } | null;
@@ -446,7 +446,7 @@ export declare class InsuranceService {
                 birthDate: Date | null;
                 hasKvkkApproval: boolean;
                 hasContractApproval: boolean;
-                balance: import("@prisma/client/runtime/library").Decimal;
+                points: import("@prisma/client/runtime/library").Decimal;
                 allowedInsuranceTypes: string[];
                 userId: string;
             };
@@ -478,7 +478,7 @@ export declare class InsuranceService {
         insuranceRequestId: string;
         policyNumber: string;
         premium: import("@prisma/client/runtime/library").Decimal;
-        commission: import("@prisma/client/runtime/library").Decimal;
+        commissionPoints: import("@prisma/client/runtime/library").Decimal;
     })[]>;
     createCancellationRequest(policyId: string, reason: string, userId: string): Promise<{
         id: string;
@@ -522,7 +522,7 @@ export declare class InsuranceService {
                 birthDate: Date | null;
                 hasKvkkApproval: boolean;
                 hasContractApproval: boolean;
-                balance: import("@prisma/client/runtime/library").Decimal;
+                points: import("@prisma/client/runtime/library").Decimal;
                 allowedInsuranceTypes: string[];
                 userId: string;
             };
@@ -584,7 +584,7 @@ export declare class InsuranceService {
                 birthDate: Date | null;
                 hasKvkkApproval: boolean;
                 hasContractApproval: boolean;
-                balance: import("@prisma/client/runtime/library").Decimal;
+                points: import("@prisma/client/runtime/library").Decimal;
                 allowedInsuranceTypes: string[];
                 userId: string;
             };

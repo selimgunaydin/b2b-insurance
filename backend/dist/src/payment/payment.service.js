@@ -22,7 +22,7 @@ let PaymentService = class PaymentService {
         const transaction = await this.prisma.transactions.create({
             data: {
                 userId: dto.userId,
-                amount: dto.amount,
+                points: dto.amount,
                 type: dto.type,
                 status: client_1.TransactionStatus.SUCCESS,
             },
@@ -30,13 +30,13 @@ let PaymentService = class PaymentService {
         if (dto.type === 'DEPOSIT' || dto.type === 'COMMISSION') {
             await this.prisma.taliProfile.update({
                 where: { userId: dto.userId },
-                data: { balance: { increment: dto.amount } },
+                data: { points: { increment: dto.amount } },
             });
         }
-        else if (dto.type === 'PAYMENT' || dto.type === 'REFUND') {
+        else if (dto.type === 'PAYMENT' || dto.type === 'REFUND' || dto.type === 'MARKET_PURCHASE') {
             await this.prisma.taliProfile.update({
                 where: { userId: dto.userId },
-                data: { balance: { decrement: dto.amount } },
+                data: { points: { decrement: dto.amount } },
             });
         }
         return transaction;

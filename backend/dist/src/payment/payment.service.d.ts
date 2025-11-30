@@ -7,8 +7,8 @@ export declare class PaymentService {
         id: string;
         createdAt: Date;
         type: import("@prisma/client").$Enums.TransactionType;
+        points: import("@prisma/client/runtime/library").Decimal;
         userId: string;
         status: import("@prisma/client").$Enums.TransactionStatus;
-        amount: import("@prisma/client/runtime/library").Decimal;
     }>;
 }

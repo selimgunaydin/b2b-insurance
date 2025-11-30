@@ -4,7 +4,7 @@ import { RequestStatus, Role } from '@prisma/client';
 
 @Injectable()
 export class AdminService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async getDashboardStats() {
     const pendingUsers = await this.prisma.user.count({
@@ -109,14 +109,14 @@ export class AdminService {
     const activePolicies = policies.filter((p) => p.status === 'ACTIVE').length;
 
     let totalPremium = 0;
-    let totalCommission = 0;
+    let totalCommissionPoints = 0;
     const policiesByType: Record<string, number> = {};
     const policiesByMonth: Record<string, number> = {};
 
     for (const p of policies) {
       if (p.status === 'ACTIVE') {
         totalPremium += Number(p.premium);
-        totalCommission += Number(p.commission || 0);
+        totalCommissionPoints += Number(p.commissionPoints || 0);
       }
 
       const type = p.insuranceRequest.type;
@@ -131,7 +131,7 @@ export class AdminService {
       totalPolicies,
       activePolicies,
       totalPremium,
-      totalCommission,
+      totalCommissionPoints,
       policiesByType,
       policiesByMonth,
     };

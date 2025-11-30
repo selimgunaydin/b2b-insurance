@@ -99,13 +99,13 @@ let AdminService = class AdminService {
         const totalPolicies = policies.length;
         const activePolicies = policies.filter((p) => p.status === 'ACTIVE').length;
         let totalPremium = 0;
-        let totalCommission = 0;
+        let totalCommissionPoints = 0;
         const policiesByType = {};
         const policiesByMonth = {};
         for (const p of policies) {
             if (p.status === 'ACTIVE') {
                 totalPremium += Number(p.premium);
-                totalCommission += Number(p.commission || 0);
+                totalCommissionPoints += Number(p.commissionPoints || 0);
             }
             const type = p.insuranceRequest.type;
             policiesByType[type] = (policiesByType[type] || 0) + 1;
@@ -117,7 +117,7 @@ let AdminService = class AdminService {
             totalPolicies,
             activePolicies,
             totalPremium,
-            totalCommission,
+            totalCommissionPoints,
             policiesByType,
             policiesByMonth,
         };

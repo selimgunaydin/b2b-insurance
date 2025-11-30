@@ -13,6 +13,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.GoalService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const client_1 = require("@prisma/client");
 let GoalService = GoalService_1 = class GoalService {
     prisma;
     logger = new common_1.Logger(GoalService_1.name);
@@ -26,7 +27,7 @@ let GoalService = GoalService_1 = class GoalService {
                     data: {
                         ...data,
                         targetValue: Math.floor(data.targetValue || 0),
-                        rewardValue: data.rewardValue,
+                        rewardPoints: data.rewardPoints,
                     },
                 });
                 const talis = await prisma.taliProfile.findMany();
@@ -111,17 +112,17 @@ let GoalService = GoalService_1 = class GoalService {
         }
     }
     async grantReward(taliId, goal) {
-        if (goal.rewardType === 'CASH') {
+        if (goal.rewardType === client_1.RewardType.POINTS) {
             await this.prisma.taliProfile.update({
                 where: { id: taliId },
                 data: {
-                    balance: { increment: goal.rewardValue },
+                    points: { increment: goal.rewardPoints },
                 },
             });
             await this.prisma.reward.create({
                 data: {
                     taliId,
-                    amount: goal.rewardValue,
+                    points: goal.rewardPoints,
                     description: `Hedef Tamamlandı: ${goal.title}`,
                 },
             });

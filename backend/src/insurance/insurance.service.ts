@@ -62,11 +62,11 @@ export class InsuranceService {
 
     const policies = await this.prisma.policy.findMany({
       where: { insuranceRequest: { taliId } },
-      select: { commission: true },
+      select: { commissionPoints: true },
     });
 
     const totalEarnings = policies.reduce(
-      (sum, p) => sum + (Number(p.commission) || 0),
+      (sum, p) => sum + (Number(p.commissionPoints) || 0),
       0,
     );
 
@@ -414,7 +414,28 @@ export class InsuranceService {
           },
         });
 
-        // 2. Create Policy
+        // 2. Calculate Points
+        // Get Tali Profile to check membership
+        const taliProfile = await prisma.taliProfile.findUnique({
+          where: { id: request.taliId },
+        });
+
+        let pointsEarned = 0;
+        if (taliProfile) {
+          // Get Commission Rate
+          // Note: We need to fetch settings. Since we are in transaction, we can use prisma.
+          // Key format: commission_{MEMBERSHIP}_{TYPE}
+          const rateKey = `commission_${taliProfile.membershipType}_${request.type}`;
+          const rateSetting = await prisma.systemSetting.findUnique({
+            where: { key: rateKey },
+          });
+
+          const rate = rateSetting ? parseFloat(rateSetting.value) : 0;
+          const premium = Number(request.adminOfferPrice || 0);
+          pointsEarned = (premium * rate) / 100;
+        }
+
+        // 3. Create Policy
         const policy = await prisma.policy.upsert({
           update: { policyUrl: policyPdfUrl },
           where: {
@@ -428,9 +449,27 @@ export class InsuranceService {
             startDate: new Date(),
             endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)), // 1 Year default
             premium: request.adminOfferPrice || 0,
+            commissionPoints: pointsEarned,
             status: 'ACTIVE',
           },
         });
+
+        // 4. Update Tali Points and Create Transaction
+        if (pointsEarned > 0) {
+          await prisma.taliProfile.update({
+            where: { id: request.taliId },
+            data: { points: { increment: pointsEarned } },
+          });
+
+          await prisma.transactions.create({
+            data: {
+              userId: taliProfile?.userId || userId, // Link to Tali User ID
+              points: pointsEarned,
+              type: 'COMMISSION',
+              status: 'SUCCESS',
+            },
+          });
+        }
 
         return { updatedRequest, policy };
       });

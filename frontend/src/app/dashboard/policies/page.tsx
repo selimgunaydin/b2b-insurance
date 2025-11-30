@@ -21,6 +21,7 @@ interface Policy {
   startDate: string;
   endDate: string;
   premium: number;
+  commissionPoints: number;
   status: string;
   policyUrl?: string;
   insuranceRequest: {
@@ -111,7 +112,7 @@ export default function MyPoliciesPage() {
                 <TableHead>Müşteri</TableHead>
                 <TableHead>Sigorta Şirketi</TableHead>
                 <TableHead>Başlangıç / Bitiş</TableHead>
-                <TableHead>Prim</TableHead>
+                <TableHead>Kazanılan Puan</TableHead>
                 <TableHead>Durum</TableHead>
                 <TableHead className="text-right">İşlem</TableHead>
               </TableRow>
@@ -133,7 +134,7 @@ export default function MyPoliciesPage() {
                         <span className="text-muted-foreground">{format(new Date(policy.endDate), "d MMM yyyy", { locale: tr })}</span>
                     </div>
                   </TableCell>
-                  <TableCell>₺{policy.premium}</TableCell>
+                  <TableCell>{policy.commissionPoints} Puan</TableCell>
                   <TableCell>
                     <Badge variant={policy.status === 'ACTIVE' ? 'default' : 'destructive'}>
                         {policy.status === 'ACTIVE' ? 'Aktif' : policy.status === 'CANCELLED' ? 'İptal' : 'Süresi Dolmuş'}

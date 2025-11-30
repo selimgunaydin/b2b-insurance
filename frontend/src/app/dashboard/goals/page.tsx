@@ -14,7 +14,7 @@ interface Goal {
   description?: string;
   targetType: string;
   targetValue: number;
-  rewardValue: number;
+  rewardPoints: number;
   startDate: string;
   endDate: string;
   isActive: boolean;
@@ -113,7 +113,7 @@ export default function GoalsPage() {
                       <span>{taliGoal.goal.title}</span>
                       <div className="flex items-center gap-1 text-sm font-normal text-muted-foreground">
                         <Trophy className="h-4 w-4" />
-                        <span>₺{taliGoal.goal.rewardValue}</span>
+                        <span>{taliGoal.goal.rewardPoints} Puan</span>
                       </div>
                     </CardTitle>
                     {taliGoal.goal.description && (
@@ -155,12 +155,12 @@ export default function GoalsPage() {
               <Card key={taliGoal.id} className="bg-green-50/50 border-green-200">
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
-                    <span className="flex items-center gap-2">
+                      <span className="flex items-center gap-2">
                       <Trophy className="h-5 w-5 text-green-600" />
                       {taliGoal.goal.title}
                     </span>
                     <div className="flex items-center gap-1 text-sm font-normal text-green-700">
-                      <span>₺{taliGoal.goal.rewardValue}</span>
+                      <span>{taliGoal.goal.rewardPoints} Puan</span>
                     </div>
                   </CardTitle>
                 </CardHeader>

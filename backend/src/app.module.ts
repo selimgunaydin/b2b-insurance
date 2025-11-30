@@ -22,6 +22,7 @@ import { UploadModule } from './upload/upload.module';
 
 import { GoalModule } from './goal/goal.module';
 import { CmsModule } from './cms/cms.module';
+import { MarketModule } from './market/market.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { CmsModule } from './cms/cms.module';
     ScheduleModule.forRoot(),
     GoalModule,
     CmsModule,
+    MarketModule,
   ],
   controllers: [AppController],
   providers: [AppService],

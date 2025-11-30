@@ -11,7 +11,7 @@ export declare class GoalService {
         policyType?: InsuranceType;
         targetValue: number;
         rewardType: RewardType;
-        rewardValue: number;
+        rewardPoints: number;
         startDate: Date;
         endDate: Date;
     }): Promise<{
@@ -24,7 +24,7 @@ export declare class GoalService {
         policyType: import("@prisma/client").$Enums.InsuranceType | null;
         targetValue: number;
         rewardType: import("@prisma/client").$Enums.RewardType;
-        rewardValue: import("@prisma/client/runtime/library").Decimal;
+        rewardPoints: import("@prisma/client/runtime/library").Decimal;
         startDate: Date;
         endDate: Date;
         isActive: boolean;
@@ -39,7 +39,7 @@ export declare class GoalService {
         policyType: import("@prisma/client").$Enums.InsuranceType | null;
         targetValue: number;
         rewardType: import("@prisma/client").$Enums.RewardType;
-        rewardValue: import("@prisma/client/runtime/library").Decimal;
+        rewardPoints: import("@prisma/client/runtime/library").Decimal;
         startDate: Date;
         endDate: Date;
         isActive: boolean;
@@ -55,7 +55,7 @@ export declare class GoalService {
             policyType: import("@prisma/client").$Enums.InsuranceType | null;
             targetValue: number;
             rewardType: import("@prisma/client").$Enums.RewardType;
-            rewardValue: import("@prisma/client/runtime/library").Decimal;
+            rewardPoints: import("@prisma/client/runtime/library").Decimal;
             startDate: Date;
             endDate: Date;
             isActive: boolean;

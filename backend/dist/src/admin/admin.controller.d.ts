@@ -19,7 +19,7 @@ export declare class AdminController {
                     birthDate: Date | null;
                     hasKvkkApproval: boolean;
                     hasContractApproval: boolean;
-                    balance: import("@prisma/client/runtime/library").Decimal;
+                    points: import("@prisma/client/runtime/library").Decimal;
                     allowedInsuranceTypes: string[];
                     userId: string;
                 } | null;
@@ -51,7 +51,7 @@ export declare class AdminController {
         totalPolicies: number;
         activePolicies: number;
         totalPremium: number;
-        totalCommission: number;
+        totalCommissionPoints: number;
         policiesByType: Record<string, number>;
         policiesByMonth: Record<string, number>;
     }>;

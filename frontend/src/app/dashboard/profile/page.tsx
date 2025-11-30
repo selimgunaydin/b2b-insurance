@@ -112,7 +112,7 @@ export default function ProfilePage() {
             <div className="pt-4 border-t">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <CreditCard className="h-4 w-4" />
-                <span className="text-sm">Bakiye: ₺{tali.balance}</span>
+                <span className="text-sm">Puan: {tali.points} Puan</span>
               </div>
             </div>
           </CardContent>

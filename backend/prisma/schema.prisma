@@ -42,6 +42,7 @@ enum TransactionType {
   PAYMENT
   COMMISSION
   REFUND
+  MARKET_PURCHASE
 }
 
 enum TransactionStatus {
@@ -83,7 +84,7 @@ model TaliProfile {
   birthDate   DateTime?
   
   membershipType MembershipType @default(STANDARD)
-  balance        Decimal        @default(0)
+  points         Decimal        @default(0)
   
   hasKvkkApproval Boolean @default(false)
   hasContractApproval Boolean @default(false)
@@ -94,6 +95,7 @@ model TaliProfile {
   insuranceRequests InsuranceRequest[]
   goals             TaliGoal[]
   rewards           Reward[]
+  purchases         MarketPurchase[]
 }
 
 model Customer {
@@ -153,7 +155,7 @@ model Policy {
   startDate    DateTime
   endDate      DateTime
   premium      Decimal
-  commission   Decimal      @default(0)
+  commissionPoints Decimal      @default(0)
   policyUrl    String?
   status       PolicyStatus @default(ACTIVE)
 
@@ -166,7 +168,7 @@ model CommissionRate {
   membershipType MembershipType
   insuranceType  InsuranceType
   rate           Float // Percentage
-
+  
   @@unique([membershipType, insuranceType])
 }
 
@@ -174,7 +176,7 @@ model Transactions {
   id        String            @id @default(uuid())
   userId    String
   user      User              @relation(fields: [userId], references: [id])
-  amount    Decimal
+  points    Decimal
   type      TransactionType
   status    TransactionStatus @default(PENDING)
   createdAt DateTime          @default(now())
@@ -254,8 +256,8 @@ model Goal {
   targetType  GoalTargetType // COUNT, PREMIUM
   policyType  InsuranceType? // Specific type or null for ALL
   targetValue Int       // e.g., 10 policies or 10000 TL
-  rewardType  RewardType // CASH, GIFT
-  rewardValue Decimal   // e.g., 500 TL
+  rewardType  RewardType // POINTS
+  rewardPoints Decimal   // e.g., 500 Points
   startDate   DateTime
   endDate     DateTime
   isActive    Boolean   @default(true)
@@ -282,7 +284,7 @@ model Reward {
   id          String    @id @default(uuid())
   taliId      String
   tali        TaliProfile @relation(fields: [taliId], references: [id])
-  amount      Decimal
+  points      Decimal
   description String
   createdAt   DateTime  @default(now())
 }
@@ -293,8 +295,7 @@ enum GoalTargetType {
 }
 
 enum RewardType {
-  CASH
-  GIFT
+  POINTS
 }
 
 model WebsiteContent {
@@ -304,4 +305,36 @@ model WebsiteContent {
   value     String   @db.Text
   category  String   // HOME, ABOUT, CONTACT, REFERENCES
   updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  imageUrl    String?
+  pointCost   Int
+  stock       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  purchases   MarketPurchase[]
+}
+
+enum PurchaseStatus {
+  PENDING
+  COMPLETED
+  REJECTED
+}
+
+model MarketPurchase {
+  id          String   @id @default(uuid())
+  taliId      String
+  tali        TaliProfile @relation(fields: [taliId], references: [id])
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  pointCost   Int
+  status      PurchaseStatus @default(PENDING)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

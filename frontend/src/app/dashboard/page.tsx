@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, DollarSign, CheckCircle, Clock } from "lucide-react";
+import { Loader2, Star, CheckCircle, Clock } from "lucide-react";
 
 interface CommissionRate {
   id: string;
@@ -66,22 +66,22 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Toplam Bakiye</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Toplam Puan</CardTitle>
+            <Star className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₺{profile?.taliProfile?.balance || 0}</div>
-            <p className="text-xs text-muted-foreground">Güncel bakiyeniz</p>
+            <div className="text-2xl font-bold">{profile?.taliProfile?.points || 0} Puan</div>
+            <p className="text-xs text-muted-foreground">Güncel puanınız</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Toplam Kazanç</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Kazanılan Puan</CardTitle>
+            <Star className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₺{stats?.totalEarnings || 0}</div>
-            <p className="text-xs text-muted-foreground">Toplam komisyon geliri</p>
+            <div className="text-2xl font-bold">{stats?.totalEarnings || 0} Puan</div>
+            <p className="text-xs text-muted-foreground">Toplam kazanılan puan</p>
           </CardContent>
         </Card>
         <Card>

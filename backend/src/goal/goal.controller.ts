@@ -20,7 +20,7 @@ import {
 @Controller('goals')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
 export class GoalController {
-  constructor(private readonly goalService: GoalService) {}
+  constructor(private readonly goalService: GoalService) { }
 
   @Post()
   @Roles(Role.ADMIN)
@@ -33,7 +33,7 @@ export class GoalController {
       policyType?: InsuranceType;
       targetValue: number;
       rewardType: RewardType;
-      rewardValue: number;
+      rewardPoints: number;
       startDate: string;
       endDate: string;
     },
