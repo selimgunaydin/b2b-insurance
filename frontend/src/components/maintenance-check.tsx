@@ -31,18 +31,21 @@ export function MaintenanceCheck({ children }: { children: React.ReactNode }) {
   const isAdmin = pathname?.startsWith("/admin"); // Simple check, ideally check user role
   const isMaintenancePage = pathname === "/maintenance";
 
+  const isAuthPage = pathname?.startsWith("/auth");
+  const isPublicPage = ["/", "/hakkimizda", "/iletisim", "/referanslar"].includes(pathname || "");
+
   useEffect(() => {
-    if (isMaintenanceMode && !isAdmin && !isMaintenancePage) {
+    if (isMaintenanceMode && !isAdmin && !isMaintenancePage && !isAuthPage && !isPublicPage) {
       router.push("/maintenance");
     }
-  }, [isMaintenanceMode, isAdmin, isMaintenancePage, router]);
+  }, [isMaintenanceMode, isAdmin, isMaintenancePage, isAuthPage, isPublicPage, router]);
 
   if (isLoading) {
      // Optional: Show loading state or just render children to avoid flicker
      return <>{children}</>;
   }
 
-  if (isMaintenanceMode && !isAdmin && !isMaintenancePage) {
+  if (isMaintenanceMode && !isAdmin && !isMaintenancePage && !isAuthPage && !isPublicPage) {
     return null; // Don't render anything while redirecting
   }
 
