@@ -6,6 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Loader2, DollarSign, CheckCircle, Clock } from "lucide-react";
 
+interface CommissionRate {
+  id: string;
+  insuranceType: string;
+  rate: number;
+}
+
 export default function DashboardPage() {
   const { data: profile, isLoading: isProfileLoading } = useQuery({
     queryKey: ["profile"],
@@ -24,7 +30,7 @@ export default function DashboardPage() {
     enabled: !!profile && profile.role === "TALI",
   });
 
-  const { data: rates, isLoading: isRatesLoading } = useQuery({
+  const { data: rates, isLoading: isRatesLoading } = useQuery<CommissionRate[]>({
     queryKey: ["rates"],
     queryFn: async () => {
       const res = await api.get("/commission/my-rates");
@@ -152,7 +158,7 @@ export default function DashboardPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {rates?.map((rate: any) => (
+                {rates?.map((rate) => (
                   <TableRow key={rate.id}>
                     <TableCell>{rate.insuranceType}</TableCell>
                     <TableCell>%{rate.rate}</TableCell>

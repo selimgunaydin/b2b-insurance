@@ -7,8 +7,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Loader2, TrendingUp, Wallet, Percent } from "lucide-react";
 
+interface CommissionRate {
+  id: string;
+  insuranceType: string;
+  rate: number;
+}
+
 export default function TaliEarningsPage() {
-  const { data: rates, isLoading: ratesLoading } = useQuery({
+  const { data: rates, isLoading: ratesLoading } = useQuery<CommissionRate[]>({
     queryKey: ["my-rates"],
     queryFn: async () => {
       const res = await api.get("/commission/my-rates");
@@ -72,7 +78,9 @@ export default function TaliEarningsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              %{(rates?.reduce((acc: number, curr: any) => acc + curr.rate, 0) / (rates?.length || 1)).toFixed(1)}
+              %{rates && rates.length > 0 
+                ? (rates.reduce((acc, curr) => acc + curr.rate, 0) / rates.length).toFixed(1)
+                : "0.0"}
             </div>
             <p className="text-xs text-muted-foreground">
               Tüm sigorta tipleri ortalaması
@@ -98,7 +106,7 @@ export default function TaliEarningsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rates?.map((rate: any) => (
+              {rates?.map((rate) => (
                 <TableRow key={rate.id}>
                   <TableCell className="font-medium">{rate.insuranceType}</TableCell>
                   <TableCell>

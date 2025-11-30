@@ -51,8 +51,13 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Loader2 } from "lucide-react";
 
+interface SystemSetting {
+  key: string;
+  value: string;
+}
+
 export default function NewRequestPage() {
-  const { data: config, isLoading: configLoading } = useQuery({
+  const { data: config, isLoading: configLoading } = useQuery<SystemSetting[]>({
     queryKey: ["settings-config"],
     queryFn: async () => {
       const res = await api.get("/settings/config");
@@ -81,7 +86,7 @@ export default function NewRequestPage() {
 
   const filteredTypes = insuranceTypes.filter(type => {
     // 1. Global Check
-    const globalSetting = config?.find((s: any) => s.key === `insurance_type_${type.id}_enabled`);
+    const globalSetting = config?.find((s) => s.key === `insurance_type_${type.id}_enabled`);
     if (globalSetting && globalSetting.value === 'false') return false;
 
     // 2. User Permission Check

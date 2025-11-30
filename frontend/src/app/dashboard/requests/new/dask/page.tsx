@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { CustomerForm } from "@/components/forms/customer-form";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { FileUpload } from "@/components/ui/file-upload";
 
@@ -74,9 +74,10 @@ export default function DaskRequestPage() {
       });
 
       router.push("/dashboard");
-    } catch (err: any) {
+    } catch (err) {
       console.error("Request failed", err);
-      setError(err.response?.data?.message || "Teklif oluşturulurken bir hata oluştu.");
+      const error = err as any;
+      setError(error.response?.data?.message || "Teklif oluşturulurken bir hata oluştu.");
     } finally {
       setIsLoading(false);
     }

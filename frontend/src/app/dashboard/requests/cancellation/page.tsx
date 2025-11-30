@@ -66,9 +66,10 @@ export default function CancellationPage() {
       await api.post("/insurance/cancellation", data);
       setSuccess(true);
       form.reset();
-    } catch (err: any) {
+    } catch (err) {
       console.error("Cancellation request failed", err);
-      setError(err.response?.data?.message || "İptal talebi oluşturulurken bir hata oluştu.");
+      const error = err as any;
+      setError(error.response?.data?.message || "İptal talebi oluşturulurken bir hata oluştu.");
     } finally {
       setIsLoading(false);
     }
