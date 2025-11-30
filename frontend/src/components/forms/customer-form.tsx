@@ -1,0 +1,82 @@
+"use client";
+
+import { UseFormReturn } from "react-hook-form";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+
+interface CustomerFormProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  form: UseFormReturn<any>;
+}
+
+export function CustomerForm({ form }: CustomerFormProps) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <FormField
+        control={form.control}
+        name="customer.tcKn"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>TC / Vergi No</FormLabel>
+            <FormControl>
+              <Input placeholder="11 haneli TC veya 10 haneli VKN" maxLength={11} {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="customer.fullName"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Müşteri Ad Soyad / Ünvan</FormLabel>
+            <FormControl>
+              <Input placeholder="Ad Soyad" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="customer.phone"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Telefon</FormLabel>
+            <FormControl>
+              <Input placeholder="0555 555 55 55" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="customer.email"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Email (İsteğe Bağlı)</FormLabel>
+            <FormControl>
+              <Input type="email" placeholder="musteri@email.com" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="customer.birthDate"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Doğum Tarihi</FormLabel>
+            <FormControl>
+              <Input type="date" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </div>
+  );
+}

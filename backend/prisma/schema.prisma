@@ -1,0 +1,228 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  TALI
+}
+
+enum MembershipType {
+  STANDARD
+  PREMIUM
+}
+
+enum InsuranceType {
+  TRAFIK
+  KASKO
+  SAGLIK
+  DASK
+  KONUT
+}
+
+enum RequestStatus {
+  PENDING_OFFER
+  OFFER_READY
+  PAYMENT_PENDING
+  PAYMENT_REVIEW
+  COMPLETED
+  CANCELLED
+}
+
+enum TransactionType {
+  DEPOSIT
+  PAYMENT
+  COMMISSION
+  REFUND
+}
+
+enum TransactionStatus {
+  SUCCESS
+  PENDING
+}
+
+enum CancellationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  auditLogs AuditLog[]
+  role      Role     @default(TALI)
+  isApproved Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  taliProfile TaliProfile?
+  transactions Transactions[]
+  messages    Message[]
+}
+
+model TaliProfile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  
+  fullName    String
+  tcKimlikNo  String?
+  phone       String?
+  address     String?
+  birthDate   DateTime?
+  
+  membershipType MembershipType @default(STANDARD)
+  balance        Decimal        @default(0)
+  
+  hasKvkkApproval Boolean @default(false)
+  hasContractApproval Boolean @default(false)
+  
+  allowedInsuranceTypes String[] @default([]) // Empty means ALL allowed
+
+  customers         Customer[]
+  insuranceRequests InsuranceRequest[]
+}
+
+model Customer {
+  id        String   @id @default(uuid())
+  taliId    String
+  tali      TaliProfile @relation(fields: [taliId], references: [id])
+  tc_kn     String   @unique
+  fullName  String
+  phone     String
+  email     String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  insuranceRequests InsuranceRequest[]
+}
+
+model InsuranceRequest {
+  id           String        @id @default(uuid())
+  taliId       String
+  tali         TaliProfile   @relation(fields: [taliId], references: [id])
+  customerId   String
+  customer     Customer      @relation(fields: [customerId], references: [id])
+  type         InsuranceType
+  status       RequestStatus @default(PENDING_OFFER)
+  details      Json
+  files        String[]
+  
+  // Offer details
+  offers       Json? // Array of { company, price, description }
+  adminOfferPrice Decimal?
+  adminOfferCompany String?
+  adminOfferDescription String?
+  policyPdfUrl String?
+
+  policy    Policy?
+  cancellationRequest CancellationRequest?
+  messages            Message[]
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+enum PolicyStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+}
+
+model Policy {
+  id                 String       @id @default(uuid())
+  insuranceRequestId String       @unique
+  insuranceRequest   InsuranceRequest @relation(fields: [insuranceRequestId], references: [id])
+  
+  policyNumber String
+  company      String
+  startDate    DateTime
+  endDate      DateTime
+  premium      Decimal
+  commission   Decimal      @default(0)
+  pdfUrl       String?
+  status       PolicyStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CommissionRate {
+  id             String         @id @default(uuid())
+  membershipType MembershipType
+  insuranceType  InsuranceType
+  rate           Float // Percentage
+
+  @@unique([membershipType, insuranceType])
+}
+
+model Transactions {
+  id        String            @id @default(uuid())
+  userId    String
+  user      User              @relation(fields: [userId], references: [id])
+  amount    Decimal
+  type      TransactionType
+  status    TransactionStatus @default(PENDING)
+  createdAt DateTime          @default(now())
+}
+
+model CancellationRequest {
+  id         String             @id @default(uuid())
+  policyId   String             @unique
+  policy     InsuranceRequest   @relation(fields: [policyId], references: [id])
+  reason     String
+  proofFiles String[]
+  status     CancellationStatus @default(PENDING)
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  action    String
+  details   Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+}
+
+model Message {
+  id                String           @id @default(uuid())
+  content           String
+  senderId          String
+  sender            User             @relation(fields: [senderId], references: [id])
+  insuranceRequestId String
+  insuranceRequest  InsuranceRequest @relation(fields: [insuranceRequestId], references: [id])
+  createdAt         DateTime         @default(now())
+}
+
+model InsuranceCompany {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  logoUrl   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SystemSetting {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       String
+  type        String   // TEXT, NUMBER, BOOLEAN, JSON
+  category    String   // GENERAL, NOTIFICATIONS, COMMISSION, etc.
+  description String?
+  updatedAt   DateTime @updatedAt
+}

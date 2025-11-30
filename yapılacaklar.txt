@@ -1,0 +1,12 @@
+Taliler için hedeflerim sayfası olmalı. Hedeflere göre ödüller kazanmalı. Bu alan tamamen dinamik yönetilmeli. her yerle entegre olmalı.
+    -Bu hedefler admin tarafından ayarlanmalı ve poliçe türüne göre farklılaştırılabilmeli.
+
+Admin ayarlarım sayfasının tasarımı her şey düşünülerek tamamen yeniden kurgulanmalı. 
+
+Frontendde, müşteri, tali veya admin ekranlarında antigravity veya ai'a ait hiçbir şey olmamalı. Projemizin ismi "B2B Sigorta" olmalı.
+Websitesinin ana sayfası, hakkımızda, iletişim, referanslarımız gibi sayfaları olmalı. Projeyi bildiğin kadarıyla da buralarda özetlemelisin.
+Her şey tamamen türkçeleştirilmeli. 
+Tüm sayfalar mobile-first olarak düzenlenmeli. 
+Frontendde SEO geliştirmeleri eksiksiz yapılmalı. 
+
+Whatsapp entegrasyonuyla tamamlanan poliçe bilgileri ve pdf'i müşteriye mesaj olarak iletilmeli.
