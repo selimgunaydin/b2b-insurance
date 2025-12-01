@@ -157,7 +157,7 @@ export default function DashboardPage() {
       {isTali && (
         <Card className="col-span-4">
           <CardHeader>
-            <CardTitle>Komisyon Oranlarınız ({profile?.taliProfile?.membershipType || "STANDARD"})</CardTitle>
+            <CardTitle>Puan Kazanım Oranlarınız ({profile?.taliProfile?.membershipType || "STANDARD"})</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
@@ -176,7 +176,7 @@ export default function DashboardPage() {
                 ))}
                 {!rates?.length && (
                   <TableRow>
-                    <TableCell colSpan={2} className="text-center">Komisyon oranı bulunamadı.</TableCell>
+                    <TableCell colSpan={2} className="text-center">Puan kazanım oranı bulunamadı.</TableCell>
                   </TableRow>
                 )}
               </TableBody>

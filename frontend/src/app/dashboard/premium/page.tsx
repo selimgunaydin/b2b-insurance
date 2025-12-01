@@ -81,7 +81,7 @@ export default function PremiumPage() {
   const isPremium = profile?.taliProfile?.membershipType === "PREMIUM";
 
   const benefits = [
-    { icon: Zap, text: "Daha Yüksek Komisyon Oranları" },
+    { icon: Zap, text: "Daha Yüksek Puan Kazanım Oranları" },
     { icon: Star, text: "Özel Kampanyalar ve Hedefler" },
     { icon: ShieldCheck, text: "Öncelikli Destek Hattı" },
     { icon: Crown, text: "Premium Rozeti ve Prestij" },
@@ -110,7 +110,7 @@ export default function PremiumPage() {
             <ul className="space-y-2">
               <li className="flex items-center gap-2">
                 <Check className="h-5 w-5 text-green-500" />
-                <span>Standart Komisyon Oranları</span>
+                <span>Standart Puan Kazanım Oranları</span>
               </li>
               <li className="flex items-center gap-2">
                 <Check className="h-5 w-5 text-green-500" />

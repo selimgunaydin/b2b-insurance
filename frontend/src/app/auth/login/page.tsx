@@ -95,7 +95,7 @@ export default function LoginPage() {
               <div className="h-10 w-10 rounded-full bg-indigo-500/20 flex items-center justify-center">
                 <CheckCircle2 className="h-5 w-5 text-indigo-300" />
               </div>
-              <span className="text-indigo-100">Anlık Komisyon Takibi</span>
+              <span className="text-indigo-100">Anlık Kazanım Takibi</span>
             </div>
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-indigo-500/20 flex items-center justify-center">

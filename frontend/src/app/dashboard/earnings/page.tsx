@@ -40,7 +40,7 @@ export default function TaliEarningsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Kazançlarım & Komisyonlar</h1>
+      <h1 className="text-3xl font-bold">Kazançlarım & Puanlarım</h1>
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
@@ -67,7 +67,7 @@ export default function TaliEarningsPage() {
               {stats?.activePolicies || 0}
             </div>
             <p className="text-xs text-muted-foreground">
-              Komisyon kazandıran poliçeler
+              Puan kazandıran poliçeler
             </p>
           </CardContent>
         </Card>
@@ -91,9 +91,9 @@ export default function TaliEarningsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Komisyon Oranlarım</CardTitle>
+          <CardTitle>Puan Kazanım Oranlarım</CardTitle>
           <CardDescription>
-            Üyelik tipinize ({stats?.membershipType || 'STANDARD'}) özel tanımlanmış komisyon oranları.
+            Üyelik tipinize ({stats?.membershipType || 'STANDARD'}) özel tanımlanmış puan oranları.
           </CardDescription>
         </CardHeader>
         <CardContent>

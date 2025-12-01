@@ -37,7 +37,7 @@ export default function TransactionsPage() {
     switch (type) {
       case "DEPOSIT": return "Para Yükleme";
       case "PAYMENT": return "Ödeme";
-      case "COMMISSION": return "Komisyon Kazancı";
+      case "COMMISSION": return "Puan Kazancı";
       case "REFUND": return "İade";
       case "MARKET_PURCHASE": return "Market Alışverişi";
       default: return type;

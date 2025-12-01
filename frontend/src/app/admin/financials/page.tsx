@@ -122,7 +122,7 @@ export default function AdminFinancialsPage() {
                             </div>
                             <div>
                                 <p className="font-medium">
-                                    {item.type === 'COMMISSION' ? 'Komisyon Kazancı' : 
+                                    {item.type === 'COMMISSION' ? 'Puan Kazancı' : 
                                      item.type === 'GOAL_REWARD' ? 'Hedef Ödülü' : 
                                      item.type === 'DEPOSIT' ? 'Manuel Yükleme' : item.type}
                                 </p>
