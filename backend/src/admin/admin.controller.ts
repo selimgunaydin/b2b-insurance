@@ -16,7 +16,7 @@ import { Role } from '@prisma/client';
 @Controller('admin')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class AdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(private readonly adminService: AdminService) { }
 
   @Get('stats')
   @Roles(Role.ADMIN)
@@ -28,6 +28,12 @@ export class AdminController {
   @Roles(Role.ADMIN)
   async getGeneralStats() {
     return this.adminService.getGeneralTaliStats();
+  }
+
+  @Get('financials')
+  @Roles(Role.ADMIN)
+  async getFinancialStats() {
+    return this.adminService.getFinancialStats();
   }
 
   @Get('stats/tali/:id')

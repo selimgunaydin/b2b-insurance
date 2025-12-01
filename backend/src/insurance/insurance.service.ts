@@ -22,7 +22,7 @@ export class InsuranceService {
     private whatsappService: WhatsAppService,
     private paymentService: PaymentService,
     private trustScoreService: TrustScoreService,
-  ) {}
+  ) { }
 
   async getStats(userId: string) {
     const taliProfile = await this.prisma.taliProfile.findUnique({
@@ -332,8 +332,8 @@ export class InsuranceService {
         policyUrl: policyPdfUrl,
         premium: request.offers
           ? (request.offers as any[]).find(
-              (o) => o.company === request.adminOfferCompany,
-            )?.price || 0
+            (o) => o.company === request.adminOfferCompany,
+          )?.price || 0
           : 0, // Best effort premium
         company: request.adminOfferCompany || 'Unknown',
         policyNumber: `POL-${Date.now()}`, // Generate a temp policy number if new
@@ -410,7 +410,12 @@ export class InsuranceService {
     return updatedRequest;
   }
 
-  async confirmPayment(id: string, userId: string, file?: Express.Multer.File) {
+  async confirmPayment(
+    id: string,
+    userId: string,
+    file: Express.Multer.File,
+    body: any = {},
+  ) {
     const request = await this.prisma.insuranceRequest.findUnique({
       where: { id },
     });
@@ -496,8 +501,8 @@ export class InsuranceService {
           create: {
             insuranceRequestId: id,
             policyUrl: policyPdfUrl,
-            policyNumber: 'PENDING', // Will be updated by admin
-            company: 'PENDING', // Will be updated by admin
+            policyNumber: body.policyNumber || 'PENDING',
+            company: body.company || request.adminOfferCompany || 'PENDING',
             startDate: new Date(),
             endDate: new Date(
               new Date().setFullYear(new Date().getFullYear() + 1),

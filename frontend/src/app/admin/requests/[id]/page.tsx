@@ -37,6 +37,11 @@ export default function AdminRequestDetailPage() {
   ]);
   const [file, setFile] = useState<File | null>(null);
 
+  const [paymentConfirmData, setPaymentConfirmData] = useState({
+    policyNumber: "",
+    company: "",
+  });
+
   const { data: request, isLoading, refetch } = useQuery({
     queryKey: ["admin-request", id],
     queryFn: async () => {
@@ -44,6 +49,8 @@ export default function AdminRequestDetailPage() {
       return res.data;
     },
   });
+
+
 
   const { data: companies } = useQuery({
     queryKey: ["active-companies"],
@@ -134,12 +141,18 @@ export default function AdminRequestDetailPage() {
     });
   };
 
+
+
   const handleConfirmPayment = async () => {
     if (!file) return;
+    
     setConfirmModal((prev) => ({ ...prev, isLoading: true }));
     try {
       const formData = new FormData();
       formData.append("file", file);
+      
+      if (paymentConfirmData.policyNumber) formData.append("policyNumber", paymentConfirmData.policyNumber);
+      if (paymentConfirmData.company) formData.append("company", paymentConfirmData.company);
       
       await api.post(`/insurance/${id}/confirm-payment`, formData, {
         headers: {
@@ -472,6 +485,41 @@ export default function AdminRequestDetailPage() {
                       onChange={(e) => setFile(e.target.files?.[0] || null)}
                     />
                     <p className="text-xs text-muted-foreground">Ödeme onaylandığında bu poliçe müşteriye gösterilecektir.</p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <Label>Poliçe No</Label>
+                        <Input 
+                            value={paymentConfirmData.policyNumber}
+                            onChange={(e) => setPaymentConfirmData(prev => ({ ...prev, policyNumber: e.target.value }))}
+                            placeholder="Poliçe Numarası"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label>Sigorta Şirketi</Label>
+                        <Select
+                            value={paymentConfirmData.company}
+                            onValueChange={(value) => setPaymentConfirmData(prev => ({ ...prev, company: value }))}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder={request.adminOfferCompany || "Şirket Seçin"} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {(request.offers as Offer[])?.map((offer, index) => (
+                                    <SelectItem key={index} value={offer.company}>
+                                        {offer.company} ({offer.price} TL)
+                                    </SelectItem>
+                                ))}
+                                {/* Fallback if adminOfferCompany is not in offers list for some reason */}
+                                {request.adminOfferCompany && !(request.offers as Offer[])?.some(o => o.company === request.adminOfferCompany) && (
+                                     <SelectItem value={request.adminOfferCompany}>
+                                        {request.adminOfferCompany}
+                                    </SelectItem>
+                                )}
+                            </SelectContent>
+                        </Select>
+                    </div>
                   </div>
 
                   <div className="flex justify-end">

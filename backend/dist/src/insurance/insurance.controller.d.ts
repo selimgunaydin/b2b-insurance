@@ -405,7 +405,7 @@ export declare class InsuranceController {
         adminOfferDescription: string | null;
         policyUrl: string | null;
     }>;
-    confirmPayment(id: string, req: any, file?: Express.Multer.File): Promise<{
+    confirmPayment(id: string, file: Express.Multer.File, req: any, body: any): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;

@@ -49,7 +49,6 @@ import { ExportModule } from './export/export.module';
     GoalModule,
     CmsModule,
     MarketModule,
-    MarketModule,
     PremiumModule,
     TransactionsModule,
     ExportModule,
@@ -57,4 +56,4 @@ import { ExportModule } from './export/export.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

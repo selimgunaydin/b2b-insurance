@@ -50,6 +50,16 @@ export declare class AdminController {
         totalPolicies: number;
         totalPremium: number | import("@prisma/client/runtime/library").Decimal;
     }>;
+    getFinancialStats(): Promise<{
+        totalPointsDistributed: number | import("@prisma/client/runtime/library").Decimal;
+        totalLiabilities: number | import("@prisma/client/runtime/library").Decimal;
+        pointsByType: {
+            type: import("@prisma/client").$Enums.TransactionType;
+            points: import("@prisma/client/runtime/library").Decimal | null;
+        }[];
+        monthlyPoints: Record<string, number>;
+        monthlyBreakdown: Record<string, Record<string, number>>;
+    }>;
     getTaliStats(id: string): Promise<{
         tali: any;
         totalPolicies: number;

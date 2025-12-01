@@ -188,6 +188,55 @@ let AdminService = class AdminService {
             },
         });
     }
+    async getFinancialStats() {
+        const totalPointsResult = await this.prisma.transactions.aggregate({
+            _sum: { points: true },
+            where: {
+                type: { in: ['COMMISSION', 'GOAL_REWARD', 'DEPOSIT'] },
+                status: 'SUCCESS',
+            },
+        });
+        const totalPointsDistributed = totalPointsResult._sum.points || 0;
+        const totalLiabilitiesResult = await this.prisma.taliProfile.aggregate({
+            _sum: { points: true },
+        });
+        const totalLiabilities = totalLiabilitiesResult._sum.points || 0;
+        const pointsByType = await this.prisma.transactions.groupBy({
+            by: ['type'],
+            _sum: { points: true },
+            where: {
+                status: 'SUCCESS',
+                points: { gt: 0 },
+            },
+        });
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+        const recentTransactions = await this.prisma.transactions.findMany({
+            where: {
+                createdAt: { gte: sixMonthsAgo },
+                status: 'SUCCESS',
+                points: { gt: 0 },
+            },
+            select: { points: true, createdAt: true, type: true },
+        });
+        const monthlyPoints = {};
+        const monthlyBreakdown = {};
+        for (const t of recentTransactions) {
+            const month = t.createdAt.toISOString().slice(0, 7);
+            const points = Number(t.points);
+            monthlyPoints[month] = (monthlyPoints[month] || 0) + points;
+            if (!monthlyBreakdown[month])
+                monthlyBreakdown[month] = {};
+            monthlyBreakdown[month][t.type] = (monthlyBreakdown[month][t.type] || 0) + points;
+        }
+        return {
+            totalPointsDistributed,
+            totalLiabilities,
+            pointsByType: pointsByType.map(p => ({ type: p.type, points: p._sum.points })),
+            monthlyPoints,
+            monthlyBreakdown
+        };
+    }
 };
 exports.AdminService = AdminService;
 exports.AdminService = AdminService = __decorate([

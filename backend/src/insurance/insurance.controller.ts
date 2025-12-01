@@ -22,7 +22,7 @@ import { Role } from '@prisma/client';
 @Controller('insurance')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class InsuranceController {
-  constructor(private readonly insuranceService: InsuranceService) {}
+  constructor(private readonly insuranceService: InsuranceService) { }
 
   @Post()
   @Roles(Role.TALI)
@@ -145,10 +145,14 @@ export class InsuranceController {
   @UseInterceptors(FileInterceptor('file'))
   async confirmPayment(
     @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
     @Request() req: any,
-    @UploadedFile() file?: Express.Multer.File,
+    @Body() body: any,
   ) {
-    return this.insuranceService.confirmPayment(id, req.user.id, file);
+    if (!file) {
+      throw new Error('File is required');
+    }
+    return this.insuranceService.confirmPayment(id, req.user.id, file, body);
   }
 
   @Post(':id/notify-payment')

@@ -79,4 +79,14 @@ export declare class AdminService {
         hasContractApproval: boolean;
         allowedInsuranceTypes: string[];
     }>;
+    getFinancialStats(): Promise<{
+        totalPointsDistributed: number | import("@prisma/client/runtime/library").Decimal;
+        totalLiabilities: number | import("@prisma/client/runtime/library").Decimal;
+        pointsByType: {
+            type: import("@prisma/client").$Enums.TransactionType;
+            points: import("@prisma/client/runtime/library").Decimal | null;
+        }[];
+        monthlyPoints: Record<string, number>;
+        monthlyBreakdown: Record<string, Record<string, number>>;
+    }>;
 }

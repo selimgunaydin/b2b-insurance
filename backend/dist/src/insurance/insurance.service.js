@@ -338,7 +338,7 @@ let InsuranceService = class InsuranceService {
         });
         return updatedRequest;
     }
-    async confirmPayment(id, userId, file) {
+    async confirmPayment(id, userId, file, body = {}) {
         const request = await this.prisma.insuranceRequest.findUnique({
             where: { id },
         });
@@ -400,8 +400,8 @@ let InsuranceService = class InsuranceService {
                     create: {
                         insuranceRequestId: id,
                         policyUrl: policyPdfUrl,
-                        policyNumber: 'PENDING',
-                        company: 'PENDING',
+                        policyNumber: body.policyNumber || 'PENDING',
+                        company: body.company || request.adminOfferCompany || 'PENDING',
                         startDate: new Date(),
                         endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
                         premium: request.adminOfferPrice || 0,

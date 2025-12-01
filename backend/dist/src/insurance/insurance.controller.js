@@ -72,8 +72,11 @@ let InsuranceController = class InsuranceController {
     async approveOffer(id, body, req) {
         return this.insuranceService.approveOffer(id, req.user.id, body.selectedOffer);
     }
-    async confirmPayment(id, req, file) {
-        return this.insuranceService.confirmPayment(id, req.user.id, file);
+    async confirmPayment(id, file, req, body) {
+        if (!file) {
+            throw new Error('File is required');
+        }
+        return this.insuranceService.confirmPayment(id, req.user.id, file, body);
     }
     async notifyPayment(id, body, req) {
         return this.insuranceService.notifyPayment(id, body.method, req.user.id);
@@ -208,10 +211,11 @@ __decorate([
     (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Request)()),
-    __param(2, (0, common_1.UploadedFile)()),
+    __param(1, (0, common_1.UploadedFile)()),
+    __param(2, (0, common_1.Request)()),
+    __param(3, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, Object]),
+    __metadata("design:paramtypes", [String, Object, Object, Object]),
     __metadata("design:returntype", Promise)
 ], InsuranceController.prototype, "confirmPayment", null);
 __decorate([

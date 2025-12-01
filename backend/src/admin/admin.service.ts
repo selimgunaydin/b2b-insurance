@@ -4,7 +4,7 @@ import { RequestStatus, Role } from '@prisma/client';
 
 @Injectable()
 export class AdminService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async getDashboardStats() {
     const pendingUsers = await this.prisma.user.count({
@@ -222,5 +222,66 @@ export class AdminService {
         membershipType: 'PREMIUM',
       },
     });
+  }
+  async getFinancialStats() {
+    // 1. Total Points Distributed (All Time)
+    const totalPointsResult = await this.prisma.transactions.aggregate({
+      _sum: { points: true },
+      where: {
+        type: { in: ['COMMISSION', 'GOAL_REWARD', 'DEPOSIT'] }, // Add other earning types if any
+        status: 'SUCCESS',
+      },
+    });
+    const totalPointsDistributed = totalPointsResult._sum.points || 0;
+
+    // 2. Current Liabilities (Total Points held by Users)
+    const totalLiabilitiesResult = await this.prisma.taliProfile.aggregate({
+      _sum: { points: true },
+    });
+    const totalLiabilities = totalLiabilitiesResult._sum.points || 0;
+
+    // 3. Points Breakdown by Type
+    const pointsByType = await this.prisma.transactions.groupBy({
+      by: ['type'],
+      _sum: { points: true },
+      where: {
+        status: 'SUCCESS',
+        points: { gt: 0 }, // Only positive points (earnings)
+      },
+    });
+
+    // 4. Monthly Points Distribution (Last 6 months)
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    const recentTransactions = await this.prisma.transactions.findMany({
+      where: {
+        createdAt: { gte: sixMonthsAgo },
+        status: 'SUCCESS',
+        points: { gt: 0 },
+      },
+      select: { points: true, createdAt: true, type: true },
+    });
+
+    const monthlyPoints: Record<string, number> = {};
+    const monthlyBreakdown: Record<string, Record<string, number>> = {};
+
+    for (const t of recentTransactions) {
+      const month = t.createdAt.toISOString().slice(0, 7); // YYYY-MM
+      const points = Number(t.points);
+
+      monthlyPoints[month] = (monthlyPoints[month] || 0) + points;
+
+      if (!monthlyBreakdown[month]) monthlyBreakdown[month] = {};
+      monthlyBreakdown[month][t.type] = (monthlyBreakdown[month][t.type] || 0) + points;
+    }
+
+    return {
+      totalPointsDistributed,
+      totalLiabilities,
+      pointsByType: pointsByType.map(p => ({ type: p.type, points: p._sum.points })),
+      monthlyPoints,
+      monthlyBreakdown
+    };
   }
 }
