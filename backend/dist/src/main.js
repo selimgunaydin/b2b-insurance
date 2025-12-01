@@ -11,7 +11,7 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.enableCors({
-        origin: ['http://localhost:3000', 'https://b2b-insurance.onrender.com'],
+        origin: ['http://localhost:3000', 'https://b2b-insurance.onrender.com', 'https://b2b-insurance-frontend.onrender.com', 'https://b2b-insurance-backend.onrender.com'],
         credentials: true,
     });
     app.use((0, cookie_parser_1.default)());

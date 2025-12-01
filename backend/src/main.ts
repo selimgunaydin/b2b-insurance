@@ -9,7 +9,7 @@ import cookieParser from 'cookie-parser';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.enableCors({
-    origin: ['http://localhost:3000', 'https://b2b-insurance.onrender.com'], // Add production URL
+    origin: ['http://localhost:3000', 'https://b2b-insurance-frontend.onrender.com', 'https://b2b-insurance-backend.onrender.com'], // Add production URL
     credentials: true,
   });
   app.use(cookieParser());
