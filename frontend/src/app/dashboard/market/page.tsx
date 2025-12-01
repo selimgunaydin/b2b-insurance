@@ -139,7 +139,7 @@ export default function MarketPage() {
           </p>
         </div>
         <Card className="w-full md:w-auto bg-primary text-primary-foreground">
-          <CardContent className="flex items-center gap-4 p-4">
+          <CardContent className="flex items-center gap-4">
             <div className="p-2 bg-primary-foreground/10 rounded-full">
               <Gift className="h-6 w-6" />
             </div>

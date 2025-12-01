@@ -65,7 +65,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], NotificationController.prototype, "getUnreadCount", null);
 __decorate([
-    (0, common_1.Post)('read/:id'),
+    (0, common_1.Put)(':id/read'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
@@ -73,7 +73,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], NotificationController.prototype, "markAsRead", null);
 __decorate([
-    (0, common_1.Post)('read-all'),
+    (0, common_1.Put)('read-all'),
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),

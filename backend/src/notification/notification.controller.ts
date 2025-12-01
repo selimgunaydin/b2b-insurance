@@ -6,6 +6,7 @@ import {
   Get,
   Param,
   Request,
+  Put,
 } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { SendNotificationDto } from './dto/notification.dto';
@@ -17,7 +18,7 @@ import { Role } from '@prisma/client';
 @Controller('notification')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
 export class NotificationController {
-  constructor(private readonly notificationService: NotificationService) {}
+  constructor(private readonly notificationService: NotificationService) { }
 
   @Post('send')
   @Roles(Role.ADMIN)
@@ -35,12 +36,12 @@ export class NotificationController {
     return this.notificationService.getUnreadCount(req.user.id);
   }
 
-  @Post('read/:id')
+  @Put(':id/read')
   async markAsRead(@Param('id') id: string, @Request() req: any) {
     return this.notificationService.markAsRead(id, req.user.id);
   }
 
-  @Post('read-all')
+  @Put('read-all')
   async markAllAsRead(@Request() req: any) {
     return this.notificationService.markAllAsRead(req.user.id);
   }
