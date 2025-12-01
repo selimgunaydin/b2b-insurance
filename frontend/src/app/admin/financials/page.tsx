@@ -137,6 +137,54 @@ export default function AdminFinancialsPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Borçlu Kullanıcılar (En Yüksek Bakiye)</CardTitle>
+          <CardDescription>Sistemin borçlu olduğu kullanıcılar ve puan bakiyeleri.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <LiabilitiesTable />
+        </CardContent>
+      </Card>
     </div>
+  );
+}
+
+function LiabilitiesTable() {
+  const { data: liabilities, isLoading } = useQuery({
+    queryKey: ["admin-liabilities"],
+    queryFn: async () => {
+      const res = await api.get("/admin/financials/liabilities");
+      return res.data as { userId: string; fullName: string; email: string; points: number; membershipType: string }[];
+    },
+  });
+
+  if (isLoading) return <Loader2 className="h-6 w-6 animate-spin" />;
+  if (!liabilities || liabilities.length === 0) return <div>Borçlu kullanıcı bulunamadı.</div>;
+
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Kullanıcı</TableHead>
+          <TableHead>Email</TableHead>
+          <TableHead>Üyelik</TableHead>
+          <TableHead className="text-right">Bakiye (Puan)</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {liabilities.map((user) => (
+          <TableRow key={user.userId}>
+            <TableCell className="font-medium">{user.fullName}</TableCell>
+            <TableCell>{user.email}</TableCell>
+            <TableCell>{user.membershipType}</TableCell>
+            <TableCell className="text-right font-bold text-red-600">
+              {new Intl.NumberFormat('tr-TR').format(user.points)}
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 }

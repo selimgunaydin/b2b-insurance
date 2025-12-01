@@ -89,4 +89,11 @@ export declare class AdminService {
         monthlyPoints: Record<string, number>;
         monthlyBreakdown: Record<string, Record<string, number>>;
     }>;
+    getLiabilitiesBreakdown(): Promise<{
+        userId: any;
+        fullName: any;
+        email: any;
+        points: number;
+        membershipType: any;
+    }[]>;
 }

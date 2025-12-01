@@ -242,7 +242,12 @@ export default function AdminPoliciesPage() {
                         {policy.status === 'ACTIVE' ? 'Aktif' : policy.status === 'CANCELLED' ? 'İptal' : 'Süresi Dolmuş'}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right flex justify-end gap-2">
+                    <Link href={`/admin/policies/${policy.id}`}>
+                      <Button variant="outline" size="sm">
+                        Detay
+                      </Button>
+                    </Link>
                     {policy.policyUrl && (
                         <Link href={policy.policyUrl || '#'} target="_blank">
                         <Button variant="ghost" size="sm">

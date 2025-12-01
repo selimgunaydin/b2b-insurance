@@ -60,6 +60,13 @@ export declare class AdminController {
         monthlyPoints: Record<string, number>;
         monthlyBreakdown: Record<string, Record<string, number>>;
     }>;
+    getLiabilitiesBreakdown(): Promise<{
+        userId: any;
+        fullName: any;
+        email: any;
+        points: number;
+        membershipType: any;
+    }[]>;
     getTaliStats(id: string): Promise<{
         tali: any;
         totalPolicies: number;

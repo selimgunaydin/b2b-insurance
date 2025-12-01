@@ -759,6 +759,30 @@ export class InsuranceService {
     });
   }
 
+  async getPolicyById(id: string) {
+    const policy = await this.prisma.policy.findUnique({
+      where: { id },
+      include: {
+        insuranceRequest: {
+          include: {
+            customer: true,
+            tali: {
+              include: {
+                user: {
+                  include: {
+                    taliProfile: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!policy) throw new NotFoundException('Policy not found');
+    return policy;
+  }
+
   async createCancellationRequest(
     policyId: string,
     reason: string,

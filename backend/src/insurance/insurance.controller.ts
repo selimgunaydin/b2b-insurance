@@ -74,6 +74,12 @@ export class InsuranceController {
     return this.insuranceService.getAllPolicies();
   }
 
+  @Get('policy/:id')
+  @Roles(Role.ADMIN)
+  async getPolicyById(@Param('id') id: string) {
+    return this.insuranceService.getPolicyById(id);
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.insuranceService.findOne(id);

@@ -284,4 +284,31 @@ export class AdminService {
       monthlyBreakdown
     };
   }
+
+  async getLiabilitiesBreakdown() {
+    const liabilities = await this.prisma.taliProfile.findMany({
+      where: {
+        points: { gt: 0 },
+      },
+      include: {
+        user: {
+          select: {
+            email: true,
+          },
+        },
+      },
+      orderBy: {
+        points: 'desc',
+      },
+      take: 50, // Top 50 debtors
+    });
+
+    return liabilities.map((l: any) => ({
+      userId: l.userId,
+      fullName: l.fullName,
+      email: l.user.email,
+      points: Number(l.points),
+      membershipType: l.membershipType,
+    }));
+  }
 }

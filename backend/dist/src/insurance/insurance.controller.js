@@ -50,6 +50,9 @@ let InsuranceController = class InsuranceController {
     async getAllPolicies() {
         return this.insuranceService.getAllPolicies();
     }
+    async getPolicyById(id) {
+        return this.insuranceService.getPolicyById(id);
+    }
     async findOne(id) {
         return this.insuranceService.findOne(id);
     }
@@ -157,6 +160,14 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], InsuranceController.prototype, "getAllPolicies", null);
+__decorate([
+    (0, common_1.Get)('policy/:id'),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], InsuranceController.prototype, "getPolicyById", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),

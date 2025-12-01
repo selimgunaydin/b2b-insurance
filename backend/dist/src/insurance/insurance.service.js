@@ -598,6 +598,30 @@ let InsuranceService = class InsuranceService {
             orderBy: { createdAt: 'desc' },
         });
     }
+    async getPolicyById(id) {
+        const policy = await this.prisma.policy.findUnique({
+            where: { id },
+            include: {
+                insuranceRequest: {
+                    include: {
+                        customer: true,
+                        tali: {
+                            include: {
+                                user: {
+                                    include: {
+                                        taliProfile: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        });
+        if (!policy)
+            throw new common_1.NotFoundException('Policy not found');
+        return policy;
+    }
     async createCancellationRequest(policyId, reason, userId) {
         const policy = await this.prisma.policy.findUnique({
             where: { id: policyId },
