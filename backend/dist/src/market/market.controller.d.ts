@@ -159,6 +159,35 @@ export declare class MarketController {
         fulfillmentData?: any;
         adminNote?: string;
     }): Promise<{
+        product: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            name: string;
+            type: import("@prisma/client").$Enums.ProductType;
+            category: string | null;
+            description: string | null;
+            isActive: boolean;
+            imageUrl: string | null;
+            pointCost: number;
+            stock: number;
+        };
+        tali: {
+            id: string;
+            userId: string;
+            fullName: string;
+            tcKimlikNo: string | null;
+            phone: string | null;
+            address: string | null;
+            birthDate: Date | null;
+            membershipType: import("@prisma/client").$Enums.MembershipType;
+            points: import("@prisma/client/runtime/library").Decimal;
+            trustScore: number;
+            hasKvkkApproval: boolean;
+            hasContractApproval: boolean;
+            allowedInsuranceTypes: string[];
+        };
+    } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;

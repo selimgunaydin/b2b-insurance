@@ -39,9 +39,11 @@ enum RequestStatus {
 
 enum TransactionType {
   DEPOSIT
-  PAYMENT
+  WITHDRAWAL
   COMMISSION
+  PAYMENT
   REFUND
+  GOAL_REWARD
   MARKET_PURCHASE
 }
 
@@ -183,6 +185,7 @@ model Transactions {
   points    Decimal
   type      TransactionType
   status    TransactionStatus @default(PENDING)
+  description String?
   createdAt DateTime          @default(now())
 }
 
@@ -252,6 +255,11 @@ enum NotificationType {
   SYSTEM
   ADMIN_MESSAGE
   RENEWAL
+  OFFER
+  POLICY
+  CANCELLATION
+  PREMIUM
+  MARKET
 }
 
 model Goal {

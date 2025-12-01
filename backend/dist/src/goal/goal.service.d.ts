@@ -29,6 +29,32 @@ export declare class GoalService {
         endDate: Date;
         isActive: boolean;
     }>;
+    update(id: string, data: {
+        title?: string;
+        description?: string;
+        targetType?: GoalTargetType;
+        policyType?: InsuranceType;
+        targetValue?: number;
+        rewardType?: RewardType;
+        rewardPoints?: number;
+        startDate?: Date;
+        endDate?: Date;
+        isActive?: boolean;
+    }): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        description: string | null;
+        title: string;
+        targetType: import("@prisma/client").$Enums.GoalTargetType;
+        policyType: import("@prisma/client").$Enums.InsuranceType | null;
+        targetValue: number;
+        rewardType: import("@prisma/client").$Enums.RewardType;
+        rewardPoints: import("@prisma/client/runtime/library").Decimal;
+        startDate: Date;
+        endDate: Date;
+        isActive: boolean;
+    }>;
     findAll(): Promise<{
         id: string;
         createdAt: Date;
@@ -70,4 +96,20 @@ export declare class GoalService {
     })[]>;
     checkProgress(taliId: string, policyType: InsuranceType, premium: number): Promise<void>;
     private grantReward;
+    resetGoalProgress(taliId: string, goalId: string): Promise<{
+        id: string;
+        taliId: string;
+        goalId: string;
+        currentValue: number;
+        isCompleted: boolean;
+        completedAt: Date | null;
+    }>;
+    deleteGoalProgress(taliId: string, goalId: string): Promise<{
+        id: string;
+        taliId: string;
+        goalId: string;
+        currentValue: number;
+        isCompleted: boolean;
+        completedAt: Date | null;
+    }>;
 }

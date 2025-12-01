@@ -236,7 +236,7 @@ let InsuranceService = class InsuranceService {
             },
         });
         try {
-            await this.notificationService.createSystemNotification(request.taliId, 'Teklif Hazır', `#${request.id.slice(0, 8)} numaralı talebiniz için teklif hazırlandı.`, client_2.NotificationType.SYSTEM);
+            await this.notificationService.notifyOfferReady(request.taliId, `#${request.id.slice(0, 8)}`);
         }
         catch (error) {
             console.error('Failed to send notification for offer update:', error);
@@ -255,7 +255,7 @@ let InsuranceService = class InsuranceService {
             requestId: id,
             offers: dto.offers,
         });
-        await this.notificationService.createSystemNotification(request.taliId, 'Teklif Hazır', `#${request.id.slice(0, 8)} numaralı talebiniz için teklif güncellendi.`, client_2.NotificationType.SYSTEM);
+        await this.notificationService.notifyOfferReady(request.taliId, `#${request.id.slice(0, 8)}`);
         return request;
     }
     async uploadPolicy(id, file, userId) {
@@ -272,7 +272,7 @@ let InsuranceService = class InsuranceService {
                 status: client_1.RequestStatus.COMPLETED,
             },
         });
-        await this.prisma.policy.upsert({
+        const policy = await this.prisma.policy.upsert({
             where: { insuranceRequestId: id },
             update: { policyUrl: policyPdfUrl },
             create: {
@@ -292,7 +292,7 @@ let InsuranceService = class InsuranceService {
             requestId: id,
             filename,
         });
-        await this.notificationService.createSystemNotification(request.taliId, 'Poliçe Onaylandı', `#${request.id.slice(0, 8)} numaralı talebiniz onaylandı ve poliçeniz oluşturuldu.`, client_2.NotificationType.SYSTEM);
+        await this.notificationService.notifyPolicyCreated(request.taliId, policy.policyNumber);
         return request;
     }
     async approveOffer(id, userId, selectedOffer) {
@@ -436,7 +436,7 @@ let InsuranceService = class InsuranceService {
             }
             try {
                 if (request) {
-                    await this.notificationService.createSystemNotification(request.taliId, 'Poliçe Onaylandı', `#${request.id.slice(0, 8)} numaralı talebiniz onaylandı ve poliçeniz oluşturuldu.`, client_2.NotificationType.SYSTEM);
+                    await this.notificationService.notifyPolicyCreated(request.taliId, result.policy.policyNumber);
                 }
             }
             catch (e) {

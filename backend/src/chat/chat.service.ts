@@ -7,7 +7,7 @@ export class ChatService {
   constructor(
     private prisma: PrismaService,
     private auditService: AuditService,
-  ) { }
+  ) {}
 
   async getMessages(requestId: string, userId: string) {
     // Verify access

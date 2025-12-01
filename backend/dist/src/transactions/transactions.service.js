@@ -23,6 +23,39 @@ let TransactionsService = class TransactionsService {
             orderBy: { createdAt: 'desc' },
         });
     }
+    async getUserTransactions(userId) {
+        return this.prisma.transactions.findMany({
+            where: { userId },
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+    async adjustPoints(userId, amount, type, description) {
+        return this.prisma.$transaction(async (prisma) => {
+            const transaction = await prisma.transactions.create({
+                data: {
+                    userId,
+                    points: amount,
+                    type: type,
+                    status: 'SUCCESS',
+                    description,
+                },
+            });
+            const taliProfile = await prisma.taliProfile.findUnique({
+                where: { userId },
+            });
+            if (taliProfile) {
+                await prisma.taliProfile.update({
+                    where: { id: taliProfile.id },
+                    data: {
+                        points: {
+                            increment: amount,
+                        },
+                    },
+                });
+            }
+            return transaction;
+        });
+    }
 };
 exports.TransactionsService = TransactionsService;
 exports.TransactionsService = TransactionsService = __decorate([

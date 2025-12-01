@@ -1,8 +1,8 @@
-Tali-Admin arasında geçecek her işlemi düşün. Tüm bunlarda iki tarafa da bildirim gönderilmeli.
+Admin hedefleri güncelleyebilmeli/düzenleyebilmeli.
 
-Admin, tali kişilerin geçmişteki puan hareketlerini, nereden kazandığını, nerede harcadığını görebilmeli.
-Admin, tali kişilerin hedefini, kazanımını silebilmeli, resetleyebilmeli.
-Adminler her anlamda tali kişileri yönetebilmeli.
+Tali puan geçmişinde hedef kazanımları da komisyon kazancı olarak gözüküyor. Bunun hedef kazancı olarak gözükmesi gerekiyor.
+
+Admin tarafında müşteriler, kullanıcılar, poliçeler, teklifler excel formatında export edilebilmeli. Bu alanı detaylıca düşün ve en iyi şekilde geliştir.
 
 Tüm maddeleri detaylıca düşün ve analiz et. En iyi, en optimum şekilde çözüm uygula. 
 

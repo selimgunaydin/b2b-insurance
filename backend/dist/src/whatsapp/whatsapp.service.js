@@ -38,6 +38,7 @@ let WhatsAppService = WhatsAppService_1 = class WhatsAppService {
         try {
             this.logger.log(`[MOCK] Sending WhatsApp to ${to}:`);
             this.logger.log(message);
+            await new Promise((resolve) => setTimeout(resolve, 100));
             return true;
         }
         catch (error) {

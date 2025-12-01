@@ -84,6 +84,29 @@ export default function AdminGoalsPage() {
     );
   }
 
+  const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
+
+  const updateMutation = useMutation({
+    mutationFn: async (data: { id: string; data: CreateGoalData }) => {
+      return api.put(`/goals/${data.id}`, data.data);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Başarılı",
+        description: "Hedef güncellendi.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["admin-goals"] });
+      setEditingGoal(null);
+    },
+    onError: () => {
+      toast({
+        title: "Hata",
+        description: "Hedef güncellenemedi.",
+        variant: "destructive",
+      });
+    },
+  });
+
   return (
     <div className="p-8 space-y-6">
       <div className="flex items-center justify-between">
@@ -102,7 +125,33 @@ export default function AdminGoalsPage() {
             <DialogHeader>
               <DialogTitle>Yeni Hedef Oluştur</DialogTitle>
             </DialogHeader>
-            <CreateGoalForm onSubmit={createMutation.mutate} isLoading={createMutation.isPending} />
+            <GoalForm onSubmit={createMutation.mutate} isLoading={createMutation.isPending} />
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={!!editingGoal} onOpenChange={(open) => !open && setEditingGoal(null)}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Hedefi Düzenle</DialogTitle>
+            </DialogHeader>
+            {editingGoal && (
+              <GoalForm 
+                initialData={{
+                  title: editingGoal.title,
+                  description: editingGoal.description,
+                  targetType: editingGoal.targetType,
+                  policyType: editingGoal.policyType || "ALL",
+                  targetValue: editingGoal.targetValue.toString(),
+                  rewardType: editingGoal.rewardType,
+                  rewardValue: editingGoal.rewardPoints.toString(),
+                  startDate: format(new Date(editingGoal.startDate), "yyyy-MM-dd"),
+                  endDate: format(new Date(editingGoal.endDate), "yyyy-MM-dd"),
+                }}
+                onSubmit={(data) => updateMutation.mutate({ id: editingGoal.id, data })} 
+                isLoading={updateMutation.isPending} 
+                submitText="Güncelle"
+              />
+            )}
           </DialogContent>
         </Dialog>
       </div>
@@ -123,6 +172,7 @@ export default function AdminGoalsPage() {
                   <TableHead className="whitespace-nowrap">Ödül</TableHead>
                   <TableHead className="whitespace-nowrap">Tarih Aralığı</TableHead>
                   <TableHead className="whitespace-nowrap">Durum</TableHead>
+                  <TableHead className="whitespace-nowrap">İşlemler</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -156,11 +206,16 @@ export default function AdminGoalsPage() {
                         </span>
                       )}
                     </TableCell>
+                    <TableCell>
+                      <Button variant="outline" size="sm" onClick={() => setEditingGoal(goal)}>
+                        Düzenle
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
                 {(!goals || goals.length === 0) && (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                       Henüz hedef oluşturulmamış
                     </TableCell>
                   </TableRow>
@@ -174,17 +229,24 @@ export default function AdminGoalsPage() {
   );
 }
 
-function CreateGoalForm({ onSubmit, isLoading }: { onSubmit: (data: CreateGoalData) => void; isLoading: boolean }) {
+interface GoalFormProps {
+  onSubmit: (data: CreateGoalData) => void;
+  isLoading: boolean;
+  initialData?: any;
+  submitText?: string;
+}
+
+function GoalForm({ onSubmit, isLoading, initialData, submitText = "Hedef Oluştur" }: GoalFormProps) {
   const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    targetType: "COUNT",
-    policyType: "ALL",
-    targetValue: "",
-    rewardType: "POINTS",
-    rewardValue: "",
-    startDate: "",
-    endDate: "",
+    title: initialData?.title || "",
+    description: initialData?.description || "",
+    targetType: initialData?.targetType || "COUNT",
+    policyType: initialData?.policyType || "ALL",
+    targetValue: initialData?.targetValue || "",
+    rewardType: initialData?.rewardType || "POINTS",
+    rewardValue: initialData?.rewardValue || "",
+    startDate: initialData?.startDate || "",
+    endDate: initialData?.endDate || "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -308,7 +370,7 @@ function CreateGoalForm({ onSubmit, isLoading }: { onSubmit: (data: CreateGoalDa
       <div className="flex justify-end gap-2">
         <Button type="submit" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Hedef Oluştur
+          {submitText}
         </Button>
       </div>
     </form>

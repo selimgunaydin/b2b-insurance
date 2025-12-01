@@ -42,11 +42,13 @@ export function AdminPointsModal({ userId, currentPoints }: AdminPointsModalProp
   const queryClient = useQueryClient();
 
   const pointsMutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: { amount: string; type: string; description: string }) => {
       try {
-        const res = await api.post(`/admin/users/${userId}/points`, {
-          ...data,
+        const res = await api.post(`/transactions/adjust`, {
+          userId,
           amount: Number(data.amount),
+          type: data.type,
+          description: data.description,
         });
         return res.data;
       } catch (error: any) {
@@ -55,7 +57,7 @@ export function AdminPointsModal({ userId, currentPoints }: AdminPointsModalProp
           description: error.message || "Puan güncellenirken bir hata oluştu.",
           variant: "destructive",
         });
-        throw error; // Re-throw the error so onError can still catch it if needed, or to propagate it.
+        throw error; 
       }
     },
     onSuccess: () => {
@@ -68,9 +70,6 @@ export function AdminPointsModal({ userId, currentPoints }: AdminPointsModalProp
       queryClient.invalidateQueries({ queryKey: ["admin-user-detail", userId] });
     },
     onError: (error: any) => {
-      // This onError will now only be called if the error is re-thrown from mutationFn
-      // or if there's an error in the onSuccess callback itself.
-      // The specific error message from the API might be handled in the mutationFn's catch block.
       toast({
         variant: "destructive",
         title: "Hata",

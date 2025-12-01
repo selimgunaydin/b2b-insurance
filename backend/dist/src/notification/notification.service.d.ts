@@ -44,4 +44,49 @@ export declare class NotificationService {
     }>;
     markAllAsRead(userId: string): Promise<import("@prisma/client").Prisma.BatchPayload>;
     handleCron(): Promise<void>;
+    notifyOfferReady(userId: string, requestTitle: string): Promise<{
+        id: string;
+        createdAt: Date;
+        userId: string;
+        message: string;
+        type: import("@prisma/client").$Enums.NotificationType;
+        title: string;
+        isRead: boolean;
+    }>;
+    notifyPolicyCreated(userId: string, policyNumber: string): Promise<{
+        id: string;
+        createdAt: Date;
+        userId: string;
+        message: string;
+        type: import("@prisma/client").$Enums.NotificationType;
+        title: string;
+        isRead: boolean;
+    }>;
+    notifyCancellationStatus(userId: string, status: string, policyNumber: string): Promise<{
+        id: string;
+        createdAt: Date;
+        userId: string;
+        message: string;
+        type: import("@prisma/client").$Enums.NotificationType;
+        title: string;
+        isRead: boolean;
+    }>;
+    notifyPremiumStatus(userId: string, status: string): Promise<{
+        id: string;
+        createdAt: Date;
+        userId: string;
+        message: string;
+        type: import("@prisma/client").$Enums.NotificationType;
+        title: string;
+        isRead: boolean;
+    }>;
+    notifyMarketPurchase(userId: string, productName: string, status: string): Promise<{
+        id: string;
+        createdAt: Date;
+        userId: string;
+        message: string;
+        type: import("@prisma/client").$Enums.NotificationType;
+        title: string;
+        isRead: boolean;
+    }>;
 }

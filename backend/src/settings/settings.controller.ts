@@ -15,7 +15,7 @@ import { Role } from '@prisma/client';
 
 @Controller('settings')
 export class SettingsController {
-  constructor(private readonly settingsService: SettingsService) { }
+  constructor(private readonly settingsService: SettingsService) {}
 
   @Get('public-config')
   async getPublicConfig() {

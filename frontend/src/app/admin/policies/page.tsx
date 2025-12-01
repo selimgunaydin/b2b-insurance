@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface Policy {
   id: string;
@@ -44,6 +45,7 @@ interface Policy {
 }
 
 export default function AdminPoliciesPage() {
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [date, setDate] = useState<{ from: Date | undefined; to: Date | undefined }>({
@@ -58,6 +60,21 @@ export default function AdminPoliciesPage() {
       return res.data as Policy[];
     },
   });
+
+  const handleExport = async () => {
+    try {
+      const response = await api.get('/export/policies', { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'policies.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      toast({ title: "Export başarısız.", variant: "destructive" });
+    }
+  };
 
   const filteredPolicies = policies?.filter((policy: Policy) => {
     const matchesSearch = 
@@ -102,7 +119,13 @@ export default function AdminPoliciesPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Tüm Poliçeler</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Tüm Poliçeler</h1>
+        <Button variant="outline" onClick={handleExport}>
+          <Download className="mr-2 h-4 w-4" />
+          Excel İndir
+        </Button>
+      </div>
 
       <Card>
         <CardHeader>

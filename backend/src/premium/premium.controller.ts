@@ -17,7 +17,7 @@ import { Role } from '@prisma/client';
 
 @Controller('premium')
 export class PremiumController {
-  constructor(private readonly premiumService: PremiumService) { }
+  constructor(private readonly premiumService: PremiumService) {}
 
   @UseGuards(AuthGuard('jwt'))
   @Post('request')
@@ -48,6 +48,4 @@ export class PremiumController {
   async rejectRequest(@Param('id') id: string) {
     return this.premiumService.rejectRequest(id);
   }
-
-
 }

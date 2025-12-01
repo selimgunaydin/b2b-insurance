@@ -1,7 +1,9 @@
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationService } from '../notification/notification.service';
 export declare class PremiumService {
     private prisma;
-    constructor(prisma: PrismaService);
+    private notificationService;
+    constructor(prisma: PrismaService, notificationService: NotificationService);
     createRequest(userId: string, paymentMethod: string): Promise<{
         id: string;
         createdAt: Date;

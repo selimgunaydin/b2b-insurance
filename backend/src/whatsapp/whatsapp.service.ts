@@ -29,7 +29,8 @@ export class WhatsAppService {
       return false;
     }
 
-    const message = `Sayın *${customerName}*,\n\n` +
+    const message =
+      `Sayın *${customerName}*,\n\n` +
       `Poliçeniz başarıyla oluşturulmuştur. ✅\n\n` +
       `📄 *Poliçe No:* ${policyNumber}\n` +
       `🏢 *Sigorta Şirketi:* ${company}\n` +
@@ -47,11 +48,7 @@ export class WhatsAppService {
       this.logger.log(message);
 
       // Simulate API call
-      // await this.twilioClient.messages.create({
-      //   from: `whatsapp:${this.senderNumber}`,
-      //   to: `whatsapp:${phoneNumber}`,
-      //   body: message,
-      // });
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       return true;
     } catch (error) {

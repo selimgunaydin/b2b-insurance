@@ -25,4 +25,4 @@ import { UserModule } from '../user/user.module';
   controllers: [InsuranceController],
   providers: [InsuranceService],
 })
-export class InsuranceModule { }
+export class InsuranceModule {}

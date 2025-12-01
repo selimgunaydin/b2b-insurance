@@ -6,12 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, Eye } from "lucide-react";
+import { Loader2, Eye, Download } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AdminRequestsPage() {
+  const { toast } = useToast();
   const { data: requests, isLoading } = useQuery({
     queryKey: ["admin-requests"],
     queryFn: async () => {
@@ -19,6 +21,21 @@ export default function AdminRequestsPage() {
       return res.data;
     },
   });
+
+  const handleExport = async () => {
+    try {
+      const response = await api.get('/export/offers', { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'offers.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      toast({ title: "Export başarısız.", variant: "destructive" });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -32,6 +49,10 @@ export default function AdminRequestsPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Gelen Talepler</h1>
+        <Button variant="outline" onClick={handleExport}>
+          <Download className="mr-2 h-4 w-4" />
+          Excel İndir
+        </Button>
       </div>
 
       <Card>

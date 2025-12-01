@@ -22,7 +22,7 @@ export class InsuranceService {
     private whatsappService: WhatsAppService,
     private paymentService: PaymentService,
     private trustScoreService: TrustScoreService,
-  ) { }
+  ) {}
 
   async getStats(userId: string) {
     const taliProfile = await this.prisma.taliProfile.findUnique({
@@ -270,11 +270,9 @@ export class InsuranceService {
 
     // Notify user about the offer (Safe)
     try {
-      await this.notificationService.createSystemNotification(
+      await this.notificationService.notifyOfferReady(
         request.taliId,
-        'Teklif Hazır',
-        `#${request.id.slice(0, 8)} numaralı talebiniz için teklif hazırlandı.`,
-        NotificationType.SYSTEM,
+        `#${request.id.slice(0, 8)}`,
       );
     } catch (error) {
       console.error('Failed to send notification for offer update:', error);
@@ -299,11 +297,9 @@ export class InsuranceService {
     });
 
     // Notify user about the offer
-    await this.notificationService.createSystemNotification(
+    await this.notificationService.notifyOfferReady(
       request.taliId,
-      'Teklif Hazır',
-      `#${request.id.slice(0, 8)} numaralı talebiniz için teklif güncellendi.`,
-      NotificationType.SYSTEM,
+      `#${request.id.slice(0, 8)}`,
     );
 
     return request;
@@ -328,7 +324,7 @@ export class InsuranceService {
     });
 
     // Update or create Policy entity
-    await this.prisma.policy.upsert({
+    const policy = await this.prisma.policy.upsert({
       where: { insuranceRequestId: id },
       update: { policyUrl: policyPdfUrl },
       create: {
@@ -336,8 +332,8 @@ export class InsuranceService {
         policyUrl: policyPdfUrl,
         premium: request.offers
           ? (request.offers as any[]).find(
-            (o) => o.company === request.adminOfferCompany,
-          )?.price || 0
+              (o) => o.company === request.adminOfferCompany,
+            )?.price || 0
           : 0, // Best effort premium
         company: request.adminOfferCompany || 'Unknown',
         policyNumber: `POL-${Date.now()}`, // Generate a temp policy number if new
@@ -353,11 +349,9 @@ export class InsuranceService {
     });
 
     // Notify user
-    await this.notificationService.createSystemNotification(
+    await this.notificationService.notifyPolicyCreated(
       request.taliId,
-      'Poliçe Onaylandı',
-      `#${request.id.slice(0, 8)} numaralı talebiniz onaylandı ve poliçeniz oluşturuldu.`,
-      NotificationType.SYSTEM,
+      policy.policyNumber,
     );
 
     return request;
@@ -549,11 +543,9 @@ export class InsuranceService {
       // Notify user
       try {
         if (request) {
-          await this.notificationService.createSystemNotification(
+          await this.notificationService.notifyPolicyCreated(
             request.taliId,
-            'Poliçe Onaylandı',
-            `#${request.id.slice(0, 8)} numaralı talebiniz onaylandı ve poliçeniz oluşturuldu.`,
-            NotificationType.SYSTEM,
+            result.policy.policyNumber,
           );
         }
       } catch (e) {

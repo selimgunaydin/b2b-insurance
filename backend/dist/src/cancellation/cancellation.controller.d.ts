@@ -40,6 +40,39 @@ export declare class CancellationController {
         proofFiles: string[];
     })[]>;
     updateStatus(id: string, dto: UpdateCancellationStatusDto): Promise<{
+        policy: {
+            policy: {
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                company: string;
+                status: import("@prisma/client").$Enums.PolicyStatus;
+                policyUrl: string | null;
+                startDate: Date;
+                endDate: Date;
+                premium: import("@prisma/client/runtime/library").Decimal;
+                insuranceRequestId: string;
+                policyNumber: string;
+                commissionPoints: import("@prisma/client/runtime/library").Decimal;
+            } | null;
+        } & {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            type: import("@prisma/client").$Enums.InsuranceType;
+            details: import("@prisma/client/runtime/library").JsonValue;
+            customerId: string | null;
+            offerFileUrl: string | null;
+            offers: import("@prisma/client/runtime/library").JsonValue | null;
+            taliId: string;
+            status: import("@prisma/client").$Enums.RequestStatus;
+            selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
+            adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
+            adminOfferCompany: string | null;
+            adminOfferDescription: string | null;
+            policyUrl: string | null;
+        };
+    } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;

@@ -19,7 +19,7 @@ import { Role, PurchaseStatus } from '@prisma/client';
 @Controller('market')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
 export class MarketController {
-  constructor(private readonly marketService: MarketService) { }
+  constructor(private readonly marketService: MarketService) {}
 
   @Get('products')
   async getAllProducts(@Query('activeOnly') activeOnly?: string) {
@@ -67,7 +67,6 @@ export class MarketController {
     @Request() req: any,
     @Body() body: { details?: any },
   ) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return this.marketService.purchaseProduct(
       req.user.id,
       productId,

@@ -12,10 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CancellationService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const notification_service_1 = require("../notification/notification.service");
 let CancellationService = class CancellationService {
     prisma;
-    constructor(prisma) {
+    notificationService;
+    constructor(prisma, notificationService) {
         this.prisma = prisma;
+        this.notificationService = notificationService;
     }
     async create(dto) {
         return this.prisma.cancellationRequest.create({
@@ -32,15 +35,27 @@ let CancellationService = class CancellationService {
         });
     }
     async updateStatus(id, dto) {
-        return this.prisma.cancellationRequest.update({
+        const request = await this.prisma.cancellationRequest.update({
             where: { id },
             data: { status: dto.status },
+            include: {
+                policy: {
+                    include: {
+                        policy: true,
+                    },
+                },
+            },
         });
+        if (request.policy && request.policy.policy) {
+            await this.notificationService.notifyCancellationStatus(request.policy.taliId, dto.status, request.policy.policy.policyNumber);
+        }
+        return request;
     }
 };
 exports.CancellationService = CancellationService;
 exports.CancellationService = CancellationService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notification_service_1.NotificationService])
 ], CancellationService);
 //# sourceMappingURL=cancellation.service.js.map

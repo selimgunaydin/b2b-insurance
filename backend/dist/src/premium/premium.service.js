@@ -13,10 +13,13 @@ exports.PremiumService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const client_1 = require("@prisma/client");
+const notification_service_1 = require("../notification/notification.service");
 let PremiumService = class PremiumService {
     prisma;
-    constructor(prisma) {
+    notificationService;
+    constructor(prisma, notificationService) {
         this.prisma = prisma;
+        this.notificationService = notificationService;
     }
     async createRequest(userId, paymentMethod) {
         const user = await this.prisma.user.findUnique({
@@ -66,7 +69,7 @@ let PremiumService = class PremiumService {
         if (request.status !== client_1.PremiumRequestStatus.PENDING) {
             throw new Error('Request is not pending');
         }
-        return this.prisma.$transaction([
+        const result = await this.prisma.$transaction([
             this.prisma.premiumRequest.update({
                 where: { id },
                 data: { status: client_1.PremiumRequestStatus.APPROVED },
@@ -76,17 +79,28 @@ let PremiumService = class PremiumService {
                 data: { membershipType: client_1.MembershipType.PREMIUM },
             }),
         ]);
+        await this.notificationService.notifyPremiumStatus(request.tali.userId, 'APPROVED');
+        return result;
     }
     async rejectRequest(id) {
-        return this.prisma.premiumRequest.update({
+        const request = await this.prisma.premiumRequest.findUnique({
+            where: { id },
+            include: { tali: true },
+        });
+        if (!request)
+            throw new Error('Request not found');
+        const updatedRequest = await this.prisma.premiumRequest.update({
             where: { id },
             data: { status: client_1.PremiumRequestStatus.REJECTED },
         });
+        await this.notificationService.notifyPremiumStatus(request.tali.userId, 'REJECTED');
+        return updatedRequest;
     }
 };
 exports.PremiumService = PremiumService;
 exports.PremiumService = PremiumService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notification_service_1.NotificationService])
 ], PremiumService);
 //# sourceMappingURL=premium.service.js.map

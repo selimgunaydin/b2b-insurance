@@ -6,9 +6,14 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { PurchaseStatus } from '@prisma/client';
 
+import { NotificationService } from '../notification/notification.service';
+
 @Injectable()
 export class MarketService {
-  constructor(private prisma: PrismaService) { }
+  constructor(
+    private prisma: PrismaService,
+    private notificationService: NotificationService,
+  ) {}
 
   async getAllProducts(activeOnly = true) {
     return this.prisma.product.findMany({
@@ -79,8 +84,6 @@ export class MarketService {
     if (product.stock <= 0) {
       throw new BadRequestException('Out of stock');
     }
-
-
 
     if (Number(taliProfile.points) < product.pointCost) {
       throw new BadRequestException('Insufficient points');
@@ -156,13 +159,25 @@ export class MarketService {
     fulfillmentData?: any,
     adminNote?: string,
   ) {
-    return this.prisma.marketPurchase.update({
+    const purchase = await this.prisma.marketPurchase.update({
       where: { id },
       data: {
         status,
         fulfillmentData: fulfillmentData || undefined,
         adminNote: adminNote || undefined,
       },
+      include: {
+        tali: true,
+        product: true,
+      },
     });
+
+    await this.notificationService.notifyMarketPurchase(
+      purchase.tali.userId,
+      purchase.product.name,
+      status,
+    );
+
+    return purchase;
   }
 }

@@ -25,6 +25,13 @@ let GoalController = class GoalController {
     constructor(goalService) {
         this.goalService = goalService;
     }
+    async update(id, body) {
+        return this.goalService.update(id, {
+            ...body,
+            startDate: body.startDate ? new Date(body.startDate) : undefined,
+            endDate: body.endDate ? new Date(body.endDate) : undefined,
+        });
+    }
     async create(body) {
         return this.goalService.create({
             ...body,
@@ -38,8 +45,26 @@ let GoalController = class GoalController {
     async getMyGoals(req) {
         return this.goalService.getTaliGoals(req.user.id);
     }
+    async getUserGoals(userId) {
+        return this.goalService.getTaliGoals(userId);
+    }
+    async resetProgress(body) {
+        return this.goalService.resetGoalProgress(body.taliId, body.goalId);
+    }
+    async deleteProgress(body) {
+        return this.goalService.deleteGoalProgress(body.taliId, body.goalId);
+    }
 };
 exports.GoalController = GoalController;
+__decorate([
+    (0, common_1.Put)(':id'),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], GoalController.prototype, "update", null);
 __decorate([
     (0, common_1.Post)(),
     (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
@@ -63,6 +88,30 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], GoalController.prototype, "getMyGoals", null);
+__decorate([
+    (0, common_1.Get)('user/:userId'),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    __param(0, (0, common_1.Param)('userId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], GoalController.prototype, "getUserGoals", null);
+__decorate([
+    (0, common_1.Put)('progress/reset'),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], GoalController.prototype, "resetProgress", null);
+__decorate([
+    (0, common_1.Delete)('progress'),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], GoalController.prototype, "deleteProgress", null);
 exports.GoalController = GoalController = __decorate([
     (0, common_1.Controller)('goals'),
     (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt'), roles_guard_1.RolesGuard),

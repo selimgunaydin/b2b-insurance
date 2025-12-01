@@ -7,12 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2, Search, Calendar as CalendarIcon } from "lucide-react";
+import { Loader2, Search, Calendar as CalendarIcon, Download } from "lucide-react";
 import { format, isWithinInterval, parseISO, startOfDay, endOfDay } from "date-fns";
 import { tr } from "date-fns/locale";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface Customer {
   id: string;
@@ -32,6 +33,7 @@ interface Customer {
 }
 
 export default function AdminCustomersPage() {
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [date, setDate] = useState<{ from: Date | undefined; to: Date | undefined }>({
     from: undefined,
@@ -45,6 +47,21 @@ export default function AdminCustomersPage() {
       return res.data as Customer[];
     },
   });
+
+  const handleExport = async () => {
+    try {
+      const response = await api.get('/export/customers', { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'customers.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      toast({ title: "Export başarısız.", variant: "destructive" });
+    }
+  };
 
   const filteredCustomers = customers?.filter((customer: Customer) => {
     const matchesSearch = 
@@ -74,7 +91,13 @@ export default function AdminCustomersPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Tüm Müşteriler</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Tüm Müşteriler</h1>
+        <Button variant="outline" onClick={handleExport}>
+          <Download className="mr-2 h-4 w-4" />
+          Excel İndir
+        </Button>
+      </div>
 
       <Card>
         <CardHeader>

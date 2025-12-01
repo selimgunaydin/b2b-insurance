@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, Check, X, Ban, UserCog, BarChart3 } from "lucide-react";
+import { Loader2, Check, X, Ban, UserCog, BarChart3, Download } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
@@ -76,6 +76,21 @@ export default function AdminUsersPage() {
     );
   };
 
+  const handleExport = async () => {
+    try {
+      const response = await api.get('/export/users', { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'users.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      toast({ title: "Export başarısız.", variant: "destructive" });
+    }
+  };
+
   const insuranceTypes = ["TRAFIK", "KASKO", "SAGLIK", "DASK", "KONUT"];
 
   if (isLoading) {
@@ -90,6 +105,10 @@ export default function AdminUsersPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Kullanıcı Yönetimi</h1>
+        <Button variant="outline" onClick={handleExport}>
+          <Download className="mr-2 h-4 w-4" />
+          Excel İndir
+        </Button>
       </div>
 
       <Card>

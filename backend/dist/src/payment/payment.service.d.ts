@@ -9,6 +9,7 @@ export declare class PaymentService {
         userId: string;
         points: import("@prisma/client/runtime/library").Decimal;
         type: import("@prisma/client").$Enums.TransactionType;
+        description: string | null;
         status: import("@prisma/client").$Enums.TransactionStatus;
     }>;
 }

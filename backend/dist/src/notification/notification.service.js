@@ -110,6 +110,30 @@ let NotificationService = NotificationService_1 = class NotificationService {
             this.logger.log(`Sent ${expiringPolicies.length} renewal notifications.`);
         }
     }
+    async notifyOfferReady(userId, requestTitle) {
+        return this.createSystemNotification(userId, 'Teklif Hazır', `"${requestTitle}" için teklifiniz hazır. Detayları inceleyebilirsiniz.`, client_1.NotificationType.OFFER);
+    }
+    async notifyPolicyCreated(userId, policyNumber) {
+        return this.createSystemNotification(userId, 'Poliçe Oluşturuldu', `${policyNumber} numaralı poliçeniz başarıyla oluşturuldu.`, client_1.NotificationType.POLICY);
+    }
+    async notifyCancellationStatus(userId, status, policyNumber) {
+        const statusText = status === 'APPROVED' ? 'onaylandı' : 'reddedildi';
+        return this.createSystemNotification(userId, 'İptal Talebi Güncellemesi', `${policyNumber} numaralı poliçe için iptal talebiniz ${statusText}.`, client_1.NotificationType.CANCELLATION);
+    }
+    async notifyPremiumStatus(userId, status) {
+        const statusText = status === 'APPROVED' ? 'onaylandı' : 'reddedildi';
+        return this.createSystemNotification(userId, 'Premium Üyelik', `Premium üyelik başvurunuz ${statusText}.`, client_1.NotificationType.PREMIUM);
+    }
+    async notifyMarketPurchase(userId, productName, status) {
+        let message = `"${productName}" siparişiniz alındı.`;
+        if (status === 'SHIPPED')
+            message = `"${productName}" siparişiniz kargoya verildi.`;
+        if (status === 'DELIVERED')
+            message = `"${productName}" siparişiniz teslim edildi.`;
+        if (status === 'REJECTED')
+            message = `"${productName}" siparişiniz iptal edildi.`;
+        return this.createSystemNotification(userId, 'Market Siparişi', message, client_1.NotificationType.MARKET);
+    }
 };
 exports.NotificationService = NotificationService;
 __decorate([

@@ -2,9 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { PremiumRequestStatus, MembershipType } from '@prisma/client';
 
+import { NotificationService } from '../notification/notification.service';
+
 @Injectable()
 export class PremiumService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationService: NotificationService,
+  ) {}
 
   async createRequest(userId: string, paymentMethod: string) {
     const user = await this.prisma.user.findUnique({
@@ -65,7 +70,7 @@ export class PremiumService {
     }
 
     // Update request status and User membership
-    return this.prisma.$transaction([
+    const result = await this.prisma.$transaction([
       this.prisma.premiumRequest.update({
         where: { id },
         data: { status: PremiumRequestStatus.APPROVED },
@@ -75,12 +80,33 @@ export class PremiumService {
         data: { membershipType: MembershipType.PREMIUM },
       }),
     ]);
+
+    await this.notificationService.notifyPremiumStatus(
+      request.tali.userId,
+      'APPROVED',
+    );
+
+    return result;
   }
 
   async rejectRequest(id: string) {
-    return this.prisma.premiumRequest.update({
+    const request = await this.prisma.premiumRequest.findUnique({
+      where: { id },
+      include: { tali: true },
+    });
+
+    if (!request) throw new Error('Request not found');
+
+    const updatedRequest = await this.prisma.premiumRequest.update({
       where: { id },
       data: { status: PremiumRequestStatus.REJECTED },
     });
+
+    await this.notificationService.notifyPremiumStatus(
+      request.tali.userId,
+      'REJECTED',
+    );
+
+    return updatedRequest;
   }
 }

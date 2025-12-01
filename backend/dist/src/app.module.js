@@ -32,6 +32,7 @@ const cms_module_1 = require("./cms/cms.module");
 const market_module_1 = require("./market/market.module");
 const premium_module_1 = require("./premium/premium.module");
 const transactions_module_1 = require("./transactions/transactions.module");
+const export_module_1 = require("./export/export.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -61,6 +62,7 @@ exports.AppModule = AppModule = __decorate([
             market_module_1.MarketModule,
             premium_module_1.PremiumModule,
             transactions_module_1.TransactionsModule,
+            export_module_1.ExportModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

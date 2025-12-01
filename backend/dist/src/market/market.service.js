@@ -13,10 +13,13 @@ exports.MarketService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const client_1 = require("@prisma/client");
+const notification_service_1 = require("../notification/notification.service");
 let MarketService = class MarketService {
     prisma;
-    constructor(prisma) {
+    notificationService;
+    constructor(prisma, notificationService) {
         this.prisma = prisma;
+        this.notificationService = notificationService;
     }
     async getAllProducts(activeOnly = true) {
         return this.prisma.product.findMany({
@@ -126,19 +129,26 @@ let MarketService = class MarketService {
         });
     }
     async updatePurchaseStatus(id, status, fulfillmentData, adminNote) {
-        return this.prisma.marketPurchase.update({
+        const purchase = await this.prisma.marketPurchase.update({
             where: { id },
             data: {
                 status,
                 fulfillmentData: fulfillmentData || undefined,
                 adminNote: adminNote || undefined,
             },
+            include: {
+                tali: true,
+                product: true,
+            },
         });
+        await this.notificationService.notifyMarketPurchase(purchase.tali.userId, purchase.product.name, status);
+        return purchase;
     }
 };
 exports.MarketService = MarketService;
 exports.MarketService = MarketService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notification_service_1.NotificationService])
 ], MarketService);
 //# sourceMappingURL=market.service.js.map

@@ -57,6 +57,17 @@ let GoalService = GoalService_1 = class GoalService {
             throw error;
         }
     }
+    async update(id, data) {
+        return this.prisma.goal.update({
+            where: { id },
+            data: {
+                ...data,
+                targetValue: data.targetValue
+                    ? Math.floor(data.targetValue)
+                    : undefined,
+            },
+        });
+    }
     async findAll() {
         return this.prisma.goal.findMany({
             orderBy: { createdAt: 'desc' },
@@ -132,19 +143,46 @@ let GoalService = GoalService_1 = class GoalService {
                     description: `Hedef Tamamlandı: ${goal.title}`,
                 },
             });
-            const taliProfile = await this.prisma.taliProfile.findUnique({ where: { id: taliId } });
+            const taliProfile = await this.prisma.taliProfile.findUnique({
+                where: { id: taliId },
+            });
             if (taliProfile) {
                 await this.prisma.transactions.create({
                     data: {
                         userId: taliProfile.userId,
                         points: goal.rewardPoints,
-                        type: 'COMMISSION',
+                        type: 'GOAL_REWARD',
                         status: 'SUCCESS',
                     },
                 });
             }
             this.logger.log(`Reward granted to Tali ${taliId} for goal ${goal.title}`);
         }
+    }
+    async resetGoalProgress(taliId, goalId) {
+        return this.prisma.taliGoal.update({
+            where: {
+                taliId_goalId: {
+                    taliId,
+                    goalId,
+                },
+            },
+            data: {
+                currentValue: 0,
+                isCompleted: false,
+                completedAt: null,
+            },
+        });
+    }
+    async deleteGoalProgress(taliId, goalId) {
+        return this.prisma.taliGoal.delete({
+            where: {
+                taliId_goalId: {
+                    taliId,
+                    goalId,
+                },
+            },
+        });
     }
 };
 exports.GoalService = GoalService;

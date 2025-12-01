@@ -25,6 +25,7 @@ import { CmsModule } from './cms/cms.module';
 import { MarketModule } from './market/market.module';
 import { PremiumModule } from './premium/premium.module';
 import { TransactionsModule } from './transactions/transactions.module';
+import { ExportModule } from './export/export.module';
 
 @Module({
   imports: [
@@ -51,8 +52,9 @@ import { TransactionsModule } from './transactions/transactions.module';
     MarketModule,
     PremiumModule,
     TransactionsModule,
+    ExportModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

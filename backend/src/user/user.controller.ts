@@ -16,7 +16,7 @@ import { Role } from '@prisma/client';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {}
 
   @UseGuards(AuthGuard('jwt'))
   @Get('profile')

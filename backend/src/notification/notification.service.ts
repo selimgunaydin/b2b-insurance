@@ -8,7 +8,7 @@ import { Cron } from '@nestjs/schedule';
 export class NotificationService {
   private readonly logger = new Logger(NotificationService.name);
 
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async sendNotification(dto: SendNotificationDto) {
     // Admin broadcast logic
@@ -132,5 +132,67 @@ export class NotificationService {
     if (expiringPolicies.length > 0) {
       this.logger.log(`Sent ${expiringPolicies.length} renewal notifications.`);
     }
+  }
+  async notifyOfferReady(userId: string, requestTitle: string) {
+    return this.createSystemNotification(
+      userId,
+      'Teklif Hazır',
+      `"${requestTitle}" için teklifiniz hazır. Detayları inceleyebilirsiniz.`,
+      NotificationType.OFFER,
+    );
+  }
+
+  async notifyPolicyCreated(userId: string, policyNumber: string) {
+    return this.createSystemNotification(
+      userId,
+      'Poliçe Oluşturuldu',
+      `${policyNumber} numaralı poliçeniz başarıyla oluşturuldu.`,
+      NotificationType.POLICY,
+    );
+  }
+
+  async notifyCancellationStatus(
+    userId: string,
+    status: string,
+    policyNumber: string,
+  ) {
+    const statusText = status === 'APPROVED' ? 'onaylandı' : 'reddedildi';
+    return this.createSystemNotification(
+      userId,
+      'İptal Talebi Güncellemesi',
+      `${policyNumber} numaralı poliçe için iptal talebiniz ${statusText}.`,
+      NotificationType.CANCELLATION,
+    );
+  }
+
+  async notifyPremiumStatus(userId: string, status: string) {
+    const statusText = status === 'APPROVED' ? 'onaylandı' : 'reddedildi';
+    return this.createSystemNotification(
+      userId,
+      'Premium Üyelik',
+      `Premium üyelik başvurunuz ${statusText}.`,
+      NotificationType.PREMIUM,
+    );
+  }
+
+  async notifyMarketPurchase(
+    userId: string,
+    productName: string,
+    status: string,
+  ) {
+    let message = `"${productName}" siparişiniz alındı.`;
+    if (status === 'SHIPPED')
+      message = `"${productName}" siparişiniz kargoya verildi.`;
+    if (status === 'DELIVERED')
+      message = `"${productName}" siparişiniz teslim edildi.`;
+    if (status === 'REJECTED')
+      message = `"${productName}" siparişiniz iptal edildi.`;
+
+    return this.createSystemNotification(
+      userId,
+      'Market Siparişi',
+      message,
+      NotificationType.MARKET,
+    );
   }
 }

@@ -5,9 +5,14 @@ import {
   UpdateCancellationStatusDto,
 } from './dto/cancellation.dto';
 
+import { NotificationService } from '../notification/notification.service';
+
 @Injectable()
 export class CancellationService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationService: NotificationService,
+  ) {}
 
   async create(dto: CreateCancellationDto) {
     return this.prisma.cancellationRequest.create({
@@ -26,9 +31,26 @@ export class CancellationService {
   }
 
   async updateStatus(id: string, dto: UpdateCancellationStatusDto) {
-    return this.prisma.cancellationRequest.update({
+    const request = await this.prisma.cancellationRequest.update({
       where: { id },
       data: { status: dto.status },
+      include: {
+        policy: {
+          include: {
+            policy: true,
+          },
+        },
+      },
     });
+
+    if (request.policy && request.policy.policy) {
+      await this.notificationService.notifyCancellationStatus(
+        request.policy.taliId,
+        dto.status,
+        request.policy.policy.policyNumber,
+      );
+    }
+
+    return request;
   }
 }

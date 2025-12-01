@@ -6,7 +6,7 @@ import { GoalTargetType, RewardType, InsuranceType } from '@prisma/client';
 export class GoalService {
   private readonly logger = new Logger(GoalService.name);
 
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(data: {
     title: string;
@@ -57,6 +57,32 @@ export class GoalService {
       this.logger.error('Failed to create goal:', error);
       throw error;
     }
+  }
+
+  async update(
+    id: string,
+    data: {
+      title?: string;
+      description?: string;
+      targetType?: GoalTargetType;
+      policyType?: InsuranceType;
+      targetValue?: number;
+      rewardType?: RewardType;
+      rewardPoints?: number;
+      startDate?: Date;
+      endDate?: Date;
+      isActive?: boolean;
+    },
+  ) {
+    return this.prisma.goal.update({
+      where: { id },
+      data: {
+        ...data,
+        targetValue: data.targetValue
+          ? Math.floor(data.targetValue)
+          : undefined,
+      },
+    });
   }
 
   async findAll() {
@@ -151,14 +177,16 @@ export class GoalService {
         },
       });
 
-      const taliProfile = await this.prisma.taliProfile.findUnique({ where: { id: taliId } });
+      const taliProfile = await this.prisma.taliProfile.findUnique({
+        where: { id: taliId },
+      });
       if (taliProfile) {
         // Create Transaction Record
         await this.prisma.transactions.create({
           data: {
             userId: taliProfile.userId,
             points: goal.rewardPoints,
-            type: 'COMMISSION',
+            type: 'GOAL_REWARD',
             status: 'SUCCESS',
           },
         });
@@ -168,5 +196,31 @@ export class GoalService {
         `Reward granted to Tali ${taliId} for goal ${goal.title}`,
       );
     }
+  }
+  async resetGoalProgress(taliId: string, goalId: string) {
+    return this.prisma.taliGoal.update({
+      where: {
+        taliId_goalId: {
+          taliId,
+          goalId,
+        },
+      },
+      data: {
+        currentValue: 0,
+        isCompleted: false,
+        completedAt: null,
+      },
+    });
+  }
+
+  async deleteGoalProgress(taliId: string, goalId: string) {
+    return this.prisma.taliGoal.delete({
+      where: {
+        taliId_goalId: {
+          taliId,
+          goalId,
+        },
+      },
+    });
   }
 }

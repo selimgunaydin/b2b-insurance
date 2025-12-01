@@ -1,8 +1,10 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { PurchaseStatus } from '@prisma/client';
+import { NotificationService } from '../notification/notification.service';
 export declare class MarketService {
     private prisma;
-    constructor(prisma: PrismaService);
+    private notificationService;
+    constructor(prisma: PrismaService, notificationService: NotificationService);
     getAllProducts(activeOnly?: boolean): Promise<{
         id: string;
         createdAt: Date;
@@ -153,6 +155,35 @@ export declare class MarketService {
         productId: string;
     })[]>;
     updatePurchaseStatus(id: string, status: PurchaseStatus, fulfillmentData?: any, adminNote?: string): Promise<{
+        product: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            name: string;
+            type: import("@prisma/client").$Enums.ProductType;
+            category: string | null;
+            description: string | null;
+            isActive: boolean;
+            imageUrl: string | null;
+            pointCost: number;
+            stock: number;
+        };
+        tali: {
+            id: string;
+            userId: string;
+            fullName: string;
+            tcKimlikNo: string | null;
+            phone: string | null;
+            address: string | null;
+            birthDate: Date | null;
+            membershipType: import("@prisma/client").$Enums.MembershipType;
+            points: import("@prisma/client/runtime/library").Decimal;
+            trustScore: number;
+            hasKvkkApproval: boolean;
+            hasContractApproval: boolean;
+            allowedInsuranceTypes: string[];
+        };
+    } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;
