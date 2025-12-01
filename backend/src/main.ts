@@ -7,7 +7,7 @@ import { join } from 'path'; // Added import for 'join'
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.enableCors();
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
   // Serve static files (e.g. uploaded PDFs)
   app.useStaticAssets(join(__dirname, '..', 'uploads'), {

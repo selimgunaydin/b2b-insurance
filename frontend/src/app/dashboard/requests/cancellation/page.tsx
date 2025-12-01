@@ -130,7 +130,7 @@ export default function CancellationPage() {
                       <SelectContent>
                         {policies.map((policy) => (
                           <SelectItem key={policy.id} value={policy.id}>
-                            {policy.insuranceRequest.type} - {policy.insuranceRequest.customer.fullName} ({policy.policyNumber})
+                            {policy.insuranceRequest.type} - {policy.insuranceRequest.customer.fullName} ({policy.policyNumber === 'PENDING' ? 'Onay Bekliyor' : policy.policyNumber})
                           </SelectItem>
                         ))}
                       </SelectContent>

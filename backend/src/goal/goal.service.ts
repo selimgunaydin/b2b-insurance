@@ -6,7 +6,7 @@ import { GoalTargetType, RewardType, InsuranceType } from '@prisma/client';
 export class GoalService {
   private readonly logger = new Logger(GoalService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(data: {
     title: string;
@@ -23,9 +23,15 @@ export class GoalService {
       return await this.prisma.$transaction(async (prisma) => {
         const goal = await prisma.goal.create({
           data: {
-            ...data,
-            targetValue: Math.floor(data.targetValue || 0), // Ensure integer and prevent NaN
+            title: data.title,
+            description: data.description,
+            targetType: data.targetType,
+            policyType: data.policyType,
+            targetValue: Math.floor(data.targetValue || 0),
+            rewardType: data.rewardType,
             rewardPoints: data.rewardPoints,
+            startDate: data.startDate,
+            endDate: data.endDate,
           },
         });
 
@@ -144,6 +150,19 @@ export class GoalService {
           description: `Hedef Tamamlandı: ${goal.title}`,
         },
       });
+
+      const taliProfile = await this.prisma.taliProfile.findUnique({ where: { id: taliId } });
+      if (taliProfile) {
+        // Create Transaction Record
+        await this.prisma.transactions.create({
+          data: {
+            userId: taliProfile.userId,
+            points: goal.rewardPoints,
+            type: 'COMMISSION',
+            status: 'SUCCESS',
+          },
+        });
+      }
 
       this.logger.log(
         `Reward granted to Tali ${taliId} for goal ${goal.title}`,

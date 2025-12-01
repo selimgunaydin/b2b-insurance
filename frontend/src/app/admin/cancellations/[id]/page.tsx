@@ -184,7 +184,13 @@ export default function CancellationDetailPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Poliçe No</label>
-                  <div className="font-semibold">{request.policy.policyNumber}</div>
+                  <div className="font-semibold">
+                    {request.policy.policyNumber === 'PENDING' ? (
+                      <span className="text-yellow-600 italic">Onay Bekliyor</span>
+                    ) : (
+                      request.policy.policyNumber
+                    )}
+                  </div>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Sigorta Şirketi</label>

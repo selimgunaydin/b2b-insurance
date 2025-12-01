@@ -8,14 +8,12 @@ export declare class CommissionService {
     }[]>;
     getAllRates(): Promise<{
         id: string;
-        updatedAt: Date;
         key: string;
-        value: string;
-        type: string;
-        category: string;
-        description: string | null;
+        membershipType: string;
+        insuranceType: string;
+        rate: number;
     }[]>;
-    updateRate(key: string, rate: number): Promise<{
+    updateRate(id: string, rate: number): Promise<{
         id: string;
         updatedAt: Date;
         key: string;

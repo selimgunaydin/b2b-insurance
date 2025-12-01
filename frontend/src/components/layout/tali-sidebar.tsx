@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, User, LogOut, PlusCircle, Wallet, Target, Settings, MessageSquare, Home, Users, Shield, ShoppingBag, XCircle, Bell, X, Menu, ChevronRight, ChevronLeft } from "lucide-react";
+import { LayoutDashboard, FileText, User, LogOut, PlusCircle, Wallet, Target, Settings, MessageSquare, Home, Users, Shield, ShoppingBag, XCircle, Bell, X, Menu, ChevronRight, ChevronLeft, Crown, History } from "lucide-react";
 
 export function TaliSidebar() {
   const router = useRouter();
@@ -24,6 +24,9 @@ export function TaliSidebar() {
     { href: "/dashboard/policies", label: "Poliçelerim", icon: Shield },
     { href: "/dashboard/market", label: "Market", icon: ShoppingBag },
     { href: "/dashboard/goals", label: "Hedeflerim", icon: Target },
+    { href: "/dashboard/earnings", label: "Kazançlarım", icon: Wallet },
+    { href: "/dashboard/transactions", label: "Puan Geçmişi", icon: History },
+    { href: "/dashboard/premium", label: "Premium", icon: Crown },
     { href: "/dashboard/requests/cancellation", label: "İptal Talebi", icon: XCircle },
     { href: "/dashboard/notifications", label: "Bildirimler", icon: Bell },
     { href: "/dashboard/profile", label: "Profilim", icon: User },

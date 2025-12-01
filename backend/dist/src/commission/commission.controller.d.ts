@@ -8,12 +8,10 @@ export declare class CommissionController {
     }[]>;
     getAllRates(): Promise<{
         id: string;
-        updatedAt: Date;
         key: string;
-        value: string;
-        type: string;
-        category: string;
-        description: string | null;
+        membershipType: string;
+        insuranceType: string;
+        rate: number;
     }[]>;
     updateRate(id: string, rate: number): Promise<{
         id: string;

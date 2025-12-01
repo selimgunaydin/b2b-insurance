@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { LayoutDashboard, FileText, Users, Settings, LogOut, ShieldAlert, ChevronLeft, ChevronRight, XCircle, Shield, UserCog, BarChart3, Building2, Target,
-  ShoppingBag, Globe, Menu, X } from "lucide-react";
+  ShoppingBag, Globe, Menu, X, Percent, Crown } from "lucide-react";
 
 export function AdminSidebar() {
   const router = useRouter();
@@ -28,6 +28,8 @@ export function AdminSidebar() {
     { href: "/admin/goals", label: "Hedefler", icon: Target },
     { href: "/admin/statistics", label: "İstatistikler", icon: BarChart3 },
     { href: "/admin/companies", label: "Şirketler", icon: Building2 },
+    { href: "/admin/commissions", label: "Komisyonlar", icon: Percent },
+    { href: "/admin/premium", label: "Premium", icon: Crown },
     { href: "/admin/website", label: "Website", icon: Globe },
     { href: "/admin/settings", label: "Ayarlar", icon: Settings },
   ];

@@ -25,9 +25,15 @@ let GoalService = GoalService_1 = class GoalService {
             return await this.prisma.$transaction(async (prisma) => {
                 const goal = await prisma.goal.create({
                     data: {
-                        ...data,
+                        title: data.title,
+                        description: data.description,
+                        targetType: data.targetType,
+                        policyType: data.policyType,
                         targetValue: Math.floor(data.targetValue || 0),
+                        rewardType: data.rewardType,
                         rewardPoints: data.rewardPoints,
+                        startDate: data.startDate,
+                        endDate: data.endDate,
                     },
                 });
                 const talis = await prisma.taliProfile.findMany();
@@ -126,6 +132,17 @@ let GoalService = GoalService_1 = class GoalService {
                     description: `Hedef Tamamlandı: ${goal.title}`,
                 },
             });
+            const taliProfile = await this.prisma.taliProfile.findUnique({ where: { id: taliId } });
+            if (taliProfile) {
+                await this.prisma.transactions.create({
+                    data: {
+                        userId: taliProfile.userId,
+                        points: goal.rewardPoints,
+                        type: 'COMMISSION',
+                        status: 'SUCCESS',
+                    },
+                });
+            }
             this.logger.log(`Reward granted to Tali ${taliId} for goal ${goal.title}`);
         }
     }

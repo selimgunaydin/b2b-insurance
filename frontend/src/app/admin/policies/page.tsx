@@ -191,7 +191,13 @@ export default function AdminPoliciesPage() {
             <TableBody>
               {filteredPolicies?.map((policy: Policy) => (
                 <TableRow key={policy.id}>
-                  <TableCell className="font-medium">{policy.policyNumber}</TableCell>
+                  <TableCell className="font-medium">
+                    {policy.policyNumber === 'PENDING' ? (
+                      <span className="text-yellow-600 italic">Onay Bekliyor</span>
+                    ) : (
+                      policy.policyNumber
+                    )}
+                  </TableCell>
                   <TableCell>
                     <div className="flex flex-col">
                         <span>{policy.insuranceRequest.customer.fullName}</span>

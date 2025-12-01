@@ -4,7 +4,7 @@ import { MembershipType } from '@prisma/client';
 
 @Injectable()
 export class CommissionService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async getRatesForMembership(membershipType: string) {
     const settings = await this.prisma.systemSetting.findMany({
@@ -22,12 +22,21 @@ export class CommissionService {
     const settings = await this.prisma.systemSetting.findMany({
       where: { category: 'COMMISSION' },
     });
-    return settings;
+    return settings.map((s) => {
+      const parts = s.key.split('_');
+      return {
+        id: s.id,
+        key: s.key,
+        membershipType: parts[1],
+        insuranceType: parts[2],
+        rate: parseFloat(s.value),
+      };
+    });
   }
 
-  async updateRate(key: string, rate: number) {
+  async updateRate(id: string, rate: number) {
     return this.prisma.systemSetting.update({
-      where: { key },
+      where: { id },
       data: { value: rate.toString() },
     });
   }

@@ -66,6 +66,7 @@ let ChatService = class ChatService {
                 content,
                 senderId: userId,
                 insuranceRequestId: requestId,
+                attachmentUrl,
             },
             include: {
                 sender: {

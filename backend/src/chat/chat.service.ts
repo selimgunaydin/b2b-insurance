@@ -7,7 +7,7 @@ export class ChatService {
   constructor(
     private prisma: PrismaService,
     private auditService: AuditService,
-  ) {}
+  ) { }
 
   async getMessages(requestId: string, userId: string) {
     // Verify access
@@ -67,6 +67,7 @@ export class ChatService {
         content,
         senderId: userId,
         insuranceRequestId: requestId,
+        attachmentUrl,
       },
       include: {
         sender: {

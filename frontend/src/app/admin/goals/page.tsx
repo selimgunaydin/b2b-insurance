@@ -24,7 +24,7 @@ interface Goal {
   policyType?: string;
   targetValue: number;
   rewardType: string;
-  rewardValue: number;
+  rewardPoints: number;
   startDate: string;
   endDate: string;
   isActive: boolean;
@@ -37,7 +37,7 @@ interface CreateGoalData {
   policyType?: string;
   targetValue: number;
   rewardType: string;
-  rewardValue: number;
+  rewardPoints: number;
   startDate: string;
   endDate: string;
 }
@@ -139,7 +139,7 @@ export default function AdminGoalsPage() {
                     <TableCell>
                       <div className="flex items-center gap-1 whitespace-nowrap">
                         <Trophy className="h-4 w-4 text-yellow-500" />
-                        ₺{goal.rewardValue}
+                        {goal.rewardPoints} Puan
                       </div>
                     </TableCell>
                     <TableCell className="text-sm whitespace-nowrap">
@@ -181,7 +181,7 @@ function CreateGoalForm({ onSubmit, isLoading }: { onSubmit: (data: CreateGoalDa
     targetType: "COUNT",
     policyType: "ALL",
     targetValue: "",
-    rewardType: "CASH",
+    rewardType: "POINTS",
     rewardValue: "",
     startDate: "",
     endDate: "",
@@ -189,10 +189,16 @@ function CreateGoalForm({ onSubmit, isLoading }: { onSubmit: (data: CreateGoalDa
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const { rewardValue, ...rest } = formData;
     onSubmit({
-      ...formData,
+      title: formData.title,
+      description: formData.description,
+      targetType: formData.targetType,
       targetValue: parseInt(formData.targetValue),
-      rewardValue: parseFloat(formData.rewardValue),
+      rewardType: "POINTS",
+      rewardPoints: parseFloat(formData.rewardValue),
+      startDate: formData.startDate,
+      endDate: formData.endDate,
       policyType: formData.policyType === "ALL" ? undefined : formData.policyType,
     });
   };
@@ -242,11 +248,11 @@ function CreateGoalForm({ onSubmit, isLoading }: { onSubmit: (data: CreateGoalDa
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">Tümü</SelectItem>
-              <SelectItem value="TRAFFIC">Trafik</SelectItem>
+              <SelectItem value="TRAFIK">Trafik</SelectItem>
               <SelectItem value="KASKO">Kasko</SelectItem>
-              <SelectItem value="HEALTH">Sağlık</SelectItem>
+              <SelectItem value="SAGLIK">Sağlık</SelectItem>
               <SelectItem value="DASK">DASK</SelectItem>
-              <SelectItem value="HOUSING">Konut</SelectItem>
+              <SelectItem value="KONUT">Konut</SelectItem>
             </SelectContent>
           </Select>
         </div>

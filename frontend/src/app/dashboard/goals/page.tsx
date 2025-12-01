@@ -169,8 +169,9 @@ export default function GoalsPage() {
                         <Trophy className="h-5 w-5 text-green-600" />
                         {taliGoal.goal.title}
                       </span>
-                      <div className="flex items-center gap-1 text-sm font-normal text-green-700">
-                        <span>{taliGoal.goal.rewardPoints} Puan</span>
+                      <div className="flex items-center gap-1 text-sm font-bold text-green-700 bg-green-100 px-2 py-1 rounded-full">
+                        <Trophy className="h-3 w-3" />
+                        <span>Kazanılan: {taliGoal.goal.rewardPoints} Puan</span>
                       </div>
                     </CardTitle>
                   </CardHeader>

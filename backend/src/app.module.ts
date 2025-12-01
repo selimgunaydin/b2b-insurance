@@ -24,6 +24,7 @@ import { GoalModule } from './goal/goal.module';
 import { CmsModule } from './cms/cms.module';
 import { MarketModule } from './market/market.module';
 import { PremiumModule } from './premium/premium.module';
+import { TransactionsModule } from './transactions/transactions.module';
 
 @Module({
   imports: [
@@ -47,9 +48,11 @@ import { PremiumModule } from './premium/premium.module';
     GoalModule,
     CmsModule,
     MarketModule,
+    MarketModule,
     PremiumModule,
+    TransactionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
