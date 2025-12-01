@@ -8,7 +8,7 @@ import { Cron } from '@nestjs/schedule';
 export class NotificationService {
   private readonly logger = new Logger(NotificationService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async sendNotification(dto: SendNotificationDto) {
     // Admin broadcast logic
@@ -88,6 +88,15 @@ export class NotificationService {
     return this.prisma.notification.updateMany({
       where: { userId, isRead: false },
       data: { isRead: true },
+    });
+  }
+
+  async getUnreadCount(userId: string) {
+    return this.prisma.notification.count({
+      where: {
+        userId,
+        isRead: false,
+      },
     });
   }
 

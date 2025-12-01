@@ -28,13 +28,16 @@ let NotificationController = class NotificationController {
     async send(dto) {
         return this.notificationService.sendNotification(dto);
     }
-    getMyNotifications(req) {
+    async getMyNotifications(req) {
         return this.notificationService.findAll(req.user.id);
     }
-    markAsRead(id, req) {
+    async getUnreadCount(req) {
+        return this.notificationService.getUnreadCount(req.user.id);
+    }
+    async markAsRead(id, req) {
         return this.notificationService.markAsRead(id, req.user.id);
     }
-    markAllAsRead(req) {
+    async markAllAsRead(req) {
         return this.notificationService.markAllAsRead(req.user.id);
     }
 };
@@ -49,28 +52,32 @@ __decorate([
 ], NotificationController.prototype, "send", null);
 __decorate([
     (0, common_1.Get)(),
-    (0, roles_decorator_1.Roles)('TALI'),
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], NotificationController.prototype, "getMyNotifications", null);
 __decorate([
+    (0, common_1.Get)('unread-count'),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], NotificationController.prototype, "getUnreadCount", null);
+__decorate([
     (0, common_1.Post)('read/:id'),
-    (0, roles_decorator_1.Roles)('TALI'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], NotificationController.prototype, "markAsRead", null);
 __decorate([
     (0, common_1.Post)('read-all'),
-    (0, roles_decorator_1.Roles)('TALI'),
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], NotificationController.prototype, "markAllAsRead", null);
 exports.NotificationController = NotificationController = __decorate([
     (0, common_1.Controller)('notification'),

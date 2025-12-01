@@ -21,6 +21,7 @@ export declare class NotificationController {
         title: string;
         isRead: boolean;
     }[]>;
+    getUnreadCount(req: any): Promise<number>;
     markAsRead(id: string, req: any): Promise<{
         id: string;
         createdAt: Date;

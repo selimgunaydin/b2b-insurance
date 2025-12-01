@@ -83,6 +83,14 @@ let NotificationService = NotificationService_1 = class NotificationService {
             data: { isRead: true },
         });
     }
+    async getUnreadCount(userId) {
+        return this.prisma.notification.count({
+            where: {
+                userId,
+                isRead: false,
+            },
+        });
+    }
     async handleCron() {
         this.logger.debug('Checking for policy renewals...');
         const oneYearAgo = new Date();

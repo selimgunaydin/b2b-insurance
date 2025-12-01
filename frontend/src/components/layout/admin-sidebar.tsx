@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 import { LayoutDashboard, FileText, Users, Settings, LogOut, ShieldAlert, ChevronLeft, ChevronRight, XCircle, Shield, UserCog, BarChart3, Building2, Target,
   ShoppingBag, Globe, Menu, X, Percent, Crown, Wallet } from "lucide-react";
 
@@ -31,9 +33,18 @@ export function AdminSidebar() {
     { href: "/admin/companies", label: "Şirketler", icon: Building2 },
     { href: "/admin/commissions", label: "Komisyonlar", icon: Percent },
     { href: "/admin/premium", label: "Premium", icon: Crown },
-    { href: "/admin/website", label: "Website", icon: Globe },
+    { href: "/admin/notifications", label: "Bildirimler", icon: ShieldAlert },
     { href: "/admin/settings", label: "Ayarlar", icon: Settings },
   ];
+
+  const { data: unreadCount = 0 } = useQuery({
+    queryKey: ["unread-count"],
+    queryFn: async () => {
+      const res = await api.get("/notification/unread-count");
+      return res.data as number;
+    },
+    refetchInterval: 30000, // Check every 30 seconds
+  });
 
   return (
     <>
@@ -104,13 +115,18 @@ export function AdminSidebar() {
                   href={link.href}
                   onClick={() => setIsMobileOpen(false)}
                   className={`
-                    flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
+                    flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors relative
                     ${isActive ? "bg-slate-800 text-white" : "text-slate-100 hover:bg-slate-800/50"}
                     ${isCollapsed ? "justify-center" : ""}
                   `}
                 >
                   <Icon size={20} className="shrink-0" />
                   {!isCollapsed && <span className="text-sm font-medium">{link.label}</span>}
+                  {link.href === "/admin/notifications" && unreadCount > 0 && (
+                    <span className={`absolute ${isCollapsed ? "top-1 right-1" : "right-3"} bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center`}>
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
                 </Link>
               );
             })}

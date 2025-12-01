@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 import { LayoutDashboard, FileText, User, LogOut, PlusCircle, Wallet, Target, Settings, MessageSquare, Home, Users, Shield, ShoppingBag, XCircle, Bell, X, Menu, ChevronRight, ChevronLeft, Crown, History } from "lucide-react";
 
 export function TaliSidebar() {
@@ -31,6 +33,15 @@ export function TaliSidebar() {
     { href: "/dashboard/notifications", label: "Bildirimler", icon: Bell },
     { href: "/dashboard/profile", label: "Profilim", icon: User },
   ];
+
+  const { data: unreadCount = 0 } = useQuery({
+    queryKey: ["unread-count"],
+    queryFn: async () => {
+      const res = await api.get("/notification/unread-count");
+      return res.data as number;
+    },
+    refetchInterval: 30000, // Check every 30 seconds
+  });
 
   return (
     <>
@@ -95,13 +106,18 @@ export function TaliSidebar() {
                   href={link.href}
                   onClick={() => setIsMobileOpen(false)}
                   className={`
-                    flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
+                    flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors relative
                     ${isActive ? "bg-indigo-800 text-white" : "text-indigo-100 hover:bg-indigo-900/50"}
                     ${isCollapsed ? "justify-center" : ""}
                   `}
                 >
                   <Icon size={20} className="shrink-0" />
                   {!isCollapsed && <span className="text-sm font-medium">{link.label}</span>}
+                  {link.href === "/dashboard/notifications" && unreadCount > 0 && (
+                    <span className={`absolute ${isCollapsed ? "top-1 right-1" : "right-3"} bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center`}>
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
                 </Link>
               );
             })}

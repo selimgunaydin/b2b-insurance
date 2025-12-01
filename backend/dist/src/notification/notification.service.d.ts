@@ -43,6 +43,7 @@ export declare class NotificationService {
         isRead: boolean;
     }>;
     markAllAsRead(userId: string): Promise<import("@prisma/client").Prisma.BatchPayload>;
+    getUnreadCount(userId: string): Promise<number>;
     handleCron(): Promise<void>;
     notifyOfferReady(userId: string, requestTitle: string): Promise<{
         id: string;
