@@ -76,9 +76,30 @@ export default function AdminRequestDetailPage() {
         return;
     }
 
+    // Validate unique companies
+    const companies = new Set();
+    for (const offer of offers) {
+      if (companies.has(offer.company)) {
+        alert(`Aynı şirket birden fazla eklenemez: ${offer.company}`);
+        return;
+      }
+      companies.add(offer.company);
+    }
+
     try {
-      await api.put(`/insurance/${id}/offers`, { offers });
+      let offerFileUrl = "";
+      if (file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await api.post("/upload", formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
+        offerFileUrl = res.data.url;
+      }
+
+      await api.put(`/insurance/${id}/offers`, { offers, offerFileUrl });
       toast({ title: "Teklifler Gönderildi", description: "Tali teklifleri inceleyip birini seçecektir." });
+      setFile(null); // Reset file
       await refetch();
     } catch (err) {
       console.error("Failed to submit offers", err);
@@ -336,36 +357,6 @@ export default function AdminRequestDetailPage() {
                               </div>
                           </div>
                           <div className="space-y-2">
-                              <Label>Teklif Dosyası (PDF)</Label>
-                              <div className="flex items-center gap-4">
-                                  {offer.fileUrl && (
-                                      <a href={offer.fileUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
-                                          Dosyayı Görüntüle
-                                      </a>
-                                  )}
-                                  <Input
-                                      type="file"
-                                      accept="image/*,.pdf"
-                                      onChange={async (e) => {
-                                          const file = e.target.files?.[0];
-                                          if (file) {
-                                              const formData = new FormData();
-                                              formData.append("file", file);
-                                              try {
-                                                  const res = await api.post("/upload", formData, {
-                                                      headers: { "Content-Type": "multipart/form-data" },
-                                                  });
-                                                  handleOfferChange(index, "fileUrl", res.data.url);
-                                                  toast({ title: "Başarılı", description: "Dosya yüklendi." });
-                                              } catch (err) {
-                                                  toast({ title: "Hata", description: "Dosya yüklenirken hata oluştu.", variant: "destructive" });
-                                              }
-                                          }
-                                      }}
-                                  />
-                              </div>
-                          </div>
-                          <div className="space-y-2">
                               <Label>Açıklama (Opsiyonel)</Label>
                               <Input 
                                   placeholder="Örn: %10 indirimli" 
@@ -375,6 +366,17 @@ export default function AdminRequestDetailPage() {
                           </div>
                       </div>
                   ))}
+
+                  <div className="space-y-2 p-4 border rounded-lg bg-slate-50">
+                      <Label>Teklif Dosyası (PDF) - Tüm teklifler için tek dosya</Label>
+                      <div className="flex items-center gap-4">
+                          <Input
+                              type="file"
+                              accept="image/*,.pdf"
+                              onChange={(e) => setFile(e.target.files?.[0] || null)}
+                          />
+                      </div>
+                  </div>
 
                   <Button className="w-full" onClick={handleSubmitOffer}>
                     <Send className="mr-2 h-4 w-4" />

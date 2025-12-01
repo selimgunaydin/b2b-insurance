@@ -13,5 +13,6 @@ export declare class OfferItemDto {
     fileUrl?: string;
 }
 export declare class UpdateOfferDto {
+    offerFileUrl?: string;
     offers: OfferItemDto[];
 }

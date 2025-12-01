@@ -39,6 +39,22 @@ let NotificationService = NotificationService_1 = class NotificationService {
         }
         return { success: false, message: 'Only ALL target supported for now' };
     }
+    async notifyAdmins(title, message) {
+        const admins = await this.prisma.user.findMany({
+            where: { role: client_1.Role.ADMIN },
+        });
+        const notifications = admins.map((admin) => ({
+            userId: admin.id,
+            title,
+            message,
+            type: client_1.NotificationType.SYSTEM,
+        }));
+        if (notifications.length > 0) {
+            await this.prisma.notification.createMany({
+                data: notifications,
+            });
+        }
+    }
     async createSystemNotification(userId, title, message, type = client_1.NotificationType.SYSTEM) {
         return this.prisma.notification.create({
             data: {

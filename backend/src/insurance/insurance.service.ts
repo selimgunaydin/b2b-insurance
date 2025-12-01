@@ -199,7 +199,7 @@ export class InsuranceService {
       throw new Error('Customer ID or Customer Data is required');
     }
 
-    return this.prisma.insuranceRequest.create({
+    const request = await this.prisma.insuranceRequest.create({
       data: {
         taliId,
         customerId,
@@ -209,6 +209,14 @@ export class InsuranceService {
         status: RequestStatus.PENDING_OFFER,
       },
     });
+
+    // Notify Admins
+    await this.notificationService.notifyAdmins(
+      'Yeni Sigorta Talebi',
+      `${taliProfile.fullName} tarafından yeni bir ${dto.type} sigorta talebi oluşturuldu.`,
+    );
+
+    return request;
   }
 
   async findAll(userId: string, role: string) {
@@ -242,21 +250,35 @@ export class InsuranceService {
   }
 
   async updateOffers(id: string, dto: UpdateOfferDto) {
+    // Validate unique companies
+    const companies = new Set();
+    for (const offer of dto.offers) {
+      if (companies.has(offer.company)) {
+        throw new Error(`Duplicate company offer: ${offer.company}`);
+      }
+      companies.add(offer.company);
+    }
+
     const request = await this.prisma.insuranceRequest.update({
       where: { id },
       data: {
         offers: dto.offers as any,
+        offerFileUrl: dto.offerFileUrl,
         status: RequestStatus.OFFER_READY,
       },
     });
 
-    // Notify user about the offer
-    await this.notificationService.createSystemNotification(
-      request.taliId,
-      'Teklif Hazır',
-      `#${request.id.slice(0, 8)} numaralı talebiniz için teklif hazırlandı.`,
-      NotificationType.SYSTEM,
-    );
+    // Notify user about the offer (Safe)
+    try {
+      await this.notificationService.createSystemNotification(
+        request.taliId,
+        'Teklif Hazır',
+        `#${request.id.slice(0, 8)} numaralı talebiniz için teklif hazırlandı.`,
+        NotificationType.SYSTEM,
+      );
+    } catch (error) {
+      console.error('Failed to send notification for offer update:', error);
+    }
 
     return request;
   }

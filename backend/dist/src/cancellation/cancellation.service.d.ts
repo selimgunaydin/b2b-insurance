@@ -20,6 +20,7 @@ export declare class CancellationService {
             type: import("@prisma/client").$Enums.InsuranceType;
             details: import("@prisma/client/runtime/library").JsonValue;
             customerId: string | null;
+            offerFileUrl: string | null;
             offers: import("@prisma/client/runtime/library").JsonValue | null;
             taliId: string;
             status: import("@prisma/client").$Enums.RequestStatus;

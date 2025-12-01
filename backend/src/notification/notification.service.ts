@@ -8,7 +8,7 @@ import { Cron } from '@nestjs/schedule';
 export class NotificationService {
   private readonly logger = new Logger(NotificationService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async sendNotification(dto: SendNotificationDto) {
     // Admin broadcast logic
@@ -33,6 +33,25 @@ export class NotificationService {
 
     // Single user logic (if needed in future)
     return { success: false, message: 'Only ALL target supported for now' };
+  }
+
+  async notifyAdmins(title: string, message: string) {
+    const admins = await this.prisma.user.findMany({
+      where: { role: Role.ADMIN },
+    });
+
+    const notifications = admins.map((admin) => ({
+      userId: admin.id,
+      title,
+      message,
+      type: NotificationType.SYSTEM,
+    }));
+
+    if (notifications.length > 0) {
+      await this.prisma.notification.createMany({
+        data: notifications,
+      });
+    }
   }
 
   async createSystemNotification(

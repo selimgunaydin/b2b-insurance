@@ -47,6 +47,10 @@ export class OfferItemDto {
 }
 
 export class UpdateOfferDto {
+  @IsString()
+  @IsOptional()
+  offerFileUrl?: string;
+
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => OfferItemDto)

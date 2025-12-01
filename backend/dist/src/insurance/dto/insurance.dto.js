@@ -70,9 +70,15 @@ __decorate([
     __metadata("design:type", String)
 ], OfferItemDto.prototype, "fileUrl", void 0);
 class UpdateOfferDto {
+    offerFileUrl;
     offers;
 }
 exports.UpdateOfferDto = UpdateOfferDto;
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateOfferDto.prototype, "offerFileUrl", void 0);
 __decorate([
     (0, class_validator_1.IsArray)(),
     (0, class_validator_1.ValidateNested)({ each: true }),

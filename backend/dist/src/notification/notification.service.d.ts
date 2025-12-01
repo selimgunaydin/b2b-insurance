@@ -14,6 +14,7 @@ export declare class NotificationService {
         message: string;
         count?: undefined;
     }>;
+    notifyAdmins(title: string, message: string): Promise<void>;
     createSystemNotification(userId: string, title: string, message: string, type?: NotificationType): Promise<{
         id: string;
         createdAt: Date;

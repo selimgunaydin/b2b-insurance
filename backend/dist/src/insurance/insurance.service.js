@@ -178,7 +178,7 @@ let InsuranceService = class InsuranceService {
         if (!customerId) {
             throw new Error('Customer ID or Customer Data is required');
         }
-        return this.prisma.insuranceRequest.create({
+        const request = await this.prisma.insuranceRequest.create({
             data: {
                 taliId,
                 customerId,
@@ -187,6 +187,8 @@ let InsuranceService = class InsuranceService {
                 status: client_1.RequestStatus.PENDING_OFFER,
             },
         });
+        await this.notificationService.notifyAdmins('Yeni Sigorta Talebi', `${taliProfile.fullName} tarafından yeni bir ${dto.type} sigorta talebi oluşturuldu.`);
+        return request;
     }
     async findAll(userId, role) {
         if (role === 'ADMIN') {
@@ -218,14 +220,27 @@ let InsuranceService = class InsuranceService {
         return request;
     }
     async updateOffers(id, dto) {
+        const companies = new Set();
+        for (const offer of dto.offers) {
+            if (companies.has(offer.company)) {
+                throw new Error(`Duplicate company offer: ${offer.company}`);
+            }
+            companies.add(offer.company);
+        }
         const request = await this.prisma.insuranceRequest.update({
             where: { id },
             data: {
                 offers: dto.offers,
+                offerFileUrl: dto.offerFileUrl,
                 status: client_1.RequestStatus.OFFER_READY,
             },
         });
-        await this.notificationService.createSystemNotification(request.taliId, 'Teklif Hazır', `#${request.id.slice(0, 8)} numaralı talebiniz için teklif hazırlandı.`, client_2.NotificationType.SYSTEM);
+        try {
+            await this.notificationService.createSystemNotification(request.taliId, 'Teklif Hazır', `#${request.id.slice(0, 8)} numaralı talebiniz için teklif hazırlandı.`, client_2.NotificationType.SYSTEM);
+        }
+        catch (error) {
+            console.error('Failed to send notification for offer update:', error);
+        }
         return request;
     }
     async updateOffer(id, dto, userId) {

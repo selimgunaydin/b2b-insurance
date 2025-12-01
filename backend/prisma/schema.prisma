@@ -133,6 +133,7 @@ model InsuranceRequest {
   adminOfferCompany String?
   adminOfferDescription String?
   policyUrl String? // URL of the uploaded policy PDF
+  offerFileUrl String? // URL of the single offer file (PDF)
 
   policy    Policy?
   cancellationRequest CancellationRequest?
