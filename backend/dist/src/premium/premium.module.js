@@ -11,12 +11,13 @@ const common_1 = require("@nestjs/common");
 const premium_service_1 = require("./premium.service");
 const premium_controller_1 = require("./premium.controller");
 const prisma_module_1 = require("../prisma/prisma.module");
+const notification_module_1 = require("../notification/notification.module");
 let PremiumModule = class PremiumModule {
 };
 exports.PremiumModule = PremiumModule;
 exports.PremiumModule = PremiumModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule],
+        imports: [prisma_module_1.PrismaModule, notification_module_1.NotificationModule],
         controllers: [premium_controller_1.PremiumController],
         providers: [premium_service_1.PremiumService],
     })

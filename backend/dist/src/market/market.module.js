@@ -11,12 +11,13 @@ const common_1 = require("@nestjs/common");
 const market_controller_1 = require("./market.controller");
 const market_service_1 = require("./market.service");
 const prisma_module_1 = require("../prisma/prisma.module");
+const notification_module_1 = require("../notification/notification.module");
 let MarketModule = class MarketModule {
 };
 exports.MarketModule = MarketModule;
 exports.MarketModule = MarketModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule],
+        imports: [prisma_module_1.PrismaModule, notification_module_1.NotificationModule],
         controllers: [market_controller_1.MarketController],
         providers: [market_service_1.MarketService],
     })

@@ -10,11 +10,14 @@ exports.CancellationModule = void 0;
 const common_1 = require("@nestjs/common");
 const cancellation_controller_1 = require("./cancellation.controller");
 const cancellation_service_1 = require("./cancellation.service");
+const notification_module_1 = require("../notification/notification.module");
+const prisma_module_1 = require("../prisma/prisma.module");
 let CancellationModule = class CancellationModule {
 };
 exports.CancellationModule = CancellationModule;
 exports.CancellationModule = CancellationModule = __decorate([
     (0, common_1.Module)({
+        imports: [prisma_module_1.PrismaModule, notification_module_1.NotificationModule],
         controllers: [cancellation_controller_1.CancellationController],
         providers: [cancellation_service_1.CancellationService],
     })

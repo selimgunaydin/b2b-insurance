@@ -1,9 +1,3 @@
-Admin hedefleri güncelleyebilmeli/düzenleyebilmeli.
-
-Tali puan geçmişinde hedef kazanımları da komisyon kazancı olarak gözüküyor. Bunun hedef kazancı olarak gözükmesi gerekiyor.
-
-Admin tarafında müşteriler, kullanıcılar, poliçeler, teklifler excel formatında export edilebilmeli. Bu alanı detaylıca düşün ve en iyi şekilde geliştir.
-
 Tüm maddeleri detaylıca düşün ve analiz et. En iyi, en optimum şekilde çözüm uygula. 
 
 Son olarak backend ve frontend lint kontrolleri yap ve build al. Projeyi localde calıstırıp çalıştığından emin olup taskları tamamla.
