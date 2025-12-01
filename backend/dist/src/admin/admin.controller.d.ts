@@ -41,6 +41,9 @@ export declare class AdminController {
             details: import("@prisma/client/runtime/library").JsonValue | null;
             ipAddress: string | null;
         })[];
+        totalRevenue: number | import("@prisma/client/runtime/library").Decimal;
+        totalPolicies: number;
+        monthlyRevenue: Record<string, number>;
     }>;
     getGeneralStats(): Promise<{
         totalTalis: number;
@@ -63,5 +66,20 @@ export declare class AdminController {
     }): Promise<{
         success: boolean;
         newPoints: number;
+    }>;
+    upgradeToPremium(id: string): Promise<{
+        id: string;
+        userId: string;
+        fullName: string;
+        tcKimlikNo: string | null;
+        phone: string | null;
+        address: string | null;
+        birthDate: Date | null;
+        membershipType: import("@prisma/client").$Enums.MembershipType;
+        points: import("@prisma/client/runtime/library").Decimal;
+        trustScore: number;
+        hasKvkkApproval: boolean;
+        hasContractApproval: boolean;
+        allowedInsuranceTypes: string[];
     }>;
 }

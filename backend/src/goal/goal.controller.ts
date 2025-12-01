@@ -16,28 +16,16 @@ import {
   RewardType,
   InsuranceType,
 } from '@prisma/client';
+import { CreateGoalDto } from './dto/create-goal.dto';
 
 @Controller('goals')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
 export class GoalController {
-  constructor(private readonly goalService: GoalService) {}
+  constructor(private readonly goalService: GoalService) { }
 
   @Post()
   @Roles(Role.ADMIN)
-  async create(
-    @Body()
-    body: {
-      title: string;
-      description?: string;
-      targetType: GoalTargetType;
-      policyType?: InsuranceType;
-      targetValue: number;
-      rewardType: RewardType;
-      rewardPoints: number;
-      startDate: string;
-      endDate: string;
-    },
-  ) {
+  async create(@Body() body: CreateGoalDto) {
     return this.goalService.create({
       ...body,
       startDate: new Date(body.startDate),

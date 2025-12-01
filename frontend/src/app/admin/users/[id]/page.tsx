@@ -10,13 +10,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { AdminUserEditModal } from "@/components/admin/admin-user-edit-modal";
 import { AdminPointsModal } from "@/components/admin/admin-points-modal";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AdminUserDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
 
-  const { data: stats, isLoading } = useQuery({
+  const { toast } = useToast();
+  const { data: stats, isLoading, refetch } = useQuery({
     queryKey: ["admin-tali-stats", id],
     queryFn: async () => {
       const res = await api.get(`/admin/stats/tali/${id}`);
@@ -24,6 +26,17 @@ export default function AdminUserDetailPage() {
     },
     enabled: !!id,
   });
+
+  const handleMakePremium = async () => {
+    if (!confirm("Bu kullanıcıyı Premium yapmak istediğinize emin misiniz?")) return;
+    try {
+      await api.put(`/admin/users/${tali.user.id}/premium`);
+      toast({ title: "Başarılı", description: "Kullanıcı Premium yapıldı." });
+      await refetch();
+    } catch {
+      toast({ title: "Hata", description: "İşlem başarısız.", variant: "destructive" });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -35,7 +48,7 @@ export default function AdminUserDetailPage() {
 
   if (!stats) return <div>Kullanıcı bulunamadı.</div>;
 
-  const { tali, totalPolicies, activePolicies, totalPremium, totalCommission, policiesByType, policiesByMonth } = stats;
+  const { tali, totalPolicies, activePolicies, totalPremium, policiesByType, policiesByMonth } = stats;
 
   return (
     <div className="space-y-6">
@@ -45,11 +58,19 @@ export default function AdminUserDetailPage() {
               <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-              <h1 className="text-3xl font-bold">{tali.fullName || tali.user?.email}</h1>
+              <h1 className="text-3xl font-bold flex items-center gap-2">
+                {tali.fullName || tali.user?.email}
+                {tali.membershipType === 'PREMIUM' && <Badge className="bg-amber-500">Premium</Badge>}
+              </h1>
               <p className="text-muted-foreground">Tali Detayları ve İstatistikleri</p>
           </div>
         </div>
         <div className="flex gap-2">
+          {tali.membershipType !== 'PREMIUM' && (
+            <Button onClick={handleMakePremium} className="bg-amber-600 hover:bg-amber-700 text-white">
+              Premium Yap
+            </Button>
+          )}
           <AdminUserEditModal userId={tali.user.id} initialData={{
             fullName: tali.fullName,
             tcKimlikNo: tali.tcKimlikNo,
@@ -111,7 +132,7 @@ export default function AdminUserDetailPage() {
                 <ShieldCheck className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold">{tali.trustScore || 100}</div>
+                <div className="text-2xl font-bold">{Math.min(tali.trustScore || 100, 100)}</div>
                 <p className="text-xs text-muted-foreground">Hesap güvenilirliği</p>
             </CardContent>
         </Card>
@@ -126,7 +147,7 @@ export default function AdminUserDetailPage() {
             </CardHeader>
             <CardContent>
                 <div className="space-y-4">
-                    {Object.entries(policiesByType || {}).map(([type, count]: [string, any]) => (
+                    {Object.entries((policiesByType || {}) as Record<string, number>).map(([type, count]) => (
                         <div key={type} className="flex items-center">
                             <div className="w-32 font-medium text-sm">{type}</div>
                             <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
@@ -160,7 +181,7 @@ export default function AdminUserDetailPage() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {Object.entries(policiesByMonth || {}).sort().reverse().slice(0, 6).map(([month, count]: [string, any]) => (
+                        {Object.entries((policiesByMonth || {}) as Record<string, number>).sort().reverse().slice(0, 6).map(([month, count]) => (
                             <TableRow key={month}>
                                 <TableCell>{month}</TableCell>
                                 <TableCell className="text-right font-medium">{count}</TableCell>

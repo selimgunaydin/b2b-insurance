@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards, Param } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, UseGuards, Param } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -8,7 +8,7 @@ import { Role } from '@prisma/client';
 @Controller('admin')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class AdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(private readonly adminService: AdminService) { }
 
   @Get('stats')
   @Roles(Role.ADMIN)
@@ -40,5 +40,11 @@ export class AdminController {
       body.type,
       body.description,
     );
+  }
+
+  @Put('users/:id/premium')
+  @Roles(Role.ADMIN)
+  async upgradeToPremium(@Param('id') id: string) {
+    return this.adminService.upgradeToPremium(id);
   }
 }

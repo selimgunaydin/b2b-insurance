@@ -232,6 +232,14 @@ export default function TaliRequestDetailPage() {
                     <AlertDescription className="text-blue-800">
                       <div className="font-bold mb-2">Teklifler Hazır!</div>
                       Aşağıdaki tekliflerden birini seçip onaylayabilirsiniz.
+                      {request.offerFileUrl && (
+                          <div className="mt-2 pt-2 border-t border-blue-200">
+                              <a href={request.offerFileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-700 hover:underline flex items-center gap-2 font-medium">
+                                  <FileText className="h-4 w-4" />
+                                  Teklif Dosyasını İncele (PDF)
+                              </a>
+                          </div>
+                      )}
                     </AlertDescription>
                   </Alert>
 

@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, FileText, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 
@@ -24,10 +23,11 @@ export default function AdminDashboardPage() {
     return map[action] || action;
   };
 
-  const formatDetails = (action: string, details: any) => {
+  const formatDetails = (action: string, details: unknown) => {
     if (!details) return "-";
     try {
-        const d = typeof details === 'string' ? JSON.parse(details) : details;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const d = typeof details === 'string' ? JSON.parse(details) : details as Record<string, any>;
         
         switch (action) {
             case "CREATE_INSURANCE_REQUEST":
@@ -52,6 +52,10 @@ export default function AdminDashboardPage() {
     }
   };
 
+// ...
+
+
+
   const { data: stats, isLoading } = useQuery({
     queryKey: ["admin-stats"],
     queryFn: async () => {
@@ -68,11 +72,37 @@ export default function AdminDashboardPage() {
     );
   }
 
+  const monthlyRevenue = stats?.monthlyRevenue || {};
+  const maxRevenue = Math.max(...Object.values(monthlyRevenue as Record<string, number>), 1);
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold text-slate-900">Yönetim Paneli</h1>
       
+      {/* Financial & Growth Stats */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="bg-gradient-to-br from-indigo-50 to-white border-indigo-100">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-indigo-900">Toplam Ciro</CardTitle>
+            <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                <span className="font-bold text-indigo-600">₺</span>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-indigo-700">₺{stats?.totalRevenue?.toLocaleString('tr-TR') || 0}</div>
+            <p className="text-xs text-indigo-600/80">Toplam prim üretimi</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Toplam Poliçe</CardTitle>
+            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.totalPolicies || 0}</div>
+            <p className="text-xs text-muted-foreground">{stats?.activePolicies || 0} aktif poliçe</p>
+          </CardContent>
+        </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Bekleyen Onaylar</CardTitle>
@@ -93,63 +123,69 @@ export default function AdminDashboardPage() {
             <p className="text-xs text-muted-foreground">Fiyatlandırma bekleyen</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Aktif Poliçeler</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.activePolicies || 0}</div>
-            <p className="text-xs text-muted-foreground">Bu ay kesilen</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">İptal Talepleri</CardTitle>
-            <AlertCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.pendingCancellations || 0}</div>
-            <p className="text-xs text-muted-foreground">İşlem bekleyen</p>
-          </CardContent>
-        </Card>
       </div>
 
-      {/* Recent Activities */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Son Aktiviteler</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Tarih</TableHead>
-                <TableHead>Kullanıcı</TableHead>
-                <TableHead>İşlem</TableHead>
-                <TableHead>Detay</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {stats?.recentActivities?.map((log: any) => (
-                <TableRow key={log.id}>
-                  <TableCell>
-                    {format(new Date(log.createdAt), "d MMMM HH:mm", { locale: tr })}
-                  </TableCell>
-                  <TableCell>{log.user?.taliProfile?.fullName || log.user?.email}</TableCell>
-                  <TableCell>{formatAction(log.action)}</TableCell>
-                  <TableCell className="text-muted-foreground">{formatDetails(log.action, log.details)}</TableCell>
-                </TableRow>
-              ))}
-              {!stats?.recentActivities?.length && (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center">Henüz aktivite bulunmuyor.</TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <div className="grid gap-4 md:grid-cols-7">
+        {/* Revenue Chart */}
+        <Card className="md:col-span-4">
+            <CardHeader>
+                <CardTitle>Aylık Ciro Analizi</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="flex items-end gap-2 h-64 mt-4 pb-6">
+                {Object.entries(monthlyRevenue).sort().map(([month, value]) => (
+                    <div key={month} className="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+                    <div 
+                        className="w-full bg-indigo-600 rounded-t hover:bg-indigo-500 transition-all relative min-h-[4px]"
+                        style={{ height: `${(Number(value) / maxRevenue) * 100}%` }}
+                    >
+                        <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 shadow-lg">
+                        ₺{Number(value).toLocaleString('tr-TR')}
+                        </div>
+                    </div>
+                    <span className="text-xs text-muted-foreground -rotate-45 origin-top-left translate-y-4">{month}</span>
+                    </div>
+                ))}
+                {Object.keys(monthlyRevenue).length === 0 && (
+                    <div className="w-full h-full flex items-center justify-center text-muted-foreground">Veri yok</div>
+                )}
+                </div>
+            </CardContent>
+        </Card>
+
+        {/* Recent Activities */}
+        <Card className="md:col-span-3">
+            <CardHeader>
+            <CardTitle>Son Aktiviteler</CardTitle>
+            </CardHeader>
+            <CardContent>
+            <div className="space-y-4">
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                {stats?.recentActivities?.slice(0, 6).map((log: any) => (
+                    <div key={log.id} className="flex items-start gap-3 pb-3 border-b last:border-0 last:pb-0">
+                        <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 text-xs font-bold text-slate-600">
+                            {log.user?.taliProfile?.fullName?.[0] || log.user?.email?.[0] || "?"}
+                        </div>
+                        <div className="space-y-1">
+                            <p className="text-sm font-medium leading-none">
+                                {formatAction(log.action)}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                                {log.user?.taliProfile?.fullName || log.user?.email} - {format(new Date(log.createdAt), "HH:mm", { locale: tr })}
+                            </p>
+                            <p className="text-xs text-slate-600 mt-1 bg-slate-50 p-1 rounded">
+                                {formatDetails(log.action, log.details)}
+                            </p>
+                        </div>
+                    </div>
+                ))}
+                {!stats?.recentActivities?.length && (
+                    <div className="text-center text-muted-foreground py-4">Henüz aktivite bulunmuyor.</div>
+                )}
+            </div>
+            </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

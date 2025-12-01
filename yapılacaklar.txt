@@ -1,0 +1,45 @@
+1-Admin/Tali iki türde de poliçelerim sayfasında poliçe no alanında "pending" yazıyor. Burayı düzelt. 
+1.2- Admin dashboard sayfasında daha detaylı ve bol bol analiz, istatistik olmalı. Burayı analiz et ve genişlet, geliştir.
+1.3- Tali taleplerim detay sayfasında teklif hazır olduğunda teklif dosyasını göremiyor. Burayı düzelt.
+1.4- Admin teklif hazır aşamasındaki bir poliçe talebinin dosyasını göremiyor. Görebilmeli ve güncelleyebilmeli.
+1.5- Mesajlaşma alanında görsel gönderildiğinde iki taraf da görseli göremiyor. Düzelt.
+
+2-Bu apiyi de düzelt:
+
+Request URL
+http://localhost:3001/settings
+Request Method
+GET
+Status Code
+403 Forbidden
+Remote Address
+[::1]:3001
+Referrer Policy
+strict-origin-when-cross-origin
+
+{"message":"Forbidden resource","error":"Forbidden","statusCode":403}
+
+3-Güven puanını tali frontendde maksimum 100 olarak görmeli.
+
+4-Admin bir taliyi premium yapabilmeli.
+
+5-Aşağıdaki apiyi düzelt:
+
+Request URL
+http://localhost:3001/goals
+Request Method
+POST
+Status Code
+500 Internal Server Error
+Remote Address
+[::1]:3001
+Referrer Policy
+strict-origin-when-cross-origin
+
+{"statusCode":500,"message":"Internal server error"}
+
+Admin ve tali tarafındaki tüm sayfalar sidebar da ekli olduğuna emin ol.
+
+Tüm maddeleri detaylıca düşün ve analiz et. En iyi, en optimum şekilde çözüm uygula. 
+
+Son olarak backend ve frontend lint kontrolleri yap ve build al. Projeyi localde calıstırıp çalıştığından emin olup taskları tamamla.

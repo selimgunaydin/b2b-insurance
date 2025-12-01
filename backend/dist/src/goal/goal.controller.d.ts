@@ -1,19 +1,9 @@
 import { GoalService } from './goal.service';
-import { GoalTargetType, RewardType, InsuranceType } from '@prisma/client';
+import { CreateGoalDto } from './dto/create-goal.dto';
 export declare class GoalController {
     private readonly goalService;
     constructor(goalService: GoalService);
-    create(body: {
-        title: string;
-        description?: string;
-        targetType: GoalTargetType;
-        policyType?: InsuranceType;
-        targetValue: number;
-        rewardType: RewardType;
-        rewardPoints: number;
-        startDate: string;
-        endDate: string;
-    }): Promise<{
+    create(body: CreateGoalDto): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;

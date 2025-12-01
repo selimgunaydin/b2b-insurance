@@ -4,7 +4,7 @@ import { RequestStatus, Role } from '@prisma/client';
 
 @Injectable()
 export class AdminService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async getDashboardStats() {
     const pendingUsers = await this.prisma.user.count({
@@ -48,12 +48,41 @@ export class AdminService {
       include: { user: { include: { taliProfile: true } } },
     });
 
+    const totalRevenueResult = await this.prisma.policy.aggregate({
+      _sum: { premium: true },
+      where: { status: 'ACTIVE' },
+    });
+    const totalRevenue = totalRevenueResult._sum.premium || 0;
+
+    const totalPolicies = await this.prisma.policy.count();
+
+    // Monthly Revenue (Last 6 months)
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    const recentPolicies = await this.prisma.policy.findMany({
+      where: {
+        createdAt: { gte: sixMonthsAgo },
+        status: 'ACTIVE',
+      },
+      select: { premium: true, createdAt: true },
+    });
+
+    const monthlyRevenue: Record<string, number> = {};
+    for (const p of recentPolicies) {
+      const month = p.createdAt.toISOString().slice(0, 7); // YYYY-MM
+      monthlyRevenue[month] = (monthlyRevenue[month] || 0) + Number(p.premium);
+    }
+
     return {
       pendingUsers,
       pendingOffers,
       activePolicies,
       pendingCancellations,
       recentActivities,
+      totalRevenue,
+      totalPolicies,
+      monthlyRevenue,
     };
   }
 
@@ -175,5 +204,23 @@ export class AdminService {
     });
 
     return { success: true, newPoints: currentPoints + points };
+  }
+
+  async upgradeToPremium(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { taliProfile: true },
+    });
+
+    if (!user || !user.taliProfile) {
+      throw new Error('User or Tali profile not found');
+    }
+
+    return this.prisma.taliProfile.update({
+      where: { id: user.taliProfile.id },
+      data: {
+        membershipType: 'PREMIUM',
+      },
+    });
   }
 }

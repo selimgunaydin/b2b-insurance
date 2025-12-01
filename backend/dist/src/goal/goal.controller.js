@@ -19,6 +19,7 @@ const passport_1 = require("@nestjs/passport");
 const roles_guard_1 = require("../auth/roles.guard");
 const roles_decorator_1 = require("../auth/roles.decorator");
 const client_1 = require("@prisma/client");
+const create_goal_dto_1 = require("./dto/create-goal.dto");
 let GoalController = class GoalController {
     goalService;
     constructor(goalService) {
@@ -44,7 +45,7 @@ __decorate([
     (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [create_goal_dto_1.CreateGoalDto]),
     __metadata("design:returntype", Promise)
 ], GoalController.prototype, "create", null);
 __decorate([

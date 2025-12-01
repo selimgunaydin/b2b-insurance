@@ -30,7 +30,7 @@ export class SettingsController {
 
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.TALI)
   async getSettings() {
     return this.settingsService.getSettings();
   }

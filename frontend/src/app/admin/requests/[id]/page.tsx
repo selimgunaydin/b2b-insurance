@@ -396,6 +396,55 @@ export default function AdminRequestDetailPage() {
                           </div>
                       ))}
                     </div>
+                    {request.offerFileUrl && (
+                        <div className="mt-4 pt-4 border-t border-blue-200">
+                            <a href={request.offerFileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-700 hover:underline flex items-center gap-2 font-medium">
+                                <FileText className="h-4 w-4" />
+                                Teklif Dosyasını Görüntüle (PDF)
+                            </a>
+                        </div>
+                    )}
+                    
+                    <div className="mt-4 pt-4 border-t border-blue-200">
+                        <h4 className="text-sm font-semibold text-blue-900 mb-2">Teklif Dosyasını Güncelle</h4>
+                        <div className="flex gap-2">
+                             <Input
+                                type="file"
+                                accept="image/*,.pdf"
+                                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                                className="bg-white"
+                            />
+                            <Button 
+                                size="sm"
+                                onClick={async () => {
+                                    if (!file) return;
+                                    try {
+                                        const formData = new FormData();
+                                        formData.append("file", file);
+                                        const res = await api.post("/upload", formData, {
+                                            headers: { "Content-Type": "multipart/form-data" },
+                                        });
+                                        // We need a specific endpoint to update just the file or use the existing updateOffers
+                                        // For now, let's assume we can re-submit offers with new file, but that's risky.
+                                        // Better: Add a specific endpoint or just re-use updateOffers but we need current offers.
+                                        // Let's use the existing offers from request.offers
+                                        await api.put(`/insurance/${id}/offers`, { 
+                                            offers: request.offers, 
+                                            offerFileUrl: res.data.url 
+                                        });
+                                        toast({ title: "Başarılı", description: "Teklif dosyası güncellendi." });
+                                        setFile(null);
+                                        await refetch();
+                                    } catch (e) {
+                                        console.error(e);
+                                        toast({ title: "Hata", description: "Güncelleme başarısız.", variant: "destructive" });
+                                    }
+                                }}
+                            >
+                                Güncelle
+                            </Button>
+                        </div>
+                    </div>
                   </AlertDescription>
                 </Alert>
               ) : (request.status === "PAYMENT_PENDING" || request.status === "PAYMENT_REVIEW") ? (
