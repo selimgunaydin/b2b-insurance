@@ -76,14 +76,6 @@ export default function AdminGoalsPage() {
     },
   });
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
 
   const updateMutation = useMutation({
@@ -106,6 +98,14 @@ export default function AdminGoalsPage() {
       });
     },
   });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-8 space-y-6">
