@@ -266,12 +266,13 @@ export class InsuranceService {
         offerFileUrl: dto.offerFileUrl,
         status: RequestStatus.OFFER_READY,
       },
+      include: { tali: true },
     });
 
     // Notify user about the offer (Safe)
     try {
       await this.notificationService.notifyOfferReady(
-        request.taliId,
+        request.tali.userId,
         `#${request.id.slice(0, 8)}`,
       );
     } catch (error) {
@@ -288,6 +289,7 @@ export class InsuranceService {
         offers: dto.offers as any,
         status: RequestStatus.OFFER_READY,
       },
+      include: { tali: true },
     });
 
     // Log the action
@@ -298,7 +300,7 @@ export class InsuranceService {
 
     // Notify user about the offer
     await this.notificationService.notifyOfferReady(
-      request.taliId,
+      request.tali.userId,
       `#${request.id.slice(0, 8)}`,
     );
 
@@ -321,6 +323,7 @@ export class InsuranceService {
         policyUrl: policyPdfUrl,
         status: RequestStatus.COMPLETED,
       },
+      include: { tali: true },
     });
 
     // Update or create Policy entity
@@ -350,7 +353,7 @@ export class InsuranceService {
 
     // Notify user
     await this.notificationService.notifyPolicyCreated(
-      request.taliId,
+      request.tali.userId,
       policy.policyNumber,
     );
 
@@ -418,6 +421,7 @@ export class InsuranceService {
   ) {
     const request = await this.prisma.insuranceRequest.findUnique({
       where: { id },
+      include: { tali: true },
     });
 
     if (!request) throw new NotFoundException('Request not found');
@@ -549,7 +553,7 @@ export class InsuranceService {
       try {
         if (request) {
           await this.notificationService.notifyPolicyCreated(
-            request.taliId,
+            request.tali.userId,
             result.policy.policyNumber,
           );
         }

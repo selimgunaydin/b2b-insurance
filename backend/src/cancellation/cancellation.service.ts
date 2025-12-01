@@ -12,7 +12,7 @@ export class CancellationService {
   constructor(
     private prisma: PrismaService,
     private notificationService: NotificationService,
-  ) {}
+  ) { }
 
   async create(dto: CreateCancellationDto) {
     return this.prisma.cancellationRequest.create({
@@ -38,6 +38,7 @@ export class CancellationService {
         policy: {
           include: {
             policy: true,
+            tali: true,
           },
         },
       },
@@ -45,7 +46,7 @@ export class CancellationService {
 
     if (request.policy && request.policy.policy) {
       await this.notificationService.notifyCancellationStatus(
-        request.policy.taliId,
+        request.policy.tali.userId,
         dto.status,
         request.policy.policy.policyNumber,
       );
