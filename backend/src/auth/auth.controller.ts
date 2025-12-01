@@ -13,7 +13,7 @@ import { LoginDto, RegisterDto } from './dto/auth.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
@@ -34,10 +34,11 @@ export class AuthController {
     }
     const { access_token } = await this.authService.login(user);
 
+    const isProduction = process.env.NODE_ENV === 'production';
     res.cookie('access_token', access_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax', // or 'strict' depending on requirements
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
       path: '/',
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });

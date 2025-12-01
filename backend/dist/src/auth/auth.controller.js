@@ -30,10 +30,11 @@ let AuthController = class AuthController {
             return { message: 'Invalid credentials' };
         }
         const { access_token } = await this.authService.login(user);
+        const isProduction = process.env.NODE_ENV === 'production';
         res.cookie('access_token', access_token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            secure: isProduction,
+            sameSite: isProduction ? 'none' : 'lax',
             path: '/',
             maxAge: 24 * 60 * 60 * 1000,
         });
