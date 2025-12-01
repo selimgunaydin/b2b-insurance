@@ -30,11 +30,9 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
         this.prisma = prisma;
     }
     async validate(payload) {
-        console.log('JwtStrategy validate payload:', payload);
         const user = await this.prisma.user.findUnique({
             where: { id: payload.sub },
         });
-        console.log('JwtStrategy found user:', user ? user.email : 'NOT FOUND');
         if (!user) {
             return null;
         }
