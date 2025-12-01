@@ -12,7 +12,7 @@ export class CancellationService {
   constructor(
     private prisma: PrismaService,
     private notificationService: NotificationService,
-  ) { }
+  ) {}
 
   async create(dto: CreateCancellationDto) {
     return this.prisma.cancellationRequest.create({

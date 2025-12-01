@@ -227,14 +227,18 @@ let AdminService = class AdminService {
             monthlyPoints[month] = (monthlyPoints[month] || 0) + points;
             if (!monthlyBreakdown[month])
                 monthlyBreakdown[month] = {};
-            monthlyBreakdown[month][t.type] = (monthlyBreakdown[month][t.type] || 0) + points;
+            monthlyBreakdown[month][t.type] =
+                (monthlyBreakdown[month][t.type] || 0) + points;
         }
         return {
             totalPointsDistributed,
             totalLiabilities,
-            pointsByType: pointsByType.map(p => ({ type: p.type, points: p._sum.points })),
+            pointsByType: pointsByType.map((p) => ({
+                type: p.type,
+                points: p._sum.points,
+            })),
             monthlyPoints,
-            monthlyBreakdown
+            monthlyBreakdown,
         };
     }
     async getLiabilitiesBreakdown() {
@@ -260,6 +264,20 @@ let AdminService = class AdminService {
             email: l.user.email,
             points: Number(l.points),
             membershipType: l.membershipType,
+        }));
+    }
+    async getTopTalis(limit = 10) {
+        const topTalis = await this.prisma.taliProfile.findMany({
+            orderBy: { points: 'desc' },
+            take: limit,
+            include: { user: { select: { email: true } } },
+        });
+        return topTalis.map((t) => ({
+            id: t.id,
+            fullName: t.fullName,
+            email: t.user.email,
+            points: Number(t.points),
+            membershipType: t.membershipType,
         }));
     }
 };

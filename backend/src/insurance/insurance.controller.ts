@@ -22,7 +22,7 @@ import { Role } from '@prisma/client';
 @Controller('insurance')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class InsuranceController {
-  constructor(private readonly insuranceService: InsuranceService) { }
+  constructor(private readonly insuranceService: InsuranceService) {}
 
   @Post()
   @Roles(Role.TALI)

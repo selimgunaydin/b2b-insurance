@@ -56,4 +56,4 @@ import { ExportModule } from './export/export.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

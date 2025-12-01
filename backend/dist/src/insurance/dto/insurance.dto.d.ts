@@ -1,9 +1,20 @@
 import { InsuranceType } from '@prisma/client';
+export declare class CustomerDataDto {
+    tcKn: string;
+    fullName: string;
+    phone: string;
+    email?: string;
+}
+export declare class InsuranceDetailsDto {
+    plaka?: string;
+    ruhsatSeriNo?: string;
+    asbisNo?: string;
+}
 export declare class CreateInsuranceRequestDto {
     customerId?: string;
-    customerData?: any;
+    customerData?: CustomerDataDto;
     type: InsuranceType;
-    details: any;
+    details: InsuranceDetailsDto;
     files?: string[];
 }
 export declare class OfferItemDto {

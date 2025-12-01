@@ -23,6 +23,9 @@ let UploadController = class UploadController {
         this.supabaseService = supabaseService;
     }
     async uploadFile(file) {
+        if (!file) {
+            throw new common_1.BadRequestException('File is required');
+        }
         const sanitizedOriginalName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
         const filename = `${Date.now()}-${sanitizedOriginalName}`;
         const url = await this.supabaseService.uploadFile(file, filename);
@@ -33,7 +36,17 @@ exports.UploadController = UploadController;
 __decorate([
     (0, common_1.Post)(),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file', {
+        limits: {
+            fileSize: 5 * 1024 * 1024,
+        },
+        fileFilter: (req, file, callback) => {
+            if (!file.originalname.match(/\.(jpg|jpeg|png|pdf)$/)) {
+                return callback(new common_1.BadRequestException('Only image (jpg, jpeg, png) and PDF files are allowed!'), false);
+            }
+            callback(null, true);
+        },
+    })),
     __param(0, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),

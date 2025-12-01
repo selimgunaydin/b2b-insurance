@@ -5,7 +5,9 @@ import {
   UseGuards,
   Request,
   Get,
+  Res,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto/auth.dto';
 
@@ -19,7 +21,10 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() loginDto: LoginDto) {
+  async login(
+    @Body() loginDto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const user = await this.authService.validateUser(
       loginDto.email,
       loginDto.password,
@@ -27,6 +32,22 @@ export class AuthController {
     if (!user) {
       return { message: 'Invalid credentials' };
     }
-    return this.authService.login(user);
+    const { access_token } = await this.authService.login(user);
+
+    res.cookie('access_token', access_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax', // or 'strict' depending on requirements
+      path: '/',
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    });
+
+    return { message: 'Login successful', user };
+  }
+
+  @Post('logout')
+  async logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('access_token');
+    return { message: 'Logout successful' };
   }
 }

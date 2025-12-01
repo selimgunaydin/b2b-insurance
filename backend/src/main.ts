@@ -4,9 +4,15 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path'; // Added import for 'join'
 
+import cookieParser from 'cookie-parser';
+
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  app.enableCors();
+  app.enableCors({
+    origin: ['http://localhost:3000', 'https://b2b-insurance.onrender.com'], // Add production URL
+    credentials: true,
+  });
+  app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
   // Serve static files (e.g. uploaded PDFs)

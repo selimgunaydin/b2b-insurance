@@ -10,4 +10,4 @@ import { NotificationModule } from '../notification/notification.module';
   controllers: [PremiumController],
   providers: [PremiumService],
 })
-export class PremiumModule { }
+export class PremiumModule {}

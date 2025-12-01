@@ -234,9 +234,10 @@ let InsuranceService = class InsuranceService {
                 offerFileUrl: dto.offerFileUrl,
                 status: client_1.RequestStatus.OFFER_READY,
             },
+            include: { tali: true },
         });
         try {
-            await this.notificationService.notifyOfferReady(request.taliId, `#${request.id.slice(0, 8)}`);
+            await this.notificationService.notifyOfferReady(request.tali.userId, `#${request.id.slice(0, 8)}`);
         }
         catch (error) {
             console.error('Failed to send notification for offer update:', error);
@@ -250,12 +251,13 @@ let InsuranceService = class InsuranceService {
                 offers: dto.offers,
                 status: client_1.RequestStatus.OFFER_READY,
             },
+            include: { tali: true },
         });
         await this.auditService.log(userId, 'CREATE_OFFER', {
             requestId: id,
             offers: dto.offers,
         });
-        await this.notificationService.notifyOfferReady(request.taliId, `#${request.id.slice(0, 8)}`);
+        await this.notificationService.notifyOfferReady(request.tali.userId, `#${request.id.slice(0, 8)}`);
         return request;
     }
     async uploadPolicy(id, file, userId) {
@@ -271,6 +273,7 @@ let InsuranceService = class InsuranceService {
                 policyUrl: policyPdfUrl,
                 status: client_1.RequestStatus.COMPLETED,
             },
+            include: { tali: true },
         });
         const policy = await this.prisma.policy.upsert({
             where: { insuranceRequestId: id },
@@ -292,7 +295,7 @@ let InsuranceService = class InsuranceService {
             requestId: id,
             filename,
         });
-        await this.notificationService.notifyPolicyCreated(request.taliId, policy.policyNumber);
+        await this.notificationService.notifyPolicyCreated(request.tali.userId, policy.policyNumber);
         return request;
     }
     async approveOffer(id, userId, selectedOffer) {
@@ -341,6 +344,7 @@ let InsuranceService = class InsuranceService {
     async confirmPayment(id, userId, file, body = {}) {
         const request = await this.prisma.insuranceRequest.findUnique({
             where: { id },
+            include: { tali: true },
         });
         if (!request)
             throw new common_1.NotFoundException('Request not found');
@@ -435,8 +439,11 @@ let InsuranceService = class InsuranceService {
                 console.error('Audit log failed', e);
             }
             try {
-                if (request) {
-                    await this.notificationService.notifyPolicyCreated(request.taliId, result.policy.policyNumber);
+                if (request && request.tali) {
+                    await this.notificationService.notifyPolicyCreated(request.tali.userId, result.policy.policyNumber);
+                }
+                else {
+                    console.warn(`Skipping notification for request ${id}: Tali relation missing`);
                 }
             }
             catch (e) {
@@ -629,6 +636,10 @@ let InsuranceService = class InsuranceService {
         });
         if (!policy)
             throw new common_1.NotFoundException('Policy not found');
+        await this.auditService.log(userId, 'CREATE_CANCELLATION', {
+            policyId,
+            reason,
+        });
         const taliProfile = await this.prisma.taliProfile.findUnique({
             where: { userId },
         });

@@ -1,3 +1,4 @@
+import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto/auth.dto';
 export declare class AuthController {
@@ -12,9 +13,14 @@ export declare class AuthController {
         createdAt: Date;
         updatedAt: Date;
     }>;
-    login(loginDto: LoginDto): Promise<{
-        access_token: string;
+    login(loginDto: LoginDto, res: Response): Promise<{
+        message: string;
+        user?: undefined;
     } | {
+        message: string;
+        user: any;
+    }>;
+    logout(res: Response): Promise<{
         message: string;
     }>;
 }

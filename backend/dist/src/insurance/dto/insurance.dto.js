@@ -9,10 +9,55 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateOfferDto = exports.OfferItemDto = exports.CreateInsuranceRequestDto = void 0;
+exports.UpdateOfferDto = exports.OfferItemDto = exports.CreateInsuranceRequestDto = exports.InsuranceDetailsDto = exports.CustomerDataDto = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
 const client_1 = require("@prisma/client");
+class CustomerDataDto {
+    tcKn;
+    fullName;
+    phone;
+    email;
+}
+exports.CustomerDataDto = CustomerDataDto;
+__decorate([
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CustomerDataDto.prototype, "tcKn", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CustomerDataDto.prototype, "fullName", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CustomerDataDto.prototype, "phone", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CustomerDataDto.prototype, "email", void 0);
+class InsuranceDetailsDto {
+    plaka;
+    ruhsatSeriNo;
+    asbisNo;
+}
+exports.InsuranceDetailsDto = InsuranceDetailsDto;
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], InsuranceDetailsDto.prototype, "plaka", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], InsuranceDetailsDto.prototype, "ruhsatSeriNo", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], InsuranceDetailsDto.prototype, "asbisNo", void 0);
 class CreateInsuranceRequestDto {
     customerId;
     customerData;
@@ -27,17 +72,20 @@ __decorate([
     __metadata("design:type", String)
 ], CreateInsuranceRequestDto.prototype, "customerId", void 0);
 __decorate([
-    (0, class_validator_1.IsObject)(),
     (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Object)
+    (0, class_validator_1.ValidateNested)(),
+    (0, class_transformer_1.Type)(() => CustomerDataDto),
+    __metadata("design:type", CustomerDataDto)
 ], CreateInsuranceRequestDto.prototype, "customerData", void 0);
 __decorate([
     (0, class_validator_1.IsEnum)(client_1.InsuranceType),
     __metadata("design:type", String)
 ], CreateInsuranceRequestDto.prototype, "type", void 0);
 __decorate([
-    (0, class_validator_1.IsObject)(),
-    __metadata("design:type", Object)
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.ValidateNested)(),
+    (0, class_transformer_1.Type)(() => InsuranceDetailsDto),
+    __metadata("design:type", InsuranceDetailsDto)
 ], CreateInsuranceRequestDto.prototype, "details", void 0);
 __decorate([
     (0, class_validator_1.IsArray)(),

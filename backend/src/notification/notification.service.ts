@@ -8,7 +8,7 @@ import { Cron } from '@nestjs/schedule';
 export class NotificationService {
   private readonly logger = new Logger(NotificationService.name);
 
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async sendNotification(dto: SendNotificationDto) {
     // Admin broadcast logic
@@ -126,16 +126,19 @@ export class NotificationService {
       },
       include: {
         customer: true,
+        tali: true, // Include Tali to access userId
       },
     });
 
     for (const policy of expiringPolicies) {
-      await this.createSystemNotification(
-        policy.taliId,
-        'Poliçe Yenileme Hatırlatması',
-        `Müşteriniz ${policy.customer?.fullName || 'Bilinmeyen'} için poliçe süresi dolmak üzere (1 yıl geçti). Lütfen yenileme teklifi oluşturun.`,
-        NotificationType.RENEWAL,
-      );
+      if (policy.tali) {
+        await this.createSystemNotification(
+          policy.tali.userId, // Use User ID, not TaliProfile ID
+          'Poliçe Yenileme Hatırlatması',
+          `Müşteriniz ${policy.customer?.fullName || 'Bilinmeyen'} için poliçe süresi dolmak üzere (1 yıl geçti). Lütfen yenileme teklifi oluşturun.`,
+          NotificationType.RENEWAL,
+        );
+      }
     }
 
     if (expiringPolicies.length > 0) {

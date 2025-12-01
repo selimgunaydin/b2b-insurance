@@ -42,12 +42,13 @@ let CancellationService = class CancellationService {
                 policy: {
                     include: {
                         policy: true,
+                        tali: true,
                     },
                 },
             },
         });
         if (request.policy && request.policy.policy) {
-            await this.notificationService.notifyCancellationStatus(request.policy.taliId, dto.status, request.policy.policy.policyNumber);
+            await this.notificationService.notifyCancellationStatus(request.policy.tali.userId, dto.status, request.policy.policy.policyNumber);
         }
         return request;
     }

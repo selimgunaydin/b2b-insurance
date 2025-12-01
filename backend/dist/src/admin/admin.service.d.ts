@@ -96,4 +96,11 @@ export declare class AdminService {
         points: number;
         membershipType: any;
     }[]>;
+    getTopTalis(limit?: number): Promise<{
+        id: string;
+        fullName: string;
+        email: string;
+        points: number;
+        membershipType: import("@prisma/client").$Enums.MembershipType;
+    }[]>;
 }

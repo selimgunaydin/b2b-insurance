@@ -7,4 +7,4 @@ import { PrismaService } from '../prisma/prisma.service';
   controllers: [TransactionsController],
   providers: [TransactionsService],
 })
-export class TransactionsModule { }
+export class TransactionsModule {}

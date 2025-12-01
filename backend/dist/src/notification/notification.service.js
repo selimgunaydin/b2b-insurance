@@ -109,10 +109,13 @@ let NotificationService = NotificationService_1 = class NotificationService {
             },
             include: {
                 customer: true,
+                tali: true,
             },
         });
         for (const policy of expiringPolicies) {
-            await this.createSystemNotification(policy.taliId, 'Poliçe Yenileme Hatırlatması', `Müşteriniz ${policy.customer?.fullName || 'Bilinmeyen'} için poliçe süresi dolmak üzere (1 yıl geçti). Lütfen yenileme teklifi oluşturun.`, client_1.NotificationType.RENEWAL);
+            if (policy.tali) {
+                await this.createSystemNotification(policy.tali.userId, 'Poliçe Yenileme Hatırlatması', `Müşteriniz ${policy.customer?.fullName || 'Bilinmeyen'} için poliçe süresi dolmak üzere (1 yıl geçti). Lütfen yenileme teklifi oluşturun.`, client_1.NotificationType.RENEWAL);
+            }
         }
         if (expiringPolicies.length > 0) {
             this.logger.log(`Sent ${expiringPolicies.length} renewal notifications.`);

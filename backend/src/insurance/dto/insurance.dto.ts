@@ -10,20 +10,52 @@ import {
 import { Type } from 'class-transformer';
 import { InsuranceType } from '@prisma/client';
 
+export class CustomerDataDto {
+  @IsString()
+  tcKn: string;
+
+  @IsString()
+  fullName: string;
+
+  @IsString()
+  phone: string;
+
+  @IsString()
+  @IsOptional()
+  email?: string;
+}
+
+export class InsuranceDetailsDto {
+  @IsString()
+  @IsOptional()
+  plaka?: string;
+
+  @IsString()
+  @IsOptional()
+  ruhsatSeriNo?: string;
+
+  @IsString()
+  @IsOptional()
+  asbisNo?: string;
+}
+
 export class CreateInsuranceRequestDto {
   @IsString()
   @IsOptional()
   customerId?: string;
 
-  @IsObject()
   @IsOptional()
-  customerData?: any;
+  @ValidateNested()
+  @Type(() => CustomerDataDto)
+  customerData?: CustomerDataDto;
 
   @IsEnum(InsuranceType)
   type: InsuranceType;
 
-  @IsObject()
-  details: any; // JSONB content
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => InsuranceDetailsDto)
+  details: InsuranceDetailsDto;
 
   @IsArray()
   @IsOptional()

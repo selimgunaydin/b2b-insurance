@@ -22,7 +22,7 @@ export class InsuranceService {
     private whatsappService: WhatsAppService,
     private paymentService: PaymentService,
     private trustScoreService: TrustScoreService,
-  ) { }
+  ) {}
 
   async getStats(userId: string) {
     const taliProfile = await this.prisma.taliProfile.findUnique({
@@ -204,7 +204,7 @@ export class InsuranceService {
         taliId,
         customerId,
         type: dto.type,
-        details: dto.details || {},
+        details: (dto.details as any) || {},
         // files: dto.files || [], // Removed from schema
         status: RequestStatus.PENDING_OFFER,
       },
@@ -335,8 +335,8 @@ export class InsuranceService {
         policyUrl: policyPdfUrl,
         premium: request.offers
           ? (request.offers as any[]).find(
-            (o) => o.company === request.adminOfferCompany,
-          )?.price || 0
+              (o) => o.company === request.adminOfferCompany,
+            )?.price || 0
           : 0, // Best effort premium
         company: request.adminOfferCompany || 'Unknown',
         policyNumber: `POL-${Date.now()}`, // Generate a temp policy number if new
@@ -551,10 +551,14 @@ export class InsuranceService {
 
       // Notify user
       try {
-        if (request) {
+        if (request && request.tali) {
           await this.notificationService.notifyPolicyCreated(
             request.tali.userId,
             result.policy.policyNumber,
+          );
+        } else {
+          console.warn(
+            `Skipping notification for request ${id}: Tali relation missing`,
           );
         }
       } catch (e) {
@@ -798,6 +802,12 @@ export class InsuranceService {
     });
 
     if (!policy) throw new NotFoundException('Policy not found');
+
+    // Log action
+    await this.auditService.log(userId, 'CREATE_CANCELLATION', {
+      policyId,
+      reason,
+    });
 
     // Verify ownership
     const taliProfile = await this.prisma.taliProfile.findUnique({

@@ -10,4 +10,4 @@ import { PrismaModule } from '../prisma/prisma.module';
   controllers: [CancellationController],
   providers: [CancellationService],
 })
-export class CancellationModule { }
+export class CancellationModule {}

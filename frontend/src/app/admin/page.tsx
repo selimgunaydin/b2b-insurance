@@ -59,8 +59,11 @@ export default function AdminDashboardPage() {
   const { data: stats, isLoading } = useQuery({
     queryKey: ["admin-stats"],
     queryFn: async () => {
-      const res = await api.get("/admin/stats");
-      return res.data;
+      const [statsRes, topTalisRes] = await Promise.all([
+        api.get("/admin/stats"),
+        api.get("/admin/dashboard/top-talis?limit=5")
+      ]);
+      return { ...statsRes.data, topTalis: topTalisRes.data };
     },
   });
 
@@ -153,39 +156,72 @@ export default function AdminDashboardPage() {
             </CardContent>
         </Card>
 
-        {/* Recent Activities */}
+        {/* Top Talis */}
         <Card className="md:col-span-3">
             <CardHeader>
-            <CardTitle>Son Aktiviteler</CardTitle>
+                <CardTitle>En Başarılı Taliler</CardTitle>
             </CardHeader>
             <CardContent>
-            <div className="space-y-4">
-                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                {stats?.recentActivities?.slice(0, 6).map((log: any) => (
-                    <div key={log.id} className="flex items-start gap-3 pb-3 border-b last:border-0 last:pb-0">
-                        <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 text-xs font-bold text-slate-600">
-                            {log.user?.taliProfile?.fullName?.[0] || log.user?.email?.[0] || "?"}
+                <div className="space-y-4">
+                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                    {stats?.topTalis?.map((tali: any, i: number) => (
+                        <div key={tali.id} className="flex items-center justify-between border-b pb-2 last:border-0 last:pb-0">
+                            <div className="flex items-center gap-3">
+                                <div className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold ${i < 3 ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}`}>
+                                    {i + 1}
+                                </div>
+                                <div>
+                                    <p className="text-sm font-medium">{tali.fullName}</p>
+                                    <p className="text-xs text-muted-foreground">{tali.email}</p>
+                                </div>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-sm font-bold text-indigo-600">{Number(tali.points).toLocaleString('tr-TR')} Puan</p>
+                                <p className="text-xs text-muted-foreground">{tali.membershipType}</p>
+                            </div>
                         </div>
-                        <div className="space-y-1">
-                            <p className="text-sm font-medium leading-none">
-                                {formatAction(log.action)}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                                {log.user?.taliProfile?.fullName || log.user?.email} - {format(new Date(log.createdAt), "HH:mm", { locale: tr })}
-                            </p>
-                            <p className="text-xs text-slate-600 mt-1 bg-slate-50 p-1 rounded">
-                                {formatDetails(log.action, log.details)}
-                            </p>
-                        </div>
-                    </div>
-                ))}
-                {!stats?.recentActivities?.length && (
-                    <div className="text-center text-muted-foreground py-4">Henüz aktivite bulunmuyor.</div>
-                )}
-            </div>
+                    ))}
+                     {!stats?.topTalis?.length && (
+                        <div className="text-center text-muted-foreground py-4">Veri yok.</div>
+                    )}
+                </div>
             </CardContent>
         </Card>
       </div>
+
+      {/* Recent Activities */}
+      <Card>
+          <CardHeader>
+          <CardTitle>Son Aktiviteler</CardTitle>
+          </CardHeader>
+          <CardContent>
+          <div className="space-y-4">
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {stats?.recentActivities?.slice(0, 6).map((log: any) => (
+                  <div key={log.id} className="flex items-start gap-3 pb-3 border-b last:border-0 last:pb-0">
+                      <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 text-xs font-bold text-slate-600">
+                          {log.user?.taliProfile?.fullName?.[0] || log.user?.email?.[0] || "?"}
+                      </div>
+                      <div className="space-y-1">
+                          <p className="text-sm font-medium leading-none">
+                              {formatAction(log.action)}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                              {log.user?.taliProfile?.fullName || log.user?.email} - {format(new Date(log.createdAt), "HH:mm", { locale: tr })}
+                          </p>
+                          <p className="text-xs text-slate-600 mt-1 bg-slate-50 p-1 rounded">
+                              {formatDetails(log.action, log.details)}
+                          </p>
+                      </div>
+                  </div>
+              ))}
+              {!stats?.recentActivities?.length && (
+                  <div className="text-center text-muted-foreground py-4">Henüz aktivite bulunmuyor.</div>
+              )}
+          </div>
+          </CardContent>
+      </Card>
     </div>
   );
 }
+

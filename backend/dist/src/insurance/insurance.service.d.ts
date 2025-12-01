@@ -220,6 +220,22 @@ export declare class InsuranceService {
         policyUrl: string | null;
     }>;
     updateOffers(id: string, dto: UpdateOfferDto): Promise<{
+        tali: {
+            id: string;
+            userId: string;
+            fullName: string;
+            tcKimlikNo: string | null;
+            phone: string | null;
+            address: string | null;
+            birthDate: Date | null;
+            membershipType: import("@prisma/client").$Enums.MembershipType;
+            points: import("@prisma/client/runtime/library").Decimal;
+            trustScore: number;
+            hasKvkkApproval: boolean;
+            hasContractApproval: boolean;
+            allowedInsuranceTypes: string[];
+        };
+    } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;
@@ -237,6 +253,22 @@ export declare class InsuranceService {
         policyUrl: string | null;
     }>;
     updateOffer(id: string, dto: UpdateOfferDto, userId: string): Promise<{
+        tali: {
+            id: string;
+            userId: string;
+            fullName: string;
+            tcKimlikNo: string | null;
+            phone: string | null;
+            address: string | null;
+            birthDate: Date | null;
+            membershipType: import("@prisma/client").$Enums.MembershipType;
+            points: import("@prisma/client/runtime/library").Decimal;
+            trustScore: number;
+            hasKvkkApproval: boolean;
+            hasContractApproval: boolean;
+            allowedInsuranceTypes: string[];
+        };
+    } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;
@@ -254,6 +286,22 @@ export declare class InsuranceService {
         policyUrl: string | null;
     }>;
     uploadPolicy(id: string, file: Express.Multer.File, userId: string): Promise<{
+        tali: {
+            id: string;
+            userId: string;
+            fullName: string;
+            tcKimlikNo: string | null;
+            phone: string | null;
+            address: string | null;
+            birthDate: Date | null;
+            membershipType: import("@prisma/client").$Enums.MembershipType;
+            points: import("@prisma/client/runtime/library").Decimal;
+            trustScore: number;
+            hasKvkkApproval: boolean;
+            hasContractApproval: boolean;
+            allowedInsuranceTypes: string[];
+        };
+    } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;

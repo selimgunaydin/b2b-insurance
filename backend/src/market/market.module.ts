@@ -10,4 +10,4 @@ import { NotificationModule } from '../notification/notification.module';
   controllers: [MarketController],
   providers: [MarketService],
 })
-export class MarketModule { }
+export class MarketModule {}
