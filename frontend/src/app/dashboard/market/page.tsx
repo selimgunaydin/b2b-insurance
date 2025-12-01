@@ -131,14 +131,14 @@ export default function MarketPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
           <h1 className="text-3xl font-bold">Puan Marketi</h1>
           <p className="text-muted-foreground">
             Puanlarınızı harcayarak ödüller kazanın
           </p>
         </div>
-        <Card className="w-full md:w-auto bg-primary text-primary-foreground">
+        <Card className="w-full md:w-auto bg-primary text-primary-foreground py-4">
           <CardContent className="flex items-center gap-4">
             <div className="p-2 bg-primary-foreground/10 rounded-full">
               <Gift className="h-6 w-6" />
