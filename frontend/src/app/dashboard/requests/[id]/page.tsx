@@ -315,24 +315,30 @@ export default function TaliRequestDetailPage() {
                   </Alert>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Link href={"https://wa.me/+905312343329"} target="_blank" className="h-24 flex flex-col gap-2 col-span-2 md:col-span-1" >
                     <Button 
                         variant="outline" 
-                        className="h-24 flex flex-col gap-2" 
-                        onClick={() => handleNotifyPaymentClick("WHATSAPP")}
+                        className="h-24 flex flex-col"
                     >
                         <MessageCircle className="h-8 w-8 text-green-600" />
-                        <span>WhatsApp ile Bildir</span>
+                        <span>WhatsApp ile Öde</span>
                     </Button>
+                    </Link>
                     <Button 
                         variant="outline" 
-                        className="h-24 flex flex-col gap-2" 
+                        className="h-24 flex flex-col gap-2 col-span-2 md:col-span-1" 
                         onClick={() => handleNotifyPaymentClick("VIRTUAL_POS")}
-                        disabled={isBuying} // Re-added disabled state based on original logic
+                        disabled={true} 
                     >
                         {isBuying ? <Loader2 className="h-8 w-8 animate-spin" /> : <CreditCard className="h-8 w-8 text-blue-600" />}
                         <span>Online Ödeme (Sanal POS)</span>
                     </Button>
+                    <Button variant="outline" className="h-24 flex flex-col gap-2 w-full col-span-2" onClick={() => handleNotifyPaymentClick("WHATSAPP")}>
+                        <CheckCircle className="h-8 w-8 text-green-600" />
+                        <span>Ödeme Bildirimi</span>
+                    </Button>
                   </div>
+
                 </div>
               ) : request.status === "PAYMENT_REVIEW" ? (
                  <Alert className="bg-orange-50 border-orange-200">

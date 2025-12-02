@@ -24,13 +24,13 @@ export class NotificationService {
     return true;
   }
 
-  async notifyOfferReady(requestId: string, userId: string) {
+  async notifyOfferReady(userId: string, requestId: string) {
     this.logger.log(`[NOTIFY] Offer ready for request ${requestId} to user ${userId}`);
     return this.createSystemNotification(userId, 'Offer Ready', 'Your insurance offer is ready.');
   }
 
-  async notifyPolicyCreated(requestId: string, userId: string) {
-    this.logger.log(`[NOTIFY] Policy created for request ${requestId} to user ${userId}`);
+  async notifyPolicyCreated(userId: string, policyNumber: string) {
+    this.logger.log(`[NOTIFY] Policy created ${policyNumber} to user ${userId}`);
     return this.createSystemNotification(userId, 'Policy Created', 'Your policy has been created.');
   }
 

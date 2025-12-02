@@ -15,7 +15,7 @@ export declare class NotificationService {
         isRead: boolean;
     }>;
     notifyAdmins(title: string, message: string): Promise<boolean>;
-    notifyOfferReady(requestId: string, userId: string): Promise<{
+    notifyOfferReady(userId: string, requestId: string): Promise<{
         id: string;
         createdAt: Date;
         userId: string;
@@ -24,7 +24,7 @@ export declare class NotificationService {
         title: string;
         isRead: boolean;
     }>;
-    notifyPolicyCreated(requestId: string, userId: string): Promise<{
+    notifyPolicyCreated(userId: string, policyNumber: string): Promise<{
         id: string;
         createdAt: Date;
         userId: string;
