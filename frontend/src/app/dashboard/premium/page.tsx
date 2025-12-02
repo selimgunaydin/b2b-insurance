@@ -47,6 +47,7 @@ export default function PremiumPage() {
       });
       setConfirmModal({ ...confirmModal, isOpen: false });
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (error: any) => {
       toast({
         title: "Hata",
@@ -56,6 +57,7 @@ export default function PremiumPage() {
     },
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isPremiumActive = settings?.find((s: any) => s.key === "premium_system_active")?.value === "true";
 
   if (isProfileLoading) {

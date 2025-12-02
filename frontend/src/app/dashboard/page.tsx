@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Star, CheckCircle, Clock, ShieldCheck, PlusCircle, Users, Wallet, User } from "lucide-react";
+import { Loader2, Star, CheckCircle, Clock, PlusCircle, Users, Wallet, User } from "lucide-react";
 
 interface CommissionRate {
   id: string;

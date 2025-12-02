@@ -38,7 +38,9 @@ interface Purchase {
   product: Product;
   pointCost: number;
   status: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   details?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fulfillmentData?: any;
   createdAt: string;
 }
