@@ -12,15 +12,17 @@ export class SupabaseService {
     const supabaseKey = this.configService.get<string>('SUPABASE_KEY');
 
     if (!supabaseUrl || !supabaseKey) {
-      throw new Error(
-        'Supabase URL and Key must be provided in environment variables',
-      );
+      console.warn('Supabase URL and Key not found. File upload will not work.');
+      return;
     }
 
     this.supabase = createClient(supabaseUrl, supabaseKey);
   }
 
   async uploadFile(file: Express.Multer.File, path: string): Promise<string> {
+    if (!this.supabase) {
+      throw new InternalServerErrorException('Supabase not configured');
+    }
     const { error } = await this.supabase.storage
       .from(this.bucketName)
       .upload(path, file.buffer, {

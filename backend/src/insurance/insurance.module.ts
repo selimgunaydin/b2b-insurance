@@ -10,6 +10,7 @@ import { GoalModule } from '../goal/goal.module';
 import { WhatsAppModule } from '../whatsapp/whatsapp.module';
 import { PaymentModule } from '../payment/payment.module';
 import { UserModule } from '../user/user.module';
+import { OcrModule } from '../ocr/ocr.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { UserModule } from '../user/user.module';
     WhatsAppModule,
     PaymentModule,
     UserModule,
+    OcrModule,
   ],
   controllers: [InsuranceController],
   providers: [InsuranceService],

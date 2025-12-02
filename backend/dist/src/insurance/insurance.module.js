@@ -18,6 +18,7 @@ const goal_module_1 = require("../goal/goal.module");
 const whatsapp_module_1 = require("../whatsapp/whatsapp.module");
 const payment_module_1 = require("../payment/payment.module");
 const user_module_1 = require("../user/user.module");
+const ocr_module_1 = require("../ocr/ocr.module");
 let InsuranceModule = class InsuranceModule {
 };
 exports.InsuranceModule = InsuranceModule;
@@ -32,6 +33,7 @@ exports.InsuranceModule = InsuranceModule = __decorate([
             whatsapp_module_1.WhatsAppModule,
             payment_module_1.PaymentModule,
             user_module_1.UserModule,
+            ocr_module_1.OcrModule,
         ],
         controllers: [insurance_controller_1.InsuranceController],
         providers: [insurance_service_1.InsuranceService],

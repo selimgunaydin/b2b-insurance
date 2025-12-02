@@ -70,7 +70,7 @@ export default function DashboardPage() {
             <Star className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{profile?.taliProfile?.points || 0} Puan</div>
+            <div className="text-2xl font-bold">{Number(profile?.taliProfile?.points).toFixed(2) || 0} Puan</div>
             <p className="text-xs text-muted-foreground">Güncel puanınız</p>
           </CardContent>
         </Card>
@@ -80,7 +80,7 @@ export default function DashboardPage() {
             <Star className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalEarnings || 0} Puan</div>
+            <div className="text-2xl font-bold">{Number(stats?.totalEarnings).toFixed(2) || 0} Puan</div>
             <p className="text-xs text-muted-foreground">Toplam kazanılan puan</p>
           </CardContent>
         </Card>

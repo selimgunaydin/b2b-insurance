@@ -18,7 +18,7 @@ import { Role } from '@prisma/client';
 @Controller('notification')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
 export class NotificationController {
-  constructor(private readonly notificationService: NotificationService) { }
+  constructor(private readonly notificationService: NotificationService) {}
 
   @Post('send')
   @Roles(Role.ADMIN)

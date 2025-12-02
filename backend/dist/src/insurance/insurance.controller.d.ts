@@ -1,8 +1,10 @@
 import { InsuranceService } from './insurance.service';
+import { OcrService } from '../ocr/ocr.service';
 import { CreateInsuranceRequestDto, UpdateOfferDto } from './dto/insurance.dto';
 export declare class InsuranceController {
     private readonly insuranceService;
-    constructor(insuranceService: InsuranceService);
+    private readonly ocrService;
+    constructor(insuranceService: InsuranceService, ocrService: OcrService);
     create(req: any, createInsuranceRequestDto: CreateInsuranceRequestDto): Promise<{
         id: string;
         createdAt: Date;
@@ -12,8 +14,8 @@ export declare class InsuranceController {
         customerId: string | null;
         offerFileUrl: string | null;
         offers: import("@prisma/client/runtime/library").JsonValue | null;
-        taliId: string;
         status: import("@prisma/client").$Enums.RequestStatus;
+        taliId: string;
         selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
         adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
         adminOfferCompany: string | null;
@@ -41,8 +43,8 @@ export declare class InsuranceController {
         customerId: string | null;
         offerFileUrl: string | null;
         offers: import("@prisma/client/runtime/library").JsonValue | null;
-        taliId: string;
         status: import("@prisma/client").$Enums.RequestStatus;
+        taliId: string;
         selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
         adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
         adminOfferCompany: string | null;
@@ -75,8 +77,8 @@ export declare class InsuranceController {
         customerId: string | null;
         offerFileUrl: string | null;
         offers: import("@prisma/client/runtime/library").JsonValue | null;
-        taliId: string;
         status: import("@prisma/client").$Enums.RequestStatus;
+        taliId: string;
         selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
         adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
         adminOfferCompany: string | null;
@@ -116,8 +118,8 @@ export declare class InsuranceController {
             customerId: string | null;
             offerFileUrl: string | null;
             offers: import("@prisma/client/runtime/library").JsonValue | null;
-            taliId: string;
             status: import("@prisma/client").$Enums.RequestStatus;
+            taliId: string;
             selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
             adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
             adminOfferCompany: string | null;
@@ -130,9 +132,9 @@ export declare class InsuranceController {
         updatedAt: Date;
         company: string;
         status: import("@prisma/client").$Enums.PolicyStatus;
-        policyUrl: string | null;
         startDate: Date;
         endDate: Date;
+        policyUrl: string | null;
         premium: import("@prisma/client/runtime/library").Decimal;
         insuranceRequestId: string;
         policyNumber: string;
@@ -254,8 +256,8 @@ export declare class InsuranceController {
             customerId: string | null;
             offerFileUrl: string | null;
             offers: import("@prisma/client/runtime/library").JsonValue | null;
-            taliId: string;
             status: import("@prisma/client").$Enums.RequestStatus;
+            taliId: string;
             selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
             adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
             adminOfferCompany: string | null;
@@ -268,9 +270,9 @@ export declare class InsuranceController {
         updatedAt: Date;
         company: string;
         status: import("@prisma/client").$Enums.PolicyStatus;
-        policyUrl: string | null;
         startDate: Date;
         endDate: Date;
+        policyUrl: string | null;
         premium: import("@prisma/client/runtime/library").Decimal;
         insuranceRequestId: string;
         policyNumber: string;
@@ -339,8 +341,8 @@ export declare class InsuranceController {
             customerId: string | null;
             offerFileUrl: string | null;
             offers: import("@prisma/client/runtime/library").JsonValue | null;
-            taliId: string;
             status: import("@prisma/client").$Enums.RequestStatus;
+            taliId: string;
             selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
             adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
             adminOfferCompany: string | null;
@@ -353,9 +355,9 @@ export declare class InsuranceController {
         updatedAt: Date;
         company: string;
         status: import("@prisma/client").$Enums.PolicyStatus;
-        policyUrl: string | null;
         startDate: Date;
         endDate: Date;
+        policyUrl: string | null;
         premium: import("@prisma/client/runtime/library").Decimal;
         insuranceRequestId: string;
         policyNumber: string;
@@ -379,9 +381,9 @@ export declare class InsuranceController {
             updatedAt: Date;
             company: string;
             status: import("@prisma/client").$Enums.PolicyStatus;
-            policyUrl: string | null;
             startDate: Date;
             endDate: Date;
+            policyUrl: string | null;
             premium: import("@prisma/client/runtime/library").Decimal;
             insuranceRequestId: string;
             policyNumber: string;
@@ -411,8 +413,8 @@ export declare class InsuranceController {
         customerId: string | null;
         offerFileUrl: string | null;
         offers: import("@prisma/client/runtime/library").JsonValue | null;
-        taliId: string;
         status: import("@prisma/client").$Enums.RequestStatus;
+        taliId: string;
         selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
         adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
         adminOfferCompany: string | null;
@@ -444,8 +446,8 @@ export declare class InsuranceController {
         customerId: string | null;
         offerFileUrl: string | null;
         offers: import("@prisma/client/runtime/library").JsonValue | null;
-        taliId: string;
         status: import("@prisma/client").$Enums.RequestStatus;
+        taliId: string;
         selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
         adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
         adminOfferCompany: string | null;
@@ -477,8 +479,8 @@ export declare class InsuranceController {
         customerId: string | null;
         offerFileUrl: string | null;
         offers: import("@prisma/client/runtime/library").JsonValue | null;
-        taliId: string;
         status: import("@prisma/client").$Enums.RequestStatus;
+        taliId: string;
         selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
         adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
         adminOfferCompany: string | null;
@@ -491,9 +493,9 @@ export declare class InsuranceController {
         updatedAt: Date;
         company: string;
         status: import("@prisma/client").$Enums.PolicyStatus;
-        policyUrl: string | null;
         startDate: Date;
         endDate: Date;
+        policyUrl: string | null;
         premium: import("@prisma/client/runtime/library").Decimal;
         insuranceRequestId: string;
         policyNumber: string;
@@ -514,8 +516,8 @@ export declare class InsuranceController {
         customerId: string | null;
         offerFileUrl: string | null;
         offers: import("@prisma/client/runtime/library").JsonValue | null;
-        taliId: string;
         status: import("@prisma/client").$Enums.RequestStatus;
+        taliId: string;
         selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
         adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
         adminOfferCompany: string | null;
@@ -531,8 +533,8 @@ export declare class InsuranceController {
         customerId: string | null;
         offerFileUrl: string | null;
         offers: import("@prisma/client/runtime/library").JsonValue | null;
-        taliId: string;
         status: import("@prisma/client").$Enums.RequestStatus;
+        taliId: string;
         selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
         adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
         adminOfferCompany: string | null;
@@ -544,9 +546,9 @@ export declare class InsuranceController {
         updatedAt: Date;
         company: string;
         status: import("@prisma/client").$Enums.PolicyStatus;
-        policyUrl: string | null;
         startDate: Date;
         endDate: Date;
+        policyUrl: string | null;
         premium: import("@prisma/client/runtime/library").Decimal;
         insuranceRequestId: string;
         policyNumber: string;
@@ -563,8 +565,8 @@ export declare class InsuranceController {
         customerId: string | null;
         offerFileUrl: string | null;
         offers: import("@prisma/client/runtime/library").JsonValue | null;
-        taliId: string;
         status: import("@prisma/client").$Enums.RequestStatus;
+        taliId: string;
         selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
         adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
         adminOfferCompany: string | null;
@@ -630,8 +632,8 @@ export declare class InsuranceController {
             customerId: string | null;
             offerFileUrl: string | null;
             offers: import("@prisma/client/runtime/library").JsonValue | null;
-            taliId: string;
             status: import("@prisma/client").$Enums.RequestStatus;
+            taliId: string;
             selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
             adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
             adminOfferCompany: string | null;
@@ -694,8 +696,8 @@ export declare class InsuranceController {
             customerId: string | null;
             offerFileUrl: string | null;
             offers: import("@prisma/client/runtime/library").JsonValue | null;
-            taliId: string;
             status: import("@prisma/client").$Enums.RequestStatus;
+            taliId: string;
             selectedOffer: import("@prisma/client/runtime/library").JsonValue | null;
             adminOfferPrice: import("@prisma/client/runtime/library").Decimal | null;
             adminOfferCompany: string | null;
@@ -722,4 +724,8 @@ export declare class InsuranceController {
         reason: string;
         proofFiles: string[];
     }>;
+    processOcr(file: Express.Multer.File): Promise<{
+        company: string;
+        price: number;
+    }[]>;
 }

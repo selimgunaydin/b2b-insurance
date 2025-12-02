@@ -145,7 +145,7 @@ export default function MarketPage() {
             </div>
             <div>
               <p className="text-sm font-medium opacity-90">Mevcut Puanınız</p>
-              <p className="text-2xl font-bold">{userPoints} Puan</p>
+              <p className="text-2xl font-bold">{Number(userPoints).toFixed(2)} Puan</p>
             </div>
           </CardContent>
         </Card>

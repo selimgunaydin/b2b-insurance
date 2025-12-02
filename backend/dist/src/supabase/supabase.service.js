@@ -22,11 +22,15 @@ let SupabaseService = class SupabaseService {
         const supabaseUrl = this.configService.get('SUPABASE_URL');
         const supabaseKey = this.configService.get('SUPABASE_KEY');
         if (!supabaseUrl || !supabaseKey) {
-            throw new Error('Supabase URL and Key must be provided in environment variables');
+            console.warn('Supabase URL and Key not found. File upload will not work.');
+            return;
         }
         this.supabase = (0, supabase_js_1.createClient)(supabaseUrl, supabaseKey);
     }
     async uploadFile(file, path) {
+        if (!this.supabase) {
+            throw new common_1.InternalServerErrorException('Supabase not configured');
+        }
         const { error } = await this.supabase.storage
             .from(this.bucketName)
             .upload(path, file.buffer, {

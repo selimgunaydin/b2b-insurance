@@ -106,7 +106,7 @@ export default function TransactionsPage() {
                     </TableCell>
                     <TableCell className={`text-right font-bold ${getAmountColor(tx.type)}`}>
                       {["DEPOSIT", "COMMISSION", "REFUND"].includes(tx.type) ? "+" : "-"}
-                      {parseFloat(tx.points).toLocaleString('tr-TR')} Puan
+                      {Number(tx.points).toFixed(2)} Puan
                     </TableCell>
                   </TableRow>
                 ))}

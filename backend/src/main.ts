@@ -10,7 +10,11 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.set('trust proxy', 1); // Trust proxy for Render/Heroku
   app.enableCors({
-    origin: ['http://localhost:3000', 'https://b2b-insurance-frontend.onrender.com', 'https://b2b-insurance-backend.onrender.com'], // Add production URL
+    origin: [
+      'http://localhost:3000',
+      'https://b2b-insurance-frontend.onrender.com',
+      'https://b2b-insurance-backend.onrender.com',
+    ], // Add production URL
     credentials: true,
   });
   app.use(cookieParser());

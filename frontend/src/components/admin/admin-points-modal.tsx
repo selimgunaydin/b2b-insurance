@@ -97,7 +97,7 @@ export function AdminPointsModal({ userId, currentPoints }: AdminPointsModalProp
           <DialogDescription>
             Kullanıcıya puan ekleyin veya çıkarın (negatif değer girerek).
             <br />
-            Mevcut Puan: <strong>{currentPoints}</strong>
+            Mevcut Puan: <strong>{Number(currentPoints).toFixed(2)}</strong>
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">

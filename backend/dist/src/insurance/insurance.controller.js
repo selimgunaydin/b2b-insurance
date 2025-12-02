@@ -16,6 +16,7 @@ exports.InsuranceController = void 0;
 const common_1 = require("@nestjs/common");
 const platform_express_1 = require("@nestjs/platform-express");
 const insurance_service_1 = require("./insurance.service");
+const ocr_service_1 = require("../ocr/ocr.service");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const insurance_dto_1 = require("./dto/insurance.dto");
 const roles_guard_1 = require("../auth/roles.guard");
@@ -23,8 +24,10 @@ const roles_decorator_1 = require("../auth/roles.decorator");
 const client_1 = require("@prisma/client");
 let InsuranceController = class InsuranceController {
     insuranceService;
-    constructor(insuranceService) {
+    ocrService;
+    constructor(insuranceService, ocrService) {
         this.insuranceService = insuranceService;
+        this.ocrService = ocrService;
     }
     async create(req, createInsuranceRequestDto) {
         return this.insuranceService.create(req.user.id, createInsuranceRequestDto);
@@ -95,6 +98,24 @@ let InsuranceController = class InsuranceController {
     }
     async updateCancellationStatus(id, body, req) {
         return this.insuranceService.updateCancellationStatus(id, body.status, req.user.id);
+    }
+    async processOcr(file) {
+        if (!file) {
+            throw new Error('File is required');
+        }
+        const tempPath = `./uploads/temp-${Date.now()}-${file.originalname}`;
+        const fs = require('fs');
+        fs.writeFileSync(tempPath, file.buffer);
+        try {
+            const result = await this.ocrService.processImage(tempPath);
+            fs.unlinkSync(tempPath);
+            return result;
+        }
+        catch (e) {
+            if (fs.existsSync(tempPath))
+                fs.unlinkSync(tempPath);
+            throw e;
+        }
     }
 };
 exports.InsuranceController = InsuranceController;
@@ -275,9 +296,19 @@ __decorate([
     __metadata("design:paramtypes", [String, Object, Object]),
     __metadata("design:returntype", Promise)
 ], InsuranceController.prototype, "updateCancellationStatus", null);
+__decorate([
+    (0, common_1.Post)('ocr'),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
+    __param(0, (0, common_1.UploadedFile)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], InsuranceController.prototype, "processOcr", null);
 exports.InsuranceController = InsuranceController = __decorate([
     (0, common_1.Controller)('insurance'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    __metadata("design:paramtypes", [insurance_service_1.InsuranceService])
+    __metadata("design:paramtypes", [insurance_service_1.InsuranceService,
+        ocr_service_1.OcrService])
 ], InsuranceController);
 //# sourceMappingURL=insurance.controller.js.map

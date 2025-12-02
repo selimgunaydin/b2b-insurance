@@ -303,6 +303,12 @@ export default function RegisterPage() {
                 />
               </div>
 
+              <Alert className="bg-blue-50 border-blue-200 mb-6">
+                <AlertDescription className="text-blue-800 text-sm">
+                  Sistemimizi tanıtmak amacıyla kullanıcılarımıza puan kazandırır ve bu puanlarla ödüller kazanabilirsiniz. Bu bir aracılık/komisyon sistemi değildir.
+                </AlertDescription>
+              </Alert>
+
               <Button type="submit" className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-lg" disabled={isLoading}>
                 {isLoading ? "Kaydediliyor..." : "Başvuruyu Tamamla"}
                 {!isLoading && <UserPlus className="ml-2 h-4 w-4" />}

@@ -386,8 +386,61 @@ export default function AdminRequestDetailPage() {
                           <Input
                               type="file"
                               accept="image/*,.pdf"
-                              onChange={(e) => setFile(e.target.files?.[0] || null)}
+                              onChange={async (e) => {
+                                  const selectedFile = e.target.files?.[0];
+                                  setFile(selectedFile || null);
+                                  
+                                  if (selectedFile) {
+                                      try {
+                                          toast({ title: "OCR İşleniyor", description: "Lütfen bekleyin..." });
+                                          const formData = new FormData();
+                                          formData.append("file", selectedFile);
+                                          
+                                          const res = await api.post("/insurance/ocr", formData, {
+                                              headers: { "Content-Type": "multipart/form-data" },
+                                          });
+                                          
+                                          const results = res.data as { company: string; price: number }[];
+                                          
+                                          if (results && results.length > 0) {
+                                              let newOffers = [...offers];
+                                              
+                                              // Remove initial empty offer if it exists and we have results
+                                              if (newOffers.length === 1 && !newOffers[0].company && !newOffers[0].price) {
+                                                  newOffers = [];
+                                              }
+
+                                              let addedCount = 0;
+                                              results.forEach(({ company, price }) => {
+                                                  // Avoid duplicates
+                                                  if (!newOffers.some(o => o.company === company)) {
+                                                      newOffers.push({ 
+                                                          company, 
+                                                          price, 
+                                                          description: "OCR ile tarandı",
+                                                          fileUrl: "" 
+                                                      });
+                                                      addedCount++;
+                                                  }
+                                              });
+
+                                              if (addedCount > 0) {
+                                                  setOffers(newOffers);
+                                                  toast({ title: "Başarılı", description: `${addedCount} adet teklif eklendi.` });
+                                              } else {
+                                                  toast({ title: "Bilgi", description: "Bulunan teklifler zaten listede mevcut." });
+                                              }
+                                          } else {
+                                              toast({ title: "Bilgi Bulunamadı", description: "Görselden anlamlı veri çıkarılamadı.", variant: "destructive" });
+                                          }
+                                      } catch (e) {
+                                          console.error(e);
+                                          toast({ title: "Hata", description: "OCR işlemi başarısız.", variant: "destructive" });
+                                      }
+                                  }
+                              }}
                           />
+                          {/* Button removed as OCR is now automatic */}
                       </div>
                   </div>
 
@@ -401,7 +454,7 @@ export default function AdminRequestDetailPage() {
                   <AlertDescription className="text-blue-800">
                     <div className="font-bold mb-2">Teklif Hazır</div>
                     Tali&apos;ye teklifler sunuldu. Onay bekleniyor.
-                    <div className="mt-4 space-y-2">
+                    <div className="mt-4 space-y-2 w-full">
                       {(request.offers as Offer[])?.map((offer: Offer, i: number) => (
                           <div key={i} className="p-3 bg-white rounded border border-blue-100 flex justify-between items-center">
                               <span className="font-medium">{offer.company}</span>

@@ -50,7 +50,7 @@ export default function TaliEarningsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {stats?.totalEarnings || 0} Puan
+              {Number(stats?.totalEarnings).toFixed(2)} Puan
             </div>
             <p className="text-xs text-muted-foreground">
               Bu ayki toplam kazanılan puan

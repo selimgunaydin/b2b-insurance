@@ -111,7 +111,7 @@ export default function AdminUserDetailPage() {
                 <Wallet className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">₺{Number(totalPremium).toLocaleString('tr-TR')}</div>
+                <div className="text-2xl font-bold">₺{Number(totalPremium).toFixed(2)}</div>
                 <p className="text-xs text-muted-foreground">Toplam prim üretimi</p>
               </CardContent>
             </Card>
@@ -121,7 +121,7 @@ export default function AdminUserDetailPage() {
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{Number(tali.points).toLocaleString('tr-TR')} Puan</div>
+                <div className="text-2xl font-bold">{Number(tali.points).toFixed(2)} Puan</div>
                 <p className="text-xs text-muted-foreground">Mevcut puan bakiyesi</p>
               </CardContent>
             </Card>

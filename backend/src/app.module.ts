@@ -26,6 +26,7 @@ import { MarketModule } from './market/market.module';
 import { PremiumModule } from './premium/premium.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { ExportModule } from './export/export.module';
+import { OcrModule } from './ocr/ocr.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { ExportModule } from './export/export.module';
     PremiumModule,
     TransactionsModule,
     ExportModule,
+    OcrModule,
   ],
   controllers: [AppController],
   providers: [AppService],

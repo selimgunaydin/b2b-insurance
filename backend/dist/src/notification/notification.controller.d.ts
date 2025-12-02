@@ -4,13 +4,13 @@ export declare class NotificationController {
     private readonly notificationService;
     constructor(notificationService: NotificationService);
     send(dto: SendNotificationDto): Promise<{
-        success: boolean;
-        count: number;
-        message?: undefined;
-    } | {
-        success: boolean;
+        id: string;
+        createdAt: Date;
+        userId: string;
         message: string;
-        count?: undefined;
+        type: import("@prisma/client").$Enums.NotificationType;
+        title: string;
+        isRead: boolean;
     }>;
     getMyNotifications(req: any): Promise<{
         id: string;
@@ -22,14 +22,6 @@ export declare class NotificationController {
         isRead: boolean;
     }[]>;
     getUnreadCount(req: any): Promise<number>;
-    markAsRead(id: string, req: any): Promise<{
-        id: string;
-        createdAt: Date;
-        userId: string;
-        message: string;
-        type: import("@prisma/client").$Enums.NotificationType;
-        title: string;
-        isRead: boolean;
-    }>;
+    markAsRead(id: string, req: any): Promise<import("@prisma/client").Prisma.BatchPayload>;
     markAllAsRead(req: any): Promise<import("@prisma/client").Prisma.BatchPayload>;
 }

@@ -1,21 +1,57 @@
 import { PrismaService } from '../prisma/prisma.service';
-import { SendNotificationDto } from './dto/notification.dto';
 import { NotificationType } from '@prisma/client';
 export declare class NotificationService {
     private prisma;
     private readonly logger;
     constructor(prisma: PrismaService);
-    sendNotification(dto: SendNotificationDto): Promise<{
-        success: boolean;
-        count: number;
-        message?: undefined;
-    } | {
-        success: boolean;
+    sendWhatsapp(phone: string, message: string): Promise<boolean>;
+    notifyCancellationStatus(policyId: string, status: string, userId: string): Promise<{
+        id: string;
+        createdAt: Date;
+        userId: string;
         message: string;
-        count?: undefined;
+        type: import("@prisma/client").$Enums.NotificationType;
+        title: string;
+        isRead: boolean;
     }>;
-    notifyAdmins(title: string, message: string): Promise<void>;
+    notifyAdmins(title: string, message: string): Promise<boolean>;
+    notifyOfferReady(requestId: string, userId: string): Promise<{
+        id: string;
+        createdAt: Date;
+        userId: string;
+        message: string;
+        type: import("@prisma/client").$Enums.NotificationType;
+        title: string;
+        isRead: boolean;
+    }>;
+    notifyPolicyCreated(requestId: string, userId: string): Promise<{
+        id: string;
+        createdAt: Date;
+        userId: string;
+        message: string;
+        type: import("@prisma/client").$Enums.NotificationType;
+        title: string;
+        isRead: boolean;
+    }>;
     createSystemNotification(userId: string, title: string, message: string, type?: NotificationType): Promise<{
+        id: string;
+        createdAt: Date;
+        userId: string;
+        message: string;
+        type: import("@prisma/client").$Enums.NotificationType;
+        title: string;
+        isRead: boolean;
+    }>;
+    notifyMarketPurchase(purchaseId: string, userId: string, status?: string): Promise<{
+        id: string;
+        createdAt: Date;
+        userId: string;
+        message: string;
+        type: import("@prisma/client").$Enums.NotificationType;
+        title: string;
+        isRead: boolean;
+    }>;
+    sendNotification(dto: any): Promise<{
         id: string;
         createdAt: Date;
         userId: string;
@@ -33,55 +69,10 @@ export declare class NotificationService {
         title: string;
         isRead: boolean;
     }[]>;
-    markAsRead(id: string, userId: string): Promise<{
-        id: string;
-        createdAt: Date;
-        userId: string;
-        message: string;
-        type: import("@prisma/client").$Enums.NotificationType;
-        title: string;
-        isRead: boolean;
-    }>;
-    markAllAsRead(userId: string): Promise<import("@prisma/client").Prisma.BatchPayload>;
     getUnreadCount(userId: string): Promise<number>;
-    handleCron(): Promise<void>;
-    notifyOfferReady(userId: string, requestTitle: string): Promise<{
-        id: string;
-        createdAt: Date;
-        userId: string;
-        message: string;
-        type: import("@prisma/client").$Enums.NotificationType;
-        title: string;
-        isRead: boolean;
-    }>;
-    notifyPolicyCreated(userId: string, policyNumber: string): Promise<{
-        id: string;
-        createdAt: Date;
-        userId: string;
-        message: string;
-        type: import("@prisma/client").$Enums.NotificationType;
-        title: string;
-        isRead: boolean;
-    }>;
-    notifyCancellationStatus(userId: string, status: string, policyNumber: string): Promise<{
-        id: string;
-        createdAt: Date;
-        userId: string;
-        message: string;
-        type: import("@prisma/client").$Enums.NotificationType;
-        title: string;
-        isRead: boolean;
-    }>;
+    markAsRead(id: string, userId: string): Promise<import("@prisma/client").Prisma.BatchPayload>;
+    markAllAsRead(userId: string): Promise<import("@prisma/client").Prisma.BatchPayload>;
     notifyPremiumStatus(userId: string, status: string): Promise<{
-        id: string;
-        createdAt: Date;
-        userId: string;
-        message: string;
-        type: import("@prisma/client").$Enums.NotificationType;
-        title: string;
-        isRead: boolean;
-    }>;
-    notifyMarketPurchase(userId: string, productName: string, status: string): Promise<{
         id: string;
         createdAt: Date;
         userId: string;

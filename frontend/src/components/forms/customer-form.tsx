@@ -77,6 +77,34 @@ export function CustomerForm({ form }: CustomerFormProps) {
           </FormItem>
         )}
       />
+      <div className="md:col-span-2 space-y-4">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 text-sm text-yellow-800">
+          Sistem kendi sigorta ihtiyaçlarınızı karşılamak için tasarlanmıştır. Üçüncü kişilerin bilgilerini girmeden önce onlardan izin almanız gerekir.
+        </div>
+        
+        <FormField
+          control={form.control}
+          name="hasThirdPartyConsent"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+              <FormControl>
+                <input 
+                    type="checkbox" 
+                    className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                    checked={field.value}
+                    onChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>
+                  Müşterinin bilgilerini girmek için gerekli izni aldığımı beyan ederim.
+                </FormLabel>
+                <FormMessage />
+              </div>
+            </FormItem>
+          )}
+        />
+      </div>
     </div>
   );
 }

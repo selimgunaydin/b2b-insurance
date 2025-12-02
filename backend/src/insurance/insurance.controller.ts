@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { InsuranceService } from './insurance.service';
+import { OcrService } from '../ocr/ocr.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateInsuranceRequestDto, UpdateOfferDto } from './dto/insurance.dto';
 // import { UpdateOfferDto } from './dto/update-offer.dto'; // Removed
@@ -22,7 +23,10 @@ import { Role } from '@prisma/client';
 @Controller('insurance')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class InsuranceController {
-  constructor(private readonly insuranceService: InsuranceService) {}
+  constructor(
+    private readonly insuranceService: InsuranceService,
+    private readonly ocrService: OcrService,
+  ) {}
 
   @Post()
   @Roles(Role.TALI)
@@ -208,5 +212,27 @@ export class InsuranceController {
       body.status,
       req.user.id,
     );
+  }
+  @Post('ocr')
+  @Roles(Role.ADMIN)
+  @UseInterceptors(FileInterceptor('file'))
+  async processOcr(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new Error('File is required');
+    }
+    // We need to save the file temporarily or pass buffer to service
+    // For simplicity with tesseract.js in node, we can write to temp file
+    const tempPath = `./uploads/temp-${Date.now()}-${file.originalname}`;
+    const fs = require('fs');
+    fs.writeFileSync(tempPath, file.buffer);
+
+    try {
+      const result = await this.ocrService.processImage(tempPath);
+      fs.unlinkSync(tempPath); // Cleanup
+      return result;
+    } catch (e) {
+      if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+      throw e;
+    }
   }
 }

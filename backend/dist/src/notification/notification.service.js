@@ -14,46 +14,31 @@ exports.NotificationService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const client_1 = require("@prisma/client");
-const schedule_1 = require("@nestjs/schedule");
 let NotificationService = NotificationService_1 = class NotificationService {
     prisma;
     logger = new common_1.Logger(NotificationService_1.name);
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async sendNotification(dto) {
-        if (dto.target === 'ALL') {
-            const talis = await this.prisma.user.findMany({
-                where: { role: client_1.Role.TALI },
-            });
-            const notifications = talis.map((tali) => ({
-                userId: tali.id,
-                title: dto.title || 'Duyuru',
-                message: dto.message,
-                type: client_1.NotificationType.ADMIN_MESSAGE,
-            }));
-            await this.prisma.notification.createMany({
-                data: notifications,
-            });
-            return { success: true, count: notifications.length };
-        }
-        return { success: false, message: 'Only ALL target supported for now' };
+    async sendWhatsapp(phone, message) {
+        this.logger.log(`[WHATSAPP] Sending to ${phone}: ${message}`);
+        return true;
+    }
+    async notifyCancellationStatus(policyId, status, userId) {
+        this.logger.log(`[NOTIFY] Cancellation status ${status} for policy ${policyId} to user ${userId}`);
+        return this.createSystemNotification(userId, 'Cancellation Update', `Your cancellation request is ${status}`);
     }
     async notifyAdmins(title, message) {
-        const admins = await this.prisma.user.findMany({
-            where: { role: client_1.Role.ADMIN },
-        });
-        const notifications = admins.map((admin) => ({
-            userId: admin.id,
-            title,
-            message,
-            type: client_1.NotificationType.SYSTEM,
-        }));
-        if (notifications.length > 0) {
-            await this.prisma.notification.createMany({
-                data: notifications,
-            });
-        }
+        this.logger.log(`[NOTIFY] Admin notification: ${title} - ${message}`);
+        return true;
+    }
+    async notifyOfferReady(requestId, userId) {
+        this.logger.log(`[NOTIFY] Offer ready for request ${requestId} to user ${userId}`);
+        return this.createSystemNotification(userId, 'Offer Ready', 'Your insurance offer is ready.');
+    }
+    async notifyPolicyCreated(requestId, userId) {
+        this.logger.log(`[NOTIFY] Policy created for request ${requestId} to user ${userId}`);
+        return this.createSystemNotification(userId, 'Policy Created', 'Your policy has been created.');
     }
     async createSystemNotification(userId, title, message, type = client_1.NotificationType.SYSTEM) {
         return this.prisma.notification.create({
@@ -65,14 +50,26 @@ let NotificationService = NotificationService_1 = class NotificationService {
             },
         });
     }
+    async notifyMarketPurchase(purchaseId, userId, status = 'PENDING') {
+        this.logger.log(`[NOTIFY] Market purchase ${purchaseId} for user ${userId} status ${status}`);
+        return this.createSystemNotification(userId, 'Market Purchase', `Your purchase is ${status}.`);
+    }
+    async sendNotification(dto) {
+        return this.createSystemNotification(dto.userId, dto.title, dto.message);
+    }
     async findAll(userId) {
         return this.prisma.notification.findMany({
             where: { userId },
             orderBy: { createdAt: 'desc' },
         });
     }
+    async getUnreadCount(userId) {
+        return this.prisma.notification.count({
+            where: { userId, isRead: false },
+        });
+    }
     async markAsRead(id, userId) {
-        return this.prisma.notification.update({
+        return this.prisma.notification.updateMany({
             where: { id, userId },
             data: { isRead: true },
         });
@@ -83,76 +80,12 @@ let NotificationService = NotificationService_1 = class NotificationService {
             data: { isRead: true },
         });
     }
-    async getUnreadCount(userId) {
-        return this.prisma.notification.count({
-            where: {
-                userId,
-                isRead: false,
-            },
-        });
-    }
-    async handleCron() {
-        this.logger.debug('Checking for policy renewals...');
-        const oneYearAgo = new Date();
-        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-        const startOfDay = new Date(oneYearAgo);
-        startOfDay.setHours(0, 0, 0, 0);
-        const endOfDay = new Date(oneYearAgo);
-        endOfDay.setHours(23, 59, 59, 999);
-        const expiringPolicies = await this.prisma.insuranceRequest.findMany({
-            where: {
-                status: 'COMPLETED',
-                updatedAt: {
-                    gte: startOfDay,
-                    lte: endOfDay,
-                },
-            },
-            include: {
-                customer: true,
-                tali: true,
-            },
-        });
-        for (const policy of expiringPolicies) {
-            if (policy.tali) {
-                await this.createSystemNotification(policy.tali.userId, 'Poliçe Yenileme Hatırlatması', `Müşteriniz ${policy.customer?.fullName || 'Bilinmeyen'} için poliçe süresi dolmak üzere (1 yıl geçti). Lütfen yenileme teklifi oluşturun.`, client_1.NotificationType.RENEWAL);
-            }
-        }
-        if (expiringPolicies.length > 0) {
-            this.logger.log(`Sent ${expiringPolicies.length} renewal notifications.`);
-        }
-    }
-    async notifyOfferReady(userId, requestTitle) {
-        return this.createSystemNotification(userId, 'Teklif Hazır', `"${requestTitle}" için teklifiniz hazır. Detayları inceleyebilirsiniz.`, client_1.NotificationType.OFFER);
-    }
-    async notifyPolicyCreated(userId, policyNumber) {
-        return this.createSystemNotification(userId, 'Poliçe Oluşturuldu', `${policyNumber} numaralı poliçeniz başarıyla oluşturuldu.`, client_1.NotificationType.POLICY);
-    }
-    async notifyCancellationStatus(userId, status, policyNumber) {
-        const statusText = status === 'APPROVED' ? 'onaylandı' : 'reddedildi';
-        return this.createSystemNotification(userId, 'İptal Talebi Güncellemesi', `${policyNumber} numaralı poliçe için iptal talebiniz ${statusText}.`, client_1.NotificationType.CANCELLATION);
-    }
     async notifyPremiumStatus(userId, status) {
-        const statusText = status === 'APPROVED' ? 'onaylandı' : 'reddedildi';
-        return this.createSystemNotification(userId, 'Premium Üyelik', `Premium üyelik başvurunuz ${statusText}.`, client_1.NotificationType.PREMIUM);
-    }
-    async notifyMarketPurchase(userId, productName, status) {
-        let message = `"${productName}" siparişiniz alındı.`;
-        if (status === 'SHIPPED')
-            message = `"${productName}" siparişiniz kargoya verildi.`;
-        if (status === 'DELIVERED')
-            message = `"${productName}" siparişiniz teslim edildi.`;
-        if (status === 'REJECTED')
-            message = `"${productName}" siparişiniz iptal edildi.`;
-        return this.createSystemNotification(userId, 'Market Siparişi', message, client_1.NotificationType.MARKET);
+        this.logger.log(`[NOTIFY] Premium status ${status} to user ${userId}`);
+        return this.createSystemNotification(userId, 'Premium Request Update', `Your premium request is ${status}`);
     }
 };
 exports.NotificationService = NotificationService;
-__decorate([
-    (0, schedule_1.Cron)('0 9 * * *'),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
-], NotificationService.prototype, "handleCron", null);
 exports.NotificationService = NotificationService = NotificationService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])
