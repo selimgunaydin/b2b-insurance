@@ -9,9 +9,10 @@ export declare class CancellationService {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        status: import("@prisma/client").$Enums.CancellationStatus;
         policyId: string;
         reason: string;
+        contactPhone: string | null;
+        status: import("@prisma/client").$Enums.CancellationStatus;
         proofFiles: string[];
     }>;
     findAll(): Promise<({
@@ -36,9 +37,10 @@ export declare class CancellationService {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        status: import("@prisma/client").$Enums.CancellationStatus;
         policyId: string;
         reason: string;
+        contactPhone: string | null;
+        status: import("@prisma/client").$Enums.CancellationStatus;
         proofFiles: string[];
     })[]>;
     updateStatus(id: string, dto: UpdateCancellationStatusDto): Promise<{
@@ -93,9 +95,10 @@ export declare class CancellationService {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        status: import("@prisma/client").$Enums.CancellationStatus;
         policyId: string;
         reason: string;
+        contactPhone: string | null;
+        status: import("@prisma/client").$Enums.CancellationStatus;
         proofFiles: string[];
     }>;
 }

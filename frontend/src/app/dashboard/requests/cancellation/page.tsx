@@ -7,16 +7,19 @@ import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2 } from "lucide-react";
+import { Loader2, Upload } from "lucide-react";
 
 const cancellationSchema = z.object({
   policyId: z.string().min(1, "Lütfen iptal edilecek poliçeyi seçiniz"),
   reason: z.string().min(10, "Lütfen iptal sebebini detaylı açıklayınız (en az 10 karakter)"),
+  contactPhone: z.string().min(10, "Lütfen geçerli bir iletişim numarası giriniz"),
+  file: z.any().optional(),
 });
 
 type CancellationFormValues = z.infer<typeof cancellationSchema>;
@@ -44,6 +47,7 @@ export default function CancellationPage() {
     defaultValues: {
       policyId: "",
       reason: "",
+      contactPhone: "",
     },
   });
 
@@ -63,11 +67,25 @@ export default function CancellationPage() {
     setIsLoading(true);
     setError(null);
     try {
-      await api.post("/insurance/cancellation", data);
+      const formData = new FormData();
+      formData.append("policyId", data.policyId);
+      formData.append("reason", data.reason);
+      formData.append("contactPhone", data.contactPhone);
+      
+      if (data.file && data.file.length > 0) {
+        formData.append("file", data.file[0]);
+      }
+
+      await api.post("/insurance/cancellation", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       setSuccess(true);
       form.reset();
     } catch (err) {
       console.error("Cancellation request failed", err);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const error = err as any;
       setError(error.response?.data?.message || "İptal talebi oluşturulurken bir hata oluştu.");
     } finally {
@@ -142,6 +160,20 @@ export default function CancellationPage() {
 
               <FormField
                 control={form.control}
+                name="contactPhone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>İletişim Numarası</FormLabel>
+                    <FormControl>
+                      <Input placeholder="05XX XXX XX XX" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="reason"
                 render={({ field }) => (
                   <FormItem>
@@ -153,6 +185,33 @@ export default function CancellationPage() {
                         {...field} 
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="file"
+                render={({ field: { value, onChange, ...fieldProps } }) => (
+                  <FormItem>
+                    <FormLabel>İptal Evrakı Yükle</FormLabel>
+                    <FormControl>
+                      <div className="flex items-center gap-4">
+                        <Input
+                          {...fieldProps}
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          onChange={(event) => {
+                            onChange(event.target.files);
+                          }}
+                          className="cursor-pointer"
+                        />
+                      </div>
+                    </FormControl>
+                    <FormDescription>
+                      Noter Satış Sözleşmesi veya iptal ile alakalı evrak (PDF, JPG, PNG)
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -171,3 +230,4 @@ export default function CancellationPage() {
     </div>
   );
 }
+

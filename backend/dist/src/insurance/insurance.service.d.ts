@@ -684,13 +684,14 @@ export declare class InsuranceService {
         policyNumber: string;
         commissionPoints: import("@prisma/client/runtime/library").Decimal;
     }>;
-    createCancellationRequest(policyId: string, reason: string, userId: string): Promise<{
+    createCancellationRequest(policyId: string, reason: string, userId: string, contactPhone?: string, file?: Express.Multer.File): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        status: import("@prisma/client").$Enums.CancellationStatus;
         policyId: string;
         reason: string;
+        contactPhone: string | null;
+        status: import("@prisma/client").$Enums.CancellationStatus;
         proofFiles: string[];
     }>;
     getCancellationRequests(userId: string): Promise<({
@@ -752,9 +753,10 @@ export declare class InsuranceService {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        status: import("@prisma/client").$Enums.CancellationStatus;
         policyId: string;
         reason: string;
+        contactPhone: string | null;
+        status: import("@prisma/client").$Enums.CancellationStatus;
         proofFiles: string[];
     })[]>;
     getCancellationRequest(id: string, userId: string): Promise<{
@@ -816,18 +818,20 @@ export declare class InsuranceService {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        status: import("@prisma/client").$Enums.CancellationStatus;
         policyId: string;
         reason: string;
+        contactPhone: string | null;
+        status: import("@prisma/client").$Enums.CancellationStatus;
         proofFiles: string[];
     }>;
     updateCancellationStatus(id: string, status: 'APPROVED' | 'REJECTED', userId: string): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        status: import("@prisma/client").$Enums.CancellationStatus;
         policyId: string;
         reason: string;
+        contactPhone: string | null;
+        status: import("@prisma/client").$Enums.CancellationStatus;
         proofFiles: string[];
     }>;
 }

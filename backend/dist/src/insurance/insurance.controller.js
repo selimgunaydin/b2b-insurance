@@ -87,8 +87,8 @@ let InsuranceController = class InsuranceController {
     async notifyPayment(id, body, req) {
         return this.insuranceService.notifyPayment(id, body.method, req.user.id);
     }
-    async createCancellationRequest(body, req) {
-        return this.insuranceService.createCancellationRequest(body.policyId, body.reason, req.user.id);
+    async createCancellationRequest(body, file, req) {
+        return this.insuranceService.createCancellationRequest(body.policyId, body.reason, req.user.id, body.contactPhone, file);
     }
     async getCancellationRequests(req) {
         return this.insuranceService.getCancellationRequests(req.user.id);
@@ -263,10 +263,12 @@ __decorate([
 __decorate([
     (0, common_1.Post)('cancellation'),
     (0, roles_decorator_1.Roles)(client_1.Role.TALI),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
     __param(0, (0, common_1.Body)()),
-    __param(1, (0, common_1.Request)()),
+    __param(1, (0, common_1.UploadedFile)()),
+    __param(2, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Object, Object, Object]),
     __metadata("design:returntype", Promise)
 ], InsuranceController.prototype, "createCancellationRequest", null);
 __decorate([

@@ -12,11 +12,14 @@ export class SupabaseService {
     const supabaseKey = this.configService.get<string>('SUPABASE_KEY');
 
     if (!supabaseUrl || !supabaseKey) {
-      console.warn('Supabase URL and Key not found. File upload will not work.');
+      console.warn(
+        'Supabase URL and Key not found. File upload will not work.',
+      );
       return;
     }
 
-    this.supabase = createClient(supabaseUrl, supabaseKey);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    this.supabase = createClient(supabaseUrl, supabaseKey) as any;
   }
 
   async uploadFile(file: Express.Multer.File, path: string): Promise<string> {

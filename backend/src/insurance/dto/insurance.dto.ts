@@ -88,3 +88,15 @@ export class UpdateOfferDto {
   @Type(() => OfferItemDto)
   offers: OfferItemDto[];
 }
+
+export class CreateCancellationRequestDto {
+  @IsString()
+  policyId: string;
+
+  @IsString()
+  reason: string;
+
+  @IsString()
+  @IsOptional()
+  contactPhone?: string;
+}

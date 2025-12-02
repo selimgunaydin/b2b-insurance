@@ -42,6 +42,7 @@ export function AdminUserEditModal({ userId, initialData }: AdminUserEditModalPr
   const queryClient = useQueryClient();
 
   const updateMutation = useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mutationFn: async (data: any) => {
       const res = await api.put(`/user/${userId}/profile`, data);
       return res.data;
@@ -54,6 +55,7 @@ export function AdminUserEditModal({ userId, initialData }: AdminUserEditModalPr
       setIsOpen(false);
       queryClient.invalidateQueries({ queryKey: ["admin-user-detail", userId] });
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (error: any) => {
       toast({
         variant: "destructive",

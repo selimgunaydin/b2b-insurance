@@ -1,10 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Star, CheckCircle, Clock, ShieldCheck } from "lucide-react";
+import { Loader2, Star, CheckCircle, Clock, ShieldCheck, PlusCircle, Users, Wallet, User } from "lucide-react";
 
 interface CommissionRate {
   id: string;
@@ -62,7 +63,61 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Hoşgeldin, {profile?.taliProfile?.fullName || profile?.email}</h1>
       
-      {/* Stats Cards */}
+      {/* Quick Actions */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Link href="/dashboard/requests/create" className="block group">
+          <Card className="hover:bg-indigo-50 transition-colors border-indigo-100 cursor-pointer h-full">
+            <CardContent className="flex flex-col items-center justify-center p-6 gap-3 text-center">
+              <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
+                <PlusCircle className="h-6 w-6 text-indigo-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-indigo-900">Yeni Teklif</h3>
+                <p className="text-xs text-indigo-600/70">Hızlıca teklif alın</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/dashboard/customers" className="block group">
+          <Card className="hover:bg-blue-50 transition-colors border-blue-100 cursor-pointer h-full">
+            <CardContent className="flex flex-col items-center justify-center p-6 gap-3 text-center">
+              <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                <Users className="h-6 w-6 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-blue-900">Müşterilerim</h3>
+                <p className="text-xs text-blue-600/70">Müşteri listesi</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/dashboard/earnings" className="block group">
+          <Card className="hover:bg-emerald-50 transition-colors border-emerald-100 cursor-pointer h-full">
+            <CardContent className="flex flex-col items-center justify-center p-6 gap-3 text-center">
+              <div className="h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center group-hover:bg-emerald-200 transition-colors">
+                <Wallet className="h-6 w-6 text-emerald-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-emerald-900">Kazançlarım</h3>
+                <p className="text-xs text-emerald-600/70">Bakiye ve hareketler</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/dashboard/profile" className="block group">
+          <Card className="hover:bg-purple-50 transition-colors border-purple-100 cursor-pointer h-full">
+            <CardContent className="flex flex-col items-center justify-center p-6 gap-3 text-center">
+              <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center group-hover:bg-purple-200 transition-colors">
+                <User className="h-6 w-6 text-purple-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-purple-900">Profilim</h3>
+                <p className="text-xs text-purple-600/70">Bilgileri düzenle</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+      </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -104,16 +159,7 @@ export default function DashboardPage() {
             <p className="text-xs text-muted-foreground">Teklif bekleyenler</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Güven Puanı</CardTitle>
-            <ShieldCheck className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{Math.min(profile?.taliProfile?.trustScore || 100, 100)}</div>
-            <p className="text-xs text-muted-foreground">Hesap güvenilirliği</p>
-          </CardContent>
-        </Card>
+
       </div>
 
       {/* Recent Requests */}

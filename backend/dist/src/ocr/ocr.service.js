@@ -62,20 +62,20 @@ let OcrService = OcrService_1 = class OcrService {
     }
     async extract(text) {
         const dbCompanies = await this.prisma.insuranceCompany.findMany({
-            where: { isActive: true }
+            where: { isActive: true },
         });
-        this.logger.debug(`Loaded ${dbCompanies.length} companies from DB: ${dbCompanies.map(c => c.name).join(', ')}`);
+        this.logger.debug(`Loaded ${dbCompanies.length} companies from DB: ${dbCompanies.map((c) => c.name).join(', ')}`);
         const lines = text.split('\n').map((l) => l.trim());
-        this.logger.debug(`Extracted ${lines} lines from text`);
+        this.logger.debug(`Extracted ${lines.length} lines from text`);
         const results = [];
         const specialMappings = {
             'h hoi': 'HDI SİGORTA',
-            'hdi': 'HDI SİGORTA',
+            hdi: 'HDI SİGORTA',
             'h d i': 'HDI SİGORTA',
             'h.d.i': 'HDI SİGORTA',
-            'mapfre': 'MAPFRE SİGORTA',
-            'sompo': 'SOMPO SİGORTA',
-            'H Hoi': 'HDI SİGORTA'
+            mapfre: 'MAPFRE SİGORTA',
+            sompo: 'SOMPO SİGORTA',
+            'H Hoi': 'HDI SİGORTA',
         };
         for (const line of lines) {
             if (!line)
@@ -85,7 +85,8 @@ let OcrService = OcrService_1 = class OcrService {
             const lowerLine = line.toLowerCase();
             for (const [key, value] of Object.entries(specialMappings)) {
                 if (lowerLine.includes(key)) {
-                    const dbMatch = dbCompanies.find(c => c.name.toLowerCase().includes(value.toLowerCase()) || value.toLowerCase().includes(c.name.toLowerCase()));
+                    const dbMatch = dbCompanies.find((c) => c.name.toLowerCase().includes(value.toLowerCase()) ||
+                        value.toLowerCase().includes(c.name.toLowerCase()));
                     if (dbMatch) {
                         bestMatchCompany = dbMatch.name;
                         break;
@@ -130,16 +131,16 @@ let OcrService = OcrService_1 = class OcrService {
         return uniqueResults;
     }
     extractCorrectPrice(line) {
-        const numericRegex = /(\d[\d\.,]+)/g;
-        const matches = [...line.matchAll(numericRegex)].map(m => m[1]);
+        const numericRegex = /(\d[\d.,]+)/g;
+        const matches = [...line.matchAll(numericRegex)].map((m) => m[1]);
         if (matches.length === 0)
             return null;
-        const candidates = matches.map(val => this.normalizePrice(val));
-        const validCandidates = candidates.filter(c => c > 0 && c < 1000000);
+        const candidates = matches.map((val) => this.normalizePrice(val));
+        const validCandidates = candidates.filter((c) => c > 0 && c < 1000000);
         if (validCandidates.length === 0)
             return null;
         this.logger.debug(`Line: "${line}" -> Candidates: ${JSON.stringify(validCandidates)}`);
-        const withDecimals = validCandidates.filter(c => c % 1 !== 0);
+        const withDecimals = validCandidates.filter((c) => c % 1 !== 0);
         if (withDecimals.length > 0) {
             return Math.max(...withDecimals);
         }

@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateOfferDto = exports.OfferItemDto = exports.CreateInsuranceRequestDto = exports.InsuranceDetailsDto = exports.CustomerDataDto = void 0;
+exports.CreateCancellationRequestDto = exports.UpdateOfferDto = exports.OfferItemDto = exports.CreateInsuranceRequestDto = exports.InsuranceDetailsDto = exports.CustomerDataDto = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
 const client_1 = require("@prisma/client");
@@ -133,4 +133,23 @@ __decorate([
     (0, class_transformer_1.Type)(() => OfferItemDto),
     __metadata("design:type", Array)
 ], UpdateOfferDto.prototype, "offers", void 0);
+class CreateCancellationRequestDto {
+    policyId;
+    reason;
+    contactPhone;
+}
+exports.CreateCancellationRequestDto = CreateCancellationRequestDto;
+__decorate([
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateCancellationRequestDto.prototype, "policyId", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateCancellationRequestDto.prototype, "reason", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateCancellationRequestDto.prototype, "contactPhone", void 0);
 //# sourceMappingURL=insurance.dto.js.map

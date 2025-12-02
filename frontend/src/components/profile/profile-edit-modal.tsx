@@ -44,6 +44,7 @@ export function ProfileEditModal({ initialData }: ProfileEditModalProps) {
 
   const updateMutation = useMutation({
     mutationFn: async (data: ProfileData) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const res = await api.put("/user/profile", data);
       return res.data;
     },
@@ -55,6 +56,7 @@ export function ProfileEditModal({ initialData }: ProfileEditModalProps) {
       setIsOpen(false);
       queryClient.invalidateQueries({ queryKey: ["profile"] });
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (error: any) => {
       toast({
         variant: "destructive",

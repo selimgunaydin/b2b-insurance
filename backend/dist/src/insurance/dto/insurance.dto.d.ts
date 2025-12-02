@@ -27,3 +27,8 @@ export declare class UpdateOfferDto {
     offerFileUrl?: string;
     offers: OfferItemDto[];
 }
+export declare class CreateCancellationRequestDto {
+    policyId: string;
+    reason: string;
+    contactPhone?: string;
+}

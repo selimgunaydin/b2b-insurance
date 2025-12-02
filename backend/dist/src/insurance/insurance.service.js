@@ -629,7 +629,7 @@ let InsuranceService = class InsuranceService {
             throw new common_1.NotFoundException('Policy not found');
         return policy;
     }
-    async createCancellationRequest(policyId, reason, userId) {
+    async createCancellationRequest(policyId, reason, userId, contactPhone, file) {
         const policy = await this.prisma.policy.findUnique({
             where: { id: policyId },
             include: { insuranceRequest: true },
@@ -639,6 +639,8 @@ let InsuranceService = class InsuranceService {
         await this.auditService.log(userId, 'CREATE_CANCELLATION', {
             policyId,
             reason,
+            contactPhone,
+            hasFile: !!file,
         });
         const taliProfile = await this.prisma.taliProfile.findUnique({
             where: { userId },
@@ -654,11 +656,22 @@ let InsuranceService = class InsuranceService {
         if (existing) {
             throw new Error('Cancellation request already exists');
         }
+        const proofFiles = [];
+        if (file) {
+            const sanitizedOriginalName = file.originalname
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-zA-Z0-9.-]/g, '_');
+            const filename = `cancel-${policyId}-${Date.now()}-${sanitizedOriginalName}`;
+            const fileUrl = await this.supabaseService.uploadFile(file, filename);
+            proofFiles.push(fileUrl);
+        }
         const cancellation = await this.prisma.cancellationRequest.create({
             data: {
                 policyId: policy.insuranceRequestId,
                 reason,
-                proofFiles: [],
+                contactPhone,
+                proofFiles,
                 status: 'PENDING',
             },
         });

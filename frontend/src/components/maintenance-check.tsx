@@ -19,7 +19,10 @@ export function MaintenanceCheck({ children }: { children: React.ReactNode }) {
       try {
         const res = await api.get("/settings/public-config"); 
         return res.data;
-      } catch {
+      } catch (err) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const error = err as any;
         // Ignore error
       }
       return [];
@@ -27,6 +30,7 @@ export function MaintenanceCheck({ children }: { children: React.ReactNode }) {
     retry: false,
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isMaintenanceMode = settings?.find((s: any) => s.key === "maintenance_mode")?.value === "true";
   const isAdmin = pathname?.startsWith("/admin"); // Simple check, ideally check user role
   const isMaintenancePage = pathname === "/maintenance";

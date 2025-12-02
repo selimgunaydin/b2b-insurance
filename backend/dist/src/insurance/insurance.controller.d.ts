@@ -573,16 +573,14 @@ export declare class InsuranceController {
         adminOfferDescription: string | null;
         policyUrl: string | null;
     }>;
-    createCancellationRequest(body: {
-        policyId: string;
-        reason: string;
-    }, req: any): Promise<{
+    createCancellationRequest(body: any, file: Express.Multer.File, req: any): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        status: import("@prisma/client").$Enums.CancellationStatus;
         policyId: string;
         reason: string;
+        contactPhone: string | null;
+        status: import("@prisma/client").$Enums.CancellationStatus;
         proofFiles: string[];
     }>;
     getCancellationRequests(req: any): Promise<({
@@ -644,9 +642,10 @@ export declare class InsuranceController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        status: import("@prisma/client").$Enums.CancellationStatus;
         policyId: string;
         reason: string;
+        contactPhone: string | null;
+        status: import("@prisma/client").$Enums.CancellationStatus;
         proofFiles: string[];
     })[]>;
     getCancellationRequest(id: string, req: any): Promise<{
@@ -708,9 +707,10 @@ export declare class InsuranceController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        status: import("@prisma/client").$Enums.CancellationStatus;
         policyId: string;
         reason: string;
+        contactPhone: string | null;
+        status: import("@prisma/client").$Enums.CancellationStatus;
         proofFiles: string[];
     }>;
     updateCancellationStatus(id: string, body: {
@@ -719,9 +719,10 @@ export declare class InsuranceController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        status: import("@prisma/client").$Enums.CancellationStatus;
         policyId: string;
         reason: string;
+        contactPhone: string | null;
+        status: import("@prisma/client").$Enums.CancellationStatus;
         proofFiles: string[];
     }>;
     processOcr(file: Express.Multer.File): Promise<{

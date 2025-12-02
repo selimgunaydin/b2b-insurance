@@ -1,9 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, FileText, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
+import { Users, FileText, AlertCircle, CheckCircle, Loader2, UserCheck, BarChart, Settings } from "lucide-react";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 
@@ -81,6 +82,62 @@ export default function AdminDashboardPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold text-slate-900">Yönetim Paneli</h1>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Link href="/admin/users" className="block group">
+          <Card className="hover:bg-indigo-50 transition-colors border-indigo-100 cursor-pointer h-full">
+            <CardContent className="flex flex-col items-center justify-center p-6 gap-3 text-center">
+              <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
+                <UserCheck className="h-6 w-6 text-indigo-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-indigo-900">Kullanıcılar</h3>
+                <p className="text-xs text-indigo-600/70">Onay ve yönetim</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/admin/policies" className="block group">
+          <Card className="hover:bg-blue-50 transition-colors border-blue-100 cursor-pointer h-full">
+            <CardContent className="flex flex-col items-center justify-center p-6 gap-3 text-center">
+              <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                <FileText className="h-6 w-6 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-blue-900">Poliçeler</h3>
+                <p className="text-xs text-blue-600/70">Tüm poliçe listesi</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/admin/financials" className="block group">
+          <Card className="hover:bg-emerald-50 transition-colors border-emerald-100 cursor-pointer h-full">
+            <CardContent className="flex flex-col items-center justify-center p-6 gap-3 text-center">
+              <div className="h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center group-hover:bg-emerald-200 transition-colors">
+                <BarChart className="h-6 w-6 text-emerald-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-emerald-900">Raporlar</h3>
+                <p className="text-xs text-emerald-600/70">Finansal durum</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/admin/settings" className="block group">
+          <Card className="hover:bg-slate-50 transition-colors border-slate-100 cursor-pointer h-full">
+            <CardContent className="flex flex-col items-center justify-center p-6 gap-3 text-center">
+              <div className="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-slate-200 transition-colors">
+                <Settings className="h-6 w-6 text-slate-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-slate-900">Ayarlar</h3>
+                <p className="text-xs text-slate-600/70">Sistem yapılandırması</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+      </div>
       
       {/* Financial & Growth Stats */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

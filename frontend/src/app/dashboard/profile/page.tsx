@@ -86,7 +86,7 @@ export default function ProfilePage() {
           <CardContent className="space-y-4">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Telefon</p>
-              <p className="text-lg">{tali.phoneNumber || "-"}</p>
+              <p className="text-lg">{tali.phone || "-"}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Adres</p>
@@ -121,7 +121,11 @@ export default function ProfilePage() {
             <div className="pt-4 border-t">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <CreditCard className="h-4 w-4" />
-                <span className="text-sm">Puan: {tali.points} Puan</span>
+                <span className="text-sm">Puan: {Number(tali.points).toFixed(2)} Puan</span>
+              </div>
+              <div className="flex items-center gap-2 text-muted-foreground mt-2">
+                <ShieldCheck className="h-4 w-4" />
+                <span className="text-sm">Güven Puanı: {Math.min(tali.trustScore || 100, 100)}</span>
               </div>
             </div>
           </CardContent>

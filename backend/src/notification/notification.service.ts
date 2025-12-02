@@ -8,33 +8,60 @@ export class NotificationService {
 
   constructor(private prisma: PrismaService) {}
 
-  async sendWhatsapp(phone: string, message: string) {
+  sendWhatsapp(phone: string, message: string) {
     this.logger.log(`[WHATSAPP] Sending to ${phone}: ${message}`);
-    return true;
+    return Promise.resolve(true);
   }
 
-  async notifyCancellationStatus(policyId: string, status: string, userId: string) {
-    this.logger.log(`[NOTIFY] Cancellation status ${status} for policy ${policyId} to user ${userId}`);
-    return this.createSystemNotification(userId, 'Cancellation Update', `Your cancellation request is ${status}`);
+  async notifyCancellationStatus(
+    policyId: string,
+    status: string,
+    userId: string,
+  ) {
+    this.logger.log(
+      `[NOTIFY] Cancellation status ${status} for policy ${policyId} to user ${userId}`,
+    );
+    return this.createSystemNotification(
+      userId,
+      'Cancellation Update',
+      `Your cancellation request is ${status}`,
+    );
   }
 
-  async notifyAdmins(title: string, message: string) {
+  notifyAdmins(title: string, message: string) {
     this.logger.log(`[NOTIFY] Admin notification: ${title} - ${message}`);
     // In real app, find admin users and notify
-    return true;
+    return Promise.resolve(true);
   }
 
   async notifyOfferReady(userId: string, requestId: string) {
-    this.logger.log(`[NOTIFY] Offer ready for request ${requestId} to user ${userId}`);
-    return this.createSystemNotification(userId, 'Offer Ready', 'Your insurance offer is ready.');
+    this.logger.log(
+      `[NOTIFY] Offer ready for request ${requestId} to user ${userId}`,
+    );
+    return this.createSystemNotification(
+      userId,
+      'Offer Ready',
+      'Your insurance offer is ready.',
+    );
   }
 
   async notifyPolicyCreated(userId: string, policyNumber: string) {
-    this.logger.log(`[NOTIFY] Policy created ${policyNumber} to user ${userId}`);
-    return this.createSystemNotification(userId, 'Policy Created', 'Your policy has been created.');
+    this.logger.log(
+      `[NOTIFY] Policy created ${policyNumber} to user ${userId}`,
+    );
+    return this.createSystemNotification(
+      userId,
+      'Policy Created',
+      'Your policy has been created.',
+    );
   }
 
-  async createSystemNotification(userId: string, title: string, message: string, type: NotificationType = NotificationType.SYSTEM) {
+  async createSystemNotification(
+    userId: string,
+    title: string,
+    message: string,
+    type: NotificationType = NotificationType.SYSTEM,
+  ) {
     return this.prisma.notification.create({
       data: {
         userId,
@@ -45,9 +72,19 @@ export class NotificationService {
     });
   }
 
-  async notifyMarketPurchase(purchaseId: string, userId: string, status: string = 'PENDING') {
-    this.logger.log(`[NOTIFY] Market purchase ${purchaseId} for user ${userId} status ${status}`);
-    return this.createSystemNotification(userId, 'Market Purchase', `Your purchase is ${status}.`);
+  async notifyMarketPurchase(
+    purchaseId: string,
+    userId: string,
+    status: string = 'PENDING',
+  ) {
+    this.logger.log(
+      `[NOTIFY] Market purchase ${purchaseId} for user ${userId} status ${status}`,
+    );
+    return this.createSystemNotification(
+      userId,
+      'Market Purchase',
+      `Your purchase is ${status}.`,
+    );
   }
 
   async sendNotification(dto: any) {
@@ -83,6 +120,10 @@ export class NotificationService {
 
   async notifyPremiumStatus(userId: string, status: string) {
     this.logger.log(`[NOTIFY] Premium status ${status} to user ${userId}`);
-    return this.createSystemNotification(userId, 'Premium Request Update', `Your premium request is ${status}`);
+    return this.createSystemNotification(
+      userId,
+      'Premium Request Update',
+      `Your premium request is ${status}`,
+    );
   }
 }

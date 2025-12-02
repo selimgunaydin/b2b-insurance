@@ -194,6 +194,7 @@ model CancellationRequest {
   policyId   String             @unique
   policy     InsuranceRequest   @relation(fields: [policyId], references: [id])
   reason     String
+  contactPhone String?
   proofFiles String[]
   status     CancellationStatus @default(PENDING)
   createdAt  DateTime           @default(now())

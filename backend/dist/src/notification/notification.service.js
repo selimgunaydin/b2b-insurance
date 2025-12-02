@@ -20,17 +20,17 @@ let NotificationService = NotificationService_1 = class NotificationService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async sendWhatsapp(phone, message) {
+    sendWhatsapp(phone, message) {
         this.logger.log(`[WHATSAPP] Sending to ${phone}: ${message}`);
-        return true;
+        return Promise.resolve(true);
     }
     async notifyCancellationStatus(policyId, status, userId) {
         this.logger.log(`[NOTIFY] Cancellation status ${status} for policy ${policyId} to user ${userId}`);
         return this.createSystemNotification(userId, 'Cancellation Update', `Your cancellation request is ${status}`);
     }
-    async notifyAdmins(title, message) {
+    notifyAdmins(title, message) {
         this.logger.log(`[NOTIFY] Admin notification: ${title} - ${message}`);
-        return true;
+        return Promise.resolve(true);
     }
     async notifyOfferReady(userId, requestId) {
         this.logger.log(`[NOTIFY] Offer ready for request ${requestId} to user ${userId}`);

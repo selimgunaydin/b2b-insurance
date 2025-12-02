@@ -176,9 +176,9 @@ export default function PremiumPage() {
                   {requestMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Crown className="mr-2 h-4 w-4" />}
                   Hemen Premium'a Geç
                 </Button>
-                <p className="text-xs text-center text-muted-foreground">
-                  Başvurunuz incelendikten sonra onaylanacaktır.
-                </p>
+                <p className="text-sm text-muted-foreground">
+                Premium üyelik başvurunuz alınmıştır. En kısa sürede incelenip tarafınıza dönüş yapılacaktır.
+              </p>
               </>
             )}
           </CardFooter>

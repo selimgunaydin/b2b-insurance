@@ -51,6 +51,7 @@ export function AdminPointsModal({ userId, currentPoints }: AdminPointsModalProp
           description: data.description,
         });
         return res.data;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         toast({
           title: "Hata",
@@ -69,6 +70,7 @@ export function AdminPointsModal({ userId, currentPoints }: AdminPointsModalProp
       setFormData({ amount: "", type: "DEPOSIT", description: "" });
       queryClient.invalidateQueries({ queryKey: ["admin-user-detail", userId] });
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (error: any) => {
       toast({
         variant: "destructive",

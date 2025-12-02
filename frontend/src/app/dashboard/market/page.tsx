@@ -79,7 +79,8 @@ export default function MarketPage() {
 
   // Purchase Mutation
   const purchaseMutation = useMutation({
-    mutationFn: async (data: { productId: string; details?: any }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mutationFn: async (data: any) => {
       const res = await api.post(`/market/purchase/${data.productId}`, { details: data.details });
       return res.data;
     },
@@ -94,6 +95,7 @@ export default function MarketPage() {
       queryClient.invalidateQueries({ queryKey: ["my-purchases"] });
       queryClient.invalidateQueries({ queryKey: ["profile"] }); // Update points
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (error: any) => {
       toast({
         variant: "destructive",

@@ -177,14 +177,18 @@ export class InsuranceController {
 
   @Post('cancellation')
   @Roles(Role.TALI)
+  @UseInterceptors(FileInterceptor('file'))
   async createCancellationRequest(
-    @Body() body: { policyId: string; reason: string },
+    @Body() body: any,
+    @UploadedFile() file: Express.Multer.File,
     @Request() req: any,
   ) {
     return this.insuranceService.createCancellationRequest(
       body.policyId,
       body.reason,
       req.user.id,
+      body.contactPhone,
+      file,
     );
   }
 

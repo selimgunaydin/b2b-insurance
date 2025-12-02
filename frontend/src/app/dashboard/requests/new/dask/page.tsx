@@ -77,6 +77,7 @@ export default function DaskRequestPage() {
       });
 
       router.push("/dashboard");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Request failed", error);
       toast({

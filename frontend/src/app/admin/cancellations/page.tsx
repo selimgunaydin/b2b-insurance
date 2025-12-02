@@ -15,24 +15,22 @@ import {
 } from "@/components/ui/table";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
-import { Loader2, CheckCircle, XCircle, FileText } from "lucide-react";
+import { Loader2, CheckCircle, XCircle, FileText, Phone, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface CancellationRequest {
   id: string;
   policyId: string;
   reason: string;
+  contactPhone?: string;
+  proofFiles: string[];
   status: "PENDING" | "APPROVED" | "REJECTED";
   createdAt: string;
   policy: {
     id: string;
-    policyNumber: string; // This might be missing if policy entity structure is different, let's check
-    // Actually policyId in CancellationRequest links to InsuranceRequest.
-    // The include in service was: include: { policy: { include: { customer: true, taliProfile: ... } } }
-    // Wait, in service: include: { policy: ... } where policy is the relation field name in CancellationRequest model?
-    // Schema: policy InsuranceRequest @relation...
-    // So 'policy' here is actually the InsuranceRequest object.
+    policyNumber: string;
     type: string;
     customer: {
       fullName: string;
@@ -139,7 +137,8 @@ export default function AdminCancellationsPage() {
               <TableRow>
                 <TableHead>Tarih</TableHead>
                 <TableHead>Tali / Müşteri</TableHead>
-                <TableHead>Poliçe Türü</TableHead>
+                <TableHead>Poliçe</TableHead>
+                <TableHead>İletişim / Dosya</TableHead>
                 <TableHead>Sebep</TableHead>
                 <TableHead>Durum</TableHead>
                 <TableHead>İşlemler</TableHead>
@@ -148,7 +147,7 @@ export default function AdminCancellationsPage() {
             <TableBody>
               {requests.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                     Henüz iptal talebi bulunmuyor.
                   </TableCell>
                 </TableRow>
@@ -163,18 +162,50 @@ export default function AdminCancellationsPage() {
                       <div className="text-sm text-muted-foreground">{req.policy.customer?.fullName}</div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline">{req.policy.type}</Badge>
-                      {req.policy.policyUrl && (
-                        <a 
-                          href={req.policy.policyUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="ml-2 inline-block"
-                          title="Poliçeyi Görüntüle"
-                        >
-                          <FileText className="h-4 w-4 text-blue-600" />
-                        </a>
-                      )}
+                      <div className="flex flex-col gap-1">
+                        <Badge variant="outline" className="w-fit">{req.policy.type}</Badge>
+                        <span className="text-xs text-muted-foreground">{req.policy.policyNumber}</span>
+                        {req.policy.policyUrl && (
+                          <a 
+                            href={req.policy.policyUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+                          >
+                            <FileText className="h-3 w-3" /> Poliçe
+                          </a>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-2">
+                        {req.contactPhone && (
+                          <div className="flex items-center gap-1 text-sm">
+                            <Phone className="h-3 w-3 text-muted-foreground" />
+                            <span>{req.contactPhone}</span>
+                          </div>
+                        )}
+                        {req.proofFiles && req.proofFiles.length > 0 && (
+                          <div className="flex gap-1">
+                            {req.proofFiles.map((fileUrl, index) => (
+                              <TooltipProvider key={index}>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button variant="outline" size="sm" className="h-6 px-2" asChild>
+                                      <a href={fileUrl} target="_blank" rel="noopener noreferrer">
+                                        <Download className="h-3 w-3 mr-1" /> Evrak {index + 1}
+                                      </a>
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>İptal Evrakını İndir</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell className="max-w-xs truncate" title={req.reason}>
                       {req.reason}
@@ -183,7 +214,7 @@ export default function AdminCancellationsPage() {
                       <Badge
                         variant={
                           req.status === "APPROVED"
-                            ? "default" // Green-ish usually
+                            ? "default"
                             : req.status === "REJECTED"
                             ? "destructive"
                             : "secondary"
@@ -195,9 +226,6 @@ export default function AdminCancellationsPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm" asChild>
-                          <a href={`/admin/cancellations/${req.id}`}>Detay</a>
-                        </Button>
                         {req.status === "PENDING" && (
                           <>
                             <Button
@@ -237,3 +265,4 @@ export default function AdminCancellationsPage() {
     </div>
   );
 }
+

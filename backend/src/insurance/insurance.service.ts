@@ -795,6 +795,8 @@ export class InsuranceService {
     policyId: string,
     reason: string,
     userId: string,
+    contactPhone?: string,
+    file?: Express.Multer.File,
   ) {
     const policy = await this.prisma.policy.findUnique({
       where: { id: policyId },
@@ -807,6 +809,8 @@ export class InsuranceService {
     await this.auditService.log(userId, 'CREATE_CANCELLATION', {
       policyId,
       reason,
+      contactPhone,
+      hasFile: !!file,
     });
 
     // Verify ownership
@@ -836,11 +840,24 @@ export class InsuranceService {
       throw new Error('Cancellation request already exists');
     }
 
+    // Upload file if exists
+    const proofFiles: string[] = [];
+    if (file) {
+      const sanitizedOriginalName = file.originalname
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-zA-Z0-9.-]/g, '_');
+      const filename = `cancel-${policyId}-${Date.now()}-${sanitizedOriginalName}`;
+      const fileUrl = await this.supabaseService.uploadFile(file, filename);
+      proofFiles.push(fileUrl);
+    }
+
     const cancellation = await this.prisma.cancellationRequest.create({
       data: {
         policyId: policy.insuranceRequestId, // Linking to InsuranceRequest ID
         reason,
-        proofFiles: [], // TODO: File upload
+        contactPhone,
+        proofFiles,
         status: 'PENDING',
       },
     });
