@@ -4,13 +4,21 @@ export declare class NotificationController {
     private readonly notificationService;
     constructor(notificationService: NotificationService);
     send(dto: SendNotificationDto): Promise<{
-        id: string;
-        createdAt: Date;
-        userId: string;
-        message: string;
-        type: import("@prisma/client").$Enums.NotificationType;
-        title: string;
-        isRead: boolean;
+        count: number;
+        success: boolean;
+        notification?: undefined;
+    } | {
+        count: number;
+        success: boolean;
+        notification: {
+            id: string;
+            createdAt: Date;
+            userId: string;
+            message: string;
+            type: import("@prisma/client").$Enums.NotificationType;
+            title: string;
+            isRead: boolean;
+        } | null;
     }>;
     getMyNotifications(req: any): Promise<{
         id: string;

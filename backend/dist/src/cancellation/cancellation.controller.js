@@ -28,6 +28,9 @@ let CancellationController = class CancellationController {
     async create(createCancellationDto) {
         return this.cancellationService.create(createCancellationDto);
     }
+    async getMyCancellations(req) {
+        return this.cancellationService.findByUser(req.user.id);
+    }
     async findAll() {
         return this.cancellationService.findAll();
     }
@@ -43,6 +46,13 @@ __decorate([
     __metadata("design:paramtypes", [cancellation_dto_1.CreateCancellationDto]),
     __metadata("design:returntype", Promise)
 ], CancellationController.prototype, "create", null);
+__decorate([
+    (0, common_1.Get)('my'),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], CancellationController.prototype, "getMyCancellations", null);
 __decorate([
     (0, common_1.Get)(),
     (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),

@@ -654,7 +654,16 @@ let InsuranceService = class InsuranceService {
             where: { policyId: policy.insuranceRequestId },
         });
         if (existing) {
-            throw new Error('Cancellation request already exists');
+            if (existing.status === 'REJECTED') {
+                throw new common_1.BadRequestException('Bu poliçe için daha önce gönderilen iptal talebi reddedilmiştir. Yeni talep oluşturamazsınız.');
+            }
+            if (existing.status === 'APPROVED') {
+                throw new common_1.BadRequestException('Bu poliçe için iptal talebi zaten onaylanmıştır.');
+            }
+            throw new common_1.BadRequestException('Bu poliçe için zaten bekleyen bir iptal talebiniz bulunmaktadır.');
+        }
+        if (policy.status === 'CANCELLED') {
+            throw new common_1.BadRequestException('Bu poliçe zaten iptal edilmiştir. Yeni iptal talebi oluşturamazsınız.');
         }
         const proofFiles = [];
         if (file) {
@@ -718,7 +727,7 @@ let InsuranceService = class InsuranceService {
             throw new common_1.NotFoundException('Cancellation request not found');
         return cancellation;
     }
-    async updateCancellationStatus(id, status, userId) {
+    async updateCancellationStatus(id, status, userId, adminResponse) {
         const cancellation = await this.prisma.cancellationRequest.findUnique({
             where: { id },
             include: { policy: true },
@@ -727,7 +736,10 @@ let InsuranceService = class InsuranceService {
             throw new common_1.NotFoundException('Cancellation request not found');
         const updated = await this.prisma.cancellationRequest.update({
             where: { id },
-            data: { status: status },
+            data: {
+                status: status,
+                adminResponse,
+            },
         });
         if (status === 'APPROVED') {
             await this.prisma.policy.update({
@@ -741,9 +753,15 @@ let InsuranceService = class InsuranceService {
         }
         const request = await this.prisma.insuranceRequest.findUnique({
             where: { id: cancellation.policyId },
+            include: {
+                tali: true,
+                policy: true,
+            },
         });
-        if (request) {
-            await this.notificationService.createSystemNotification(request.taliId, `İptal Talebi ${status === 'APPROVED' ? 'Onaylandı' : 'Reddedildi'}`, `#${request.id.slice(0, 8)} numaralı poliçe için iptal talebiniz ${status === 'APPROVED' ? 'onaylandı' : 'reddedildi'}.`, client_2.NotificationType.SYSTEM);
+        if (request && request.tali) {
+            const policyNumber = request.policy?.policyNumber || `#${request.id.slice(0, 8)}`;
+            const statusMessage = status === 'APPROVED' ? 'onaylandı' : 'reddedildi';
+            await this.notificationService.createSystemNotification(request.tali.userId, 'İptal Talebi Güncellendi', `Poliçe ${policyNumber} için iptal talebiniz ${statusMessage}.${adminResponse ? ` Açıklama: ${adminResponse}` : ''}`, client_2.NotificationType.CANCELLATION);
         }
         await this.auditService.log(userId, 'UPDATE_CANCELLATION_STATUS', {
             cancellationId: id,

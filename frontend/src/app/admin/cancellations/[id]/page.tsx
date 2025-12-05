@@ -6,9 +6,11 @@ import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
-import { ArrowLeft, CheckCircle, XCircle, FileText, AlertTriangle, Download, Loader2, Calendar, User, Shield } from "lucide-react";
+import { ArrowLeft, CheckCircle, XCircle, FileText, AlertTriangle, Download, Loader2, Calendar, User, Shield, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
@@ -79,6 +81,7 @@ export default function CancellationDetailPage() {
     description: string;
     onConfirm: () => void;
     variant?: "default" | "destructive";
+    status?: "APPROVED" | "REJECTED";
   }>({
     isOpen: false,
     title: "",
@@ -86,24 +89,32 @@ export default function CancellationDetailPage() {
     onConfirm: () => {},
   });
 
+  const [adminResponse, setAdminResponse] = useState("");
+
   const handleStatusUpdateClick = (status: "APPROVED" | "REJECTED") => {
+    setAdminResponse(""); // Reset response
     setConfirmModal({
       isOpen: true,
       title: status === "APPROVED" ? "Talebi Onayla" : "Talebi Reddet",
       description: `Bu talebi ${status === "APPROVED" ? "ONAYLAMAK" : "REDDETMEK"} istediğinize emin misiniz?`,
       onConfirm: () => handleStatusUpdate(status),
       variant: status === "REJECTED" ? "destructive" : "default",
+      status,
     });
   };
 
   const handleStatusUpdate = async (status: "APPROVED" | "REJECTED") => {
     setConfirmModal((prev) => ({ ...prev, isOpen: false }));
     try {
-      await api.put(`/insurance/cancellation/${params.id}/status`, { status });
+      await api.put(`/insurance/cancellation/${params.id}/status`, { 
+        status,
+        adminResponse: adminResponse || undefined,
+      });
       toast({
         title: "Başarılı",
         description: `Talep ${status === "APPROVED" ? "onaylandı" : "reddedildi"}.`,
       });
+      setAdminResponse("");
       fetchRequest();
     } catch (error) {
       console.error("Failed to update status", error);
@@ -247,20 +258,38 @@ export default function CancellationDetailPage() {
                 <CardTitle className="text-blue-900">İşlemler</CardTitle>
                 <CardDescription>Bu talep için karar verin.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <Button
-                  className="w-full bg-green-600 hover:bg-green-700"
-                  onClick={() => handleStatusUpdateClick("APPROVED")}
-                >
-                  <CheckCircle className="mr-2 h-4 w-4" /> Onayla ve İptal Et
-                </Button>
-                <Button
-                  variant="destructive"
-                  className="w-full"
-                  onClick={() => handleStatusUpdateClick("REJECTED")}
-                >
-                  <XCircle className="mr-2 h-4 w-4" /> Reddet
-                </Button>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="adminResponse" className="text-blue-900">
+                    Açıklama (Opsiyonel)
+                  </Label>
+                  <Textarea
+                    id="adminResponse"
+                    placeholder="Tali'ye iletilecek açıklama yazın..."
+                    value={adminResponse}
+                    onChange={(e) => setAdminResponse(e.target.value)}
+                    rows={3}
+                    className="bg-white"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Bu açıklama Tali kullanıcısına bildirim olarak gönderilecektir.
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Button
+                    className="w-full bg-green-600 hover:bg-green-700"
+                    onClick={() => handleStatusUpdateClick("APPROVED")}
+                  >
+                    <CheckCircle className="mr-2 h-4 w-4" /> Onayla ve İptal Et
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    className="w-full"
+                    onClick={() => handleStatusUpdateClick("REJECTED")}
+                  >
+                    <XCircle className="mr-2 h-4 w-4" /> Reddet
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           )}

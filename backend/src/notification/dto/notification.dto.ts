@@ -1,6 +1,15 @@
-import { IsString, IsEmail, IsOptional } from 'class-validator';
+import { IsString, IsEmail, IsOptional, IsEnum, IsArray } from 'class-validator';
+import { NotificationType } from '@prisma/client';
 
 export class SendNotificationDto {
+  @IsString()
+  @IsOptional()
+  userId?: string;
+
+  @IsArray()
+  @IsOptional()
+  userIds?: string[];
+
   @IsString()
   @IsOptional()
   phone?: string;
@@ -13,10 +22,13 @@ export class SendNotificationDto {
   message: string;
 
   @IsString()
+  title: string;
+
+  @IsEnum(NotificationType)
   @IsOptional()
-  title?: string;
+  type?: NotificationType;
 
   @IsString()
   @IsOptional()
-  target?: 'ALL' | 'USER';
+  target?: 'ALL' | 'USER' | 'USERS';
 }

@@ -5,7 +5,7 @@ export declare class NotificationService {
     private readonly logger;
     constructor(prisma: PrismaService);
     sendWhatsapp(phone: string, message: string): Promise<boolean>;
-    notifyCancellationStatus(policyId: string, status: string, userId: string): Promise<{
+    notifyCancellationStatus(userId: string, status: string, policyNumber: string): Promise<{
         id: string;
         createdAt: Date;
         userId: string;
@@ -13,7 +13,7 @@ export declare class NotificationService {
         type: import("@prisma/client").$Enums.NotificationType;
         title: string;
         isRead: boolean;
-    }>;
+    } | null>;
     notifyAdmins(title: string, message: string): Promise<boolean>;
     notifyOfferReady(userId: string, requestId: string): Promise<{
         id: string;
@@ -23,7 +23,7 @@ export declare class NotificationService {
         type: import("@prisma/client").$Enums.NotificationType;
         title: string;
         isRead: boolean;
-    }>;
+    } | null>;
     notifyPolicyCreated(userId: string, policyNumber: string): Promise<{
         id: string;
         createdAt: Date;
@@ -32,7 +32,7 @@ export declare class NotificationService {
         type: import("@prisma/client").$Enums.NotificationType;
         title: string;
         isRead: boolean;
-    }>;
+    } | null>;
     createSystemNotification(userId: string, title: string, message: string, type?: NotificationType): Promise<{
         id: string;
         createdAt: Date;
@@ -41,7 +41,7 @@ export declare class NotificationService {
         type: import("@prisma/client").$Enums.NotificationType;
         title: string;
         isRead: boolean;
-    }>;
+    } | null>;
     notifyMarketPurchase(purchaseId: string, userId: string, status?: string): Promise<{
         id: string;
         createdAt: Date;
@@ -50,15 +50,23 @@ export declare class NotificationService {
         type: import("@prisma/client").$Enums.NotificationType;
         title: string;
         isRead: boolean;
-    }>;
+    } | null>;
     sendNotification(dto: any): Promise<{
-        id: string;
-        createdAt: Date;
-        userId: string;
-        message: string;
-        type: import("@prisma/client").$Enums.NotificationType;
-        title: string;
-        isRead: boolean;
+        count: number;
+        success: boolean;
+        notification?: undefined;
+    } | {
+        count: number;
+        success: boolean;
+        notification: {
+            id: string;
+            createdAt: Date;
+            userId: string;
+            message: string;
+            type: import("@prisma/client").$Enums.NotificationType;
+            title: string;
+            isRead: boolean;
+        } | null;
     }>;
     findAll(userId: string): Promise<{
         id: string;
@@ -80,5 +88,5 @@ export declare class NotificationService {
         type: import("@prisma/client").$Enums.NotificationType;
         title: string;
         isRead: boolean;
-    }>;
+    } | null>;
 }

@@ -97,7 +97,7 @@ let InsuranceController = class InsuranceController {
         return this.insuranceService.getCancellationRequest(id, req.user.id);
     }
     async updateCancellationStatus(id, body, req) {
-        return this.insuranceService.updateCancellationStatus(id, body.status, req.user.id);
+        return this.insuranceService.updateCancellationStatus(id, body.status, req.user.id, body.adminResponse);
     }
     async processOcr(file) {
         if (!file) {

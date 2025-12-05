@@ -103,7 +103,8 @@ export default function CancellationPage() {
                 İptal talebiniz başarıyla alınmıştır. En kısa sürede incelenip tarafınıza dönüş yapılacaktır.
               </AlertDescription>
             </Alert>
-            <div className="mt-6 flex justify-center">
+            <div className="mt-6 flex justify-center gap-3">
+              <Button variant="outline" onClick={() => router.push("/dashboard/requests/cancellation/my")}>Taleplerime Git</Button>
               <Button onClick={() => router.push("/dashboard")}>Dashboard&apos;a Dön</Button>
             </div>
           </CardContent>

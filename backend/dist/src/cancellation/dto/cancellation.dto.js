@@ -15,6 +15,7 @@ const client_1 = require("@prisma/client");
 class CreateCancellationDto {
     policyId;
     reason;
+    contactPhone;
     proofFiles;
 }
 exports.CreateCancellationDto = CreateCancellationDto;
@@ -27,16 +28,27 @@ __decorate([
     __metadata("design:type", String)
 ], CreateCancellationDto.prototype, "reason", void 0);
 __decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateCancellationDto.prototype, "contactPhone", void 0);
+__decorate([
     (0, class_validator_1.IsArray)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Array)
 ], CreateCancellationDto.prototype, "proofFiles", void 0);
 class UpdateCancellationStatusDto {
     status;
+    adminResponse;
 }
 exports.UpdateCancellationStatusDto = UpdateCancellationStatusDto;
 __decorate([
     (0, class_validator_1.IsEnum)(client_1.CancellationStatus),
     __metadata("design:type", String)
 ], UpdateCancellationStatusDto.prototype, "status", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateCancellationStatusDto.prototype, "adminResponse", void 0);
 //# sourceMappingURL=cancellation.dto.js.map

@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { CancellationService } from './cancellation.service';
 import {
@@ -25,6 +26,11 @@ export class CancellationController {
   @Post()
   async create(@Body() createCancellationDto: CreateCancellationDto) {
     return this.cancellationService.create(createCancellationDto);
+  }
+
+  @Get('my')
+  async getMyCancellations(@Request() req: any) {
+    return this.cancellationService.findByUser(req.user.id);
   }
 
   @Get()

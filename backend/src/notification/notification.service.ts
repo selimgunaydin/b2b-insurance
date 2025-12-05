@@ -14,17 +14,21 @@ export class NotificationService {
   }
 
   async notifyCancellationStatus(
-    policyId: string,
-    status: string,
     userId: string,
+    status: string,
+    policyNumber: string,
   ) {
     this.logger.log(
-      `[NOTIFY] Cancellation status ${status} for policy ${policyId} to user ${userId}`,
+      `[NOTIFY] Cancellation status ${status} for policy ${policyNumber} to user ${userId}`,
     );
+    
+    const statusText = status === 'APPROVED' ? 'onaylandı' : status === 'REJECTED' ? 'reddedildi' : 'güncellendi';
+    
     return this.createSystemNotification(
       userId,
-      'Cancellation Update',
-      `Your cancellation request is ${status}`,
+      'İptal Talebi Güncellendi',
+      `Poliçe ${policyNumber} için iptal talebiniz ${statusText}.`,
+      NotificationType.CANCELLATION,
     );
   }
 
@@ -40,8 +44,9 @@ export class NotificationService {
     );
     return this.createSystemNotification(
       userId,
-      'Offer Ready',
-      'Your insurance offer is ready.',
+      'Teklif Hazır',
+      'Sigorta teklifiniz hazır. Hemen inceleyebilirsiniz.',
+      NotificationType.OFFER,
     );
   }
 
@@ -51,8 +56,9 @@ export class NotificationService {
     );
     return this.createSystemNotification(
       userId,
-      'Policy Created',
-      'Your policy has been created.',
+      'Poliçe Oluşturuldu',
+      `Poliçe numarası ${policyNumber} olan poliçeniz başarıyla oluşturuldu.`,
+      NotificationType.POLICY,
     );
   }
 
@@ -62,6 +68,21 @@ export class NotificationService {
     message: string,
     type: NotificationType = NotificationType.SYSTEM,
   ) {
+    // Validate that user exists before creating notification
+    if (!userId) {
+      this.logger.warn(`[NOTIFY] Cannot create notification: userId is empty`);
+      return null;
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      this.logger.warn(`[NOTIFY] Cannot create notification: User ${userId} not found`);
+      return null;
+    }
+
     return this.prisma.notification.create({
       data: {
         userId,
@@ -80,15 +101,66 @@ export class NotificationService {
     this.logger.log(
       `[NOTIFY] Market purchase ${purchaseId} for user ${userId} status ${status}`,
     );
+    
+    const statusMessages: Record<string, string> = {
+      'PENDING': 'Sipariş alındı ve onay bekliyor.',
+      'APPROVED': 'Siparişiniz onaylandı.',
+      'SHIPPED': 'Siparişiniz kargoya verildi.',
+      'DELIVERED': 'Siparişiniz teslim edildi.',
+      'COMPLETED': 'Siparişiniz tamamlandı.',
+      'REJECTED': 'Siparişiniz reddedildi.',
+    };
+    
     return this.createSystemNotification(
       userId,
-      'Market Purchase',
-      `Your purchase is ${status}.`,
+      'Market Siparişi',
+      statusMessages[status] || `Sipariş durumu: ${status}`,
+      NotificationType.MARKET,
     );
   }
 
   async sendNotification(dto: any) {
-    return this.createSystemNotification(dto.userId, dto.title, dto.message);
+    const type = dto.type || NotificationType.ADMIN_MESSAGE;
+    
+    // Send to all users (excluding admins)
+    if (dto.target === 'ALL') {
+      const users = await this.prisma.user.findMany({
+        where: { role: 'TALI' },
+        select: { id: true },
+      });
+      
+      const notifications = await Promise.all(
+        users.map((user) =>
+          this.createSystemNotification(user.id, dto.title, dto.message, type),
+        ),
+      );
+      
+      return { count: notifications.length, success: true };
+    }
+    
+    // Send to multiple specific users
+    if (dto.target === 'USERS' && dto.userIds?.length) {
+      const notifications = await Promise.all(
+        dto.userIds.map((userId: string) =>
+          this.createSystemNotification(userId, dto.title, dto.message, type),
+        ),
+      );
+      
+      return { count: notifications.length, success: true };
+    }
+    
+    // Send to single user
+    if (dto.userId) {
+      const notification = await this.createSystemNotification(
+        dto.userId,
+        dto.title,
+        dto.message,
+        type,
+      );
+      return { count: 1, success: true, notification };
+    }
+    
+    throw new Error('No valid target specified. Provide userId, userIds with target=USERS, or target=ALL');
   }
 
   async findAll(userId: string) {
@@ -120,10 +192,18 @@ export class NotificationService {
 
   async notifyPremiumStatus(userId: string, status: string) {
     this.logger.log(`[NOTIFY] Premium status ${status} to user ${userId}`);
+    
+    const statusMessages: Record<string, string> = {
+      'PENDING': 'Premium üyelik talebiniz alındı ve inceleniyor.',
+      'APPROVED': 'Tebrikler! Premium üyelik talebiniz onaylandı.',
+      'REJECTED': 'Premium üyelik talebiniz reddedildi.',
+    };
+    
     return this.createSystemNotification(
       userId,
-      'Premium Request Update',
-      `Your premium request is ${status}`,
+      'Premium Üyelik',
+      statusMessages[status] || `Premium üyelik durumu: ${status}`,
+      NotificationType.PREMIUM,
     );
   }
 }

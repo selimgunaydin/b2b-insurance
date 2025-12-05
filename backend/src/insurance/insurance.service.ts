@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { CreateInsuranceRequestDto, UpdateOfferDto } from './dto/insurance.dto';
@@ -837,7 +837,18 @@ export class InsuranceService {
     // So 'policyId' in CancellationRequest actually holds the InsuranceRequest ID.
 
     if (existing) {
-      throw new Error('Cancellation request already exists');
+      if (existing.status === 'REJECTED') {
+        throw new BadRequestException('Bu poliçe için daha önce gönderilen iptal talebi reddedilmiştir. Yeni talep oluşturamazsınız.');
+      }
+      if (existing.status === 'APPROVED') {
+        throw new BadRequestException('Bu poliçe için iptal talebi zaten onaylanmıştır.');
+      }
+      throw new BadRequestException('Bu poliçe için zaten bekleyen bir iptal talebiniz bulunmaktadır.');
+    }
+
+    // Check if policy is already cancelled
+    if (policy.status === 'CANCELLED') {
+      throw new BadRequestException('Bu poliçe zaten iptal edilmiştir. Yeni iptal talebi oluşturamazsınız.');
     }
 
     // Upload file if exists
@@ -916,6 +927,7 @@ export class InsuranceService {
     id: string,
     status: 'APPROVED' | 'REJECTED',
     userId: string,
+    adminResponse?: string,
   ) {
     const cancellation = await this.prisma.cancellationRequest.findUnique({
       where: { id },
@@ -927,7 +939,10 @@ export class InsuranceService {
 
     const updated = await this.prisma.cancellationRequest.update({
       where: { id },
-      data: { status: status as any }, // Cast to any to avoid enum issues if imports are tricky, or import CancellationStatus
+      data: { 
+        status: status as any, // Cast to any to avoid enum issues if imports are tricky, or import CancellationStatus
+        adminResponse,
+      },
     });
 
     if (status === 'APPROVED') {
@@ -948,18 +963,25 @@ export class InsuranceService {
     }
 
     // Notify user
-    // Need to fetch Tali ID from cancellation -> policy (InsuranceRequest) -> Tali
+    // Need to fetch Tali ID from cancellation -> policy (InsuranceRequest) -> Tali -> User
     // cancellation.policy is InsuranceRequest
     const request = await this.prisma.insuranceRequest.findUnique({
       where: { id: cancellation.policyId },
+      include: { 
+        tali: true,
+        policy: true,
+      },
     });
 
-    if (request) {
+    if (request && request.tali) {
+      const policyNumber = request.policy?.policyNumber || `#${request.id.slice(0, 8)}`;
+      const statusMessage = status === 'APPROVED' ? 'onaylandı' : 'reddedildi';
+      
       await this.notificationService.createSystemNotification(
-        request.taliId,
-        `İptal Talebi ${status === 'APPROVED' ? 'Onaylandı' : 'Reddedildi'}`,
-        `#${request.id.slice(0, 8)} numaralı poliçe için iptal talebiniz ${status === 'APPROVED' ? 'onaylandı' : 'reddedildi'}.`,
-        NotificationType.SYSTEM,
+        request.tali.userId, // Use the actual userId from TaliProfile
+        'İptal Talebi Güncellendi',
+        `Poliçe ${policyNumber} için iptal talebiniz ${statusMessage}.${adminResponse ? ` Açıklama: ${adminResponse}` : ''}`,
+        NotificationType.CANCELLATION,
       );
     }
 

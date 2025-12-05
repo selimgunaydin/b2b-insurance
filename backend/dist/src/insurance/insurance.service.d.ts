@@ -693,6 +693,7 @@ export declare class InsuranceService {
         contactPhone: string | null;
         status: import("@prisma/client").$Enums.CancellationStatus;
         proofFiles: string[];
+        adminResponse: string | null;
     }>;
     getCancellationRequests(userId: string): Promise<({
         policy: {
@@ -758,6 +759,7 @@ export declare class InsuranceService {
         contactPhone: string | null;
         status: import("@prisma/client").$Enums.CancellationStatus;
         proofFiles: string[];
+        adminResponse: string | null;
     })[]>;
     getCancellationRequest(id: string, userId: string): Promise<{
         policy: {
@@ -823,8 +825,9 @@ export declare class InsuranceService {
         contactPhone: string | null;
         status: import("@prisma/client").$Enums.CancellationStatus;
         proofFiles: string[];
+        adminResponse: string | null;
     }>;
-    updateCancellationStatus(id: string, status: 'APPROVED' | 'REJECTED', userId: string): Promise<{
+    updateCancellationStatus(id: string, status: 'APPROVED' | 'REJECTED', userId: string, adminResponse?: string): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
@@ -833,5 +836,6 @@ export declare class InsuranceService {
         contactPhone: string | null;
         status: import("@prisma/client").$Enums.CancellationStatus;
         proofFiles: string[];
+        adminResponse: string | null;
     }>;
 }

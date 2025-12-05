@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Bell, Check, CheckCheck, Loader2, Mail } from "lucide-react";
+import { Bell, Check, CheckCheck, Loader2, Mail, FileText, Shield, XCircle, Crown, ShoppingBag, Gift } from "lucide-react";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 
@@ -13,7 +13,7 @@ interface Notification {
   title: string;
   message: string;
   isRead: boolean;
-  type: "SYSTEM" | "ADMIN_MESSAGE" | "RENEWAL";
+  type: "SYSTEM" | "ADMIN_MESSAGE" | "RENEWAL" | "OFFER" | "POLICY" | "CANCELLATION" | "PREMIUM" | "MARKET";
   createdAt: string;
 }
 
@@ -62,6 +62,16 @@ export default function NotificationsPage() {
         return <Bell className="h-5 w-5 text-yellow-500" />;
       case "ADMIN_MESSAGE":
         return <Mail className="h-5 w-5 text-blue-500" />;
+      case "OFFER":
+        return <FileText className="h-5 w-5 text-green-500" />;
+      case "POLICY":
+        return <Shield className="h-5 w-5 text-indigo-500" />;
+      case "CANCELLATION":
+        return <XCircle className="h-5 w-5 text-red-500" />;
+      case "PREMIUM":
+        return <Crown className="h-5 w-5 text-amber-500" />;
+      case "MARKET":
+        return <ShoppingBag className="h-5 w-5 text-purple-500" />;
       default:
         return <Bell className="h-5 w-5 text-gray-500" />;
     }

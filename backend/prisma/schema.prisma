@@ -197,6 +197,7 @@ model CancellationRequest {
   contactPhone String?
   proofFiles String[]
   status     CancellationStatus @default(PENDING)
+  adminResponse String?         // Admin's explanation when approving/rejecting
   createdAt  DateTime           @default(now())
   updatedAt  DateTime           @updatedAt
 }

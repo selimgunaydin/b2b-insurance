@@ -7,6 +7,7 @@ import {
   Param,
   Request,
   Put,
+  BadRequestException,
 } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { SendNotificationDto } from './dto/notification.dto';
@@ -23,7 +24,11 @@ export class NotificationController {
   @Post('send')
   @Roles(Role.ADMIN)
   async send(@Body() dto: SendNotificationDto) {
-    return this.notificationService.sendNotification(dto);
+    try {
+      return await this.notificationService.sendNotification(dto);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   @Get()

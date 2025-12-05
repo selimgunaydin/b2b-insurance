@@ -582,6 +582,7 @@ export declare class InsuranceController {
         contactPhone: string | null;
         status: import("@prisma/client").$Enums.CancellationStatus;
         proofFiles: string[];
+        adminResponse: string | null;
     }>;
     getCancellationRequests(req: any): Promise<({
         policy: {
@@ -647,6 +648,7 @@ export declare class InsuranceController {
         contactPhone: string | null;
         status: import("@prisma/client").$Enums.CancellationStatus;
         proofFiles: string[];
+        adminResponse: string | null;
     })[]>;
     getCancellationRequest(id: string, req: any): Promise<{
         policy: {
@@ -712,9 +714,11 @@ export declare class InsuranceController {
         contactPhone: string | null;
         status: import("@prisma/client").$Enums.CancellationStatus;
         proofFiles: string[];
+        adminResponse: string | null;
     }>;
     updateCancellationStatus(id: string, body: {
         status: 'APPROVED' | 'REJECTED';
+        adminResponse?: string;
     }, req: any): Promise<{
         id: string;
         createdAt: Date;
@@ -724,6 +728,7 @@ export declare class InsuranceController {
         contactPhone: string | null;
         status: import("@prisma/client").$Enums.CancellationStatus;
         proofFiles: string[];
+        adminResponse: string | null;
     }>;
     processOcr(file: Express.Multer.File): Promise<{
         company: string;

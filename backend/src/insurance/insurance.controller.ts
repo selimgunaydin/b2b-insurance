@@ -208,13 +208,14 @@ export class InsuranceController {
   @Roles(Role.ADMIN)
   async updateCancellationStatus(
     @Param('id') id: string,
-    @Body() body: { status: 'APPROVED' | 'REJECTED' },
+    @Body() body: { status: 'APPROVED' | 'REJECTED'; adminResponse?: string },
     @Request() req: any,
   ) {
     return this.insuranceService.updateCancellationStatus(
       id,
       body.status,
       req.user.id,
+      body.adminResponse,
     );
   }
   @Post('ocr')

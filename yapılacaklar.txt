@@ -1,3 +1,0 @@
-Tüm maddeleri detaylıca düşün ve analiz et. En iyi, en optimum şekilde çözüm uygula. 
-
-Son olarak backend ve frontend lint kontrolleri yap ve build al. Projeyi localde calıstırıp çalıştığından emin olup taskları tamamla.

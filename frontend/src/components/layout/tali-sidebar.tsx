@@ -30,6 +30,7 @@ export function TaliSidebar() {
     { href: "/dashboard/transactions", label: "Puan Geçmişi", icon: History },
     { href: "/dashboard/premium", label: "Premium", icon: Crown },
     { href: "/dashboard/requests/cancellation", label: "İptal Talebi", icon: XCircle },
+    { href: "/dashboard/requests/cancellation/my", label: "İptal Taleplerim", icon: FileText },
     { href: "/dashboard/notifications", label: "Bildirimler", icon: Bell },
     { href: "/dashboard/profile", label: "Profilim", icon: User },
   ];

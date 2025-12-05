@@ -11,14 +11,28 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SendNotificationDto = void 0;
 const class_validator_1 = require("class-validator");
+const client_1 = require("@prisma/client");
 class SendNotificationDto {
+    userId;
+    userIds;
     phone;
     email;
     message;
     title;
+    type;
     target;
 }
 exports.SendNotificationDto = SendNotificationDto;
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], SendNotificationDto.prototype, "userId", void 0);
+__decorate([
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Array)
+], SendNotificationDto.prototype, "userIds", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
@@ -35,9 +49,13 @@ __decorate([
 ], SendNotificationDto.prototype, "message", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], SendNotificationDto.prototype, "title", void 0);
+__decorate([
+    (0, class_validator_1.IsEnum)(client_1.NotificationType),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], SendNotificationDto.prototype, "type", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),

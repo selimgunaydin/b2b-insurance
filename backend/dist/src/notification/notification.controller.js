@@ -26,7 +26,12 @@ let NotificationController = class NotificationController {
         this.notificationService = notificationService;
     }
     async send(dto) {
-        return this.notificationService.sendNotification(dto);
+        try {
+            return await this.notificationService.sendNotification(dto);
+        }
+        catch (error) {
+            throw new common_1.BadRequestException(error.message);
+        }
     }
     async getMyNotifications(req) {
         return this.notificationService.findAll(req.user.id);
