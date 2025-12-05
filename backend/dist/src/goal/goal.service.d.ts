@@ -19,7 +19,6 @@ export declare class GoalService {
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
-        isActive: boolean;
         title: string;
         targetType: import("@prisma/client").$Enums.GoalTargetType;
         policyType: import("@prisma/client").$Enums.InsuranceType | null;
@@ -28,6 +27,7 @@ export declare class GoalService {
         rewardPoints: import("@prisma/client/runtime/library").Decimal;
         startDate: Date;
         endDate: Date;
+        isActive: boolean;
     }>;
     update(id: string, data: {
         title?: string;
@@ -45,7 +45,6 @@ export declare class GoalService {
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
-        isActive: boolean;
         title: string;
         targetType: import("@prisma/client").$Enums.GoalTargetType;
         policyType: import("@prisma/client").$Enums.InsuranceType | null;
@@ -54,13 +53,13 @@ export declare class GoalService {
         rewardPoints: import("@prisma/client/runtime/library").Decimal;
         startDate: Date;
         endDate: Date;
+        isActive: boolean;
     }>;
     findAll(): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
-        isActive: boolean;
         title: string;
         targetType: import("@prisma/client").$Enums.GoalTargetType;
         policyType: import("@prisma/client").$Enums.InsuranceType | null;
@@ -69,6 +68,7 @@ export declare class GoalService {
         rewardPoints: import("@prisma/client/runtime/library").Decimal;
         startDate: Date;
         endDate: Date;
+        isActive: boolean;
     }[]>;
     getTaliGoals(userId: string): Promise<({
         goal: {
@@ -76,7 +76,6 @@ export declare class GoalService {
             createdAt: Date;
             updatedAt: Date;
             description: string | null;
-            isActive: boolean;
             title: string;
             targetType: import("@prisma/client").$Enums.GoalTargetType;
             policyType: import("@prisma/client").$Enums.InsuranceType | null;
@@ -85,6 +84,7 @@ export declare class GoalService {
             rewardPoints: import("@prisma/client/runtime/library").Decimal;
             startDate: Date;
             endDate: Date;
+            isActive: boolean;
         };
     } & {
         id: string;
