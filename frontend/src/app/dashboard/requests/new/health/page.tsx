@@ -76,6 +76,9 @@ export default function HealthRequestPage() {
           weight: data.weight,
           diseases: data.diseases,
           city: data.city,
+          identityNumber: data.customer.tcKn,
+          birthDate: data.customer.birthDate,
+          phoneNumber: data.customer.phone,
         },
         files: data.files || [],
       });
@@ -184,7 +187,7 @@ export default function HealthRequestPage() {
                   name="files"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Belgeler (Rapor, Tahlil vb.)</FormLabel>
+                      <FormLabel>Kimlik Fotoğrafı ve Diğer Belgeler</FormLabel>
                       <FormControl>
                         <FileUpload 
                             value={field.value} 

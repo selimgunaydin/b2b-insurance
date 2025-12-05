@@ -77,7 +77,6 @@ export class MarketController {
   @Get('my-purchases')
   @Roles('TALI')
   getMyPurchases(@Request() req: any) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return this.marketService.getMyPurchases(req.user.id);
   }
 

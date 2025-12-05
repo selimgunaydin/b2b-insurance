@@ -18,4 +18,3 @@ import { PrismaModule } from '../prisma/prisma.module';
   exports: [NotificationService, NotificationGateway],
 })
 export class NotificationModule {}
-

@@ -194,6 +194,10 @@ export default function AdminSettingsPage() {
             <Megaphone className="h-4 w-4" />
             <span className="hidden sm:inline">Duyuru</span>
           </TabsTrigger>
+          <TabsTrigger value="logs" className="gap-2">
+            <Terminal className="h-4 w-4" />
+            <span className="hidden sm:inline">Loglar</span>
+          </TabsTrigger>
         </TabsList>
 
         {/* General Settings */}
@@ -310,6 +314,8 @@ export default function AdminSettingsPage() {
           </Card>
         </TabsContent>
 
+
+
         {/* Broadcast */}
         <TabsContent value="broadcast" className="space-y-4">
           <div className="grid gap-6 md:grid-cols-2">
@@ -388,8 +394,113 @@ export default function AdminSettingsPage() {
             </Card>
           </div>
         </TabsContent>
+
+        {/* Logs */}
+        <TabsContent value="logs" className="space-y-4">
+          <LogsTabContent />
+        </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+import { Download, Terminal } from "lucide-react";
+import { useSocketStore } from "@/lib/socket";
+
+function LogsTabContent() {
+  const [logs, setLogs] = useState<{ timestamp: string; level: string; message: string; context: string }[]>([]);
+  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const { socket } = useSocketStore();
+
+  useEffect(() => {
+    // Initial fetch
+    const fetchLogs = async () => {
+      try {
+        const res = await api.get("/logs/list");
+        // Ensure logs are in correct format if backend returns raw lines
+        setLogs(res.data.map((l: any) => 
+            typeof l === 'string' ? { message: l, timestamp: new Date().toISOString(), level: 'info', context: 'System' } : l
+        ));
+      } catch (error) {
+        console.error("Failed to fetch logs", error);
+      }
+    };
+    fetchLogs();
+
+    // Listen for realtime logs
+    if (socket) {
+      socket.on("system_log", (log: any) => {
+        setLogs((prev) => [log, ...prev].slice(0, 500)); // Keep last 500
+      });
+    }
+
+    return () => {
+      if (socket) socket.off("system_log");
+    };
+  }, [socket]);
+
+  const handleDownload = async () => {
+    try {
+      const response = await api.get(`/logs/download?date=${date}`, {
+        responseType: 'blob',
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `logs-${date}.log`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+       console.error("Download failed", error);
+       // Maybe show toast here
+    }
+  };
+
+  return (
+    <Card className="h-[600px] flex flex-col">
+      <CardHeader className="py-4 border-b flex-row items-center justify-between">
+        <div>
+           <CardTitle className="text-lg flex items-center gap-2">
+            <Terminal className="h-5 w-5 text-gray-700" />
+            Sistem Logları
+          </CardTitle>
+          <CardDescription>Gerçek zamanlı sunucu logları ve geçmiş kayıtlar</CardDescription>
+        </div>
+        <div className="flex items-center gap-2">
+            <Input 
+                type="date" 
+                value={date} 
+                onChange={(e) => setDate(e.target.value)} 
+                className="w-40"
+            />
+            <Button variant="outline" size="sm" onClick={handleDownload}>
+                <Download className="mr-2 h-4 w-4" />
+                İndir
+            </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="p-0 flex-1 bg-black text-green-400 font-mono text-xs overflow-hidden rounded-b-lg relative">
+         <div className="h-full p-4 overflow-y-auto">
+            {logs.length === 0 && <div className="text-gray-500 italic">Log kaydı bulunamadı veya bekleniyor...</div>}
+            {logs.map((log, i) => (
+                <div key={i} className="mb-1 break-all hover:bg-white/5 p-0.5 rounded">
+                    <span className="text-gray-500 mr-2">[{new Date(log.timestamp).toLocaleTimeString()}]</span>
+                    <span className={`font-bold mr-2 ${
+                        log.level === 'error' ? 'text-red-500' : 
+                        log.level === 'warn' ? 'text-yellow-500' : 
+                        log.level === 'debug' ? 'text-blue-400' : 'text-green-500'
+                    }`}>
+                        {log.level?.toUpperCase()}
+                    </span>
+                    <span className="text-yellow-600 mr-2">[{log.context}]</span>
+                    <span className="text-gray-300">{log.message}</span>
+                </div>
+            ))}
+         </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -403,6 +514,7 @@ function SettingItem({
   savingKey: string | null; 
   onUpdate: (key: string, value: string) => void;
 }) {
+    // ... (rest of the file)
   const isSaving = savingKey === setting.key;
   
   // Parse description for display

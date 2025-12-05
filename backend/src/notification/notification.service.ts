@@ -26,9 +26,14 @@ export class NotificationService {
     this.logger.log(
       `[NOTIFY] Cancellation status ${status} for policy ${policyNumber} to user ${userId}`,
     );
-    
-    const statusText = status === 'APPROVED' ? 'onaylandı' : status === 'REJECTED' ? 'reddedildi' : 'güncellendi';
-    
+
+    const statusText =
+      status === 'APPROVED'
+        ? 'onaylandı'
+        : status === 'REJECTED'
+          ? 'reddedildi'
+          : 'güncellendi';
+
     return this.createSystemNotification(
       userId,
       'İptal Talebi Güncellendi',
@@ -39,7 +44,7 @@ export class NotificationService {
 
   async notifyAdmins(title: string, message: string) {
     this.logger.log(`[NOTIFY] Admin notification: ${title} - ${message}`);
-    
+
     // Find all admin users and create notifications
     const admins = await this.prisma.user.findMany({
       where: { role: 'ADMIN' },
@@ -111,7 +116,9 @@ export class NotificationService {
     });
 
     if (!user) {
-      this.logger.warn(`[NOTIFY] Cannot create notification: User ${userId} not found`);
+      this.logger.warn(
+        `[NOTIFY] Cannot create notification: User ${userId} not found`,
+      );
       return null;
     }
 
@@ -145,16 +152,16 @@ export class NotificationService {
     this.logger.log(
       `[NOTIFY] Market purchase ${purchaseId} for user ${userId} status ${status}`,
     );
-    
+
     const statusMessages: Record<string, string> = {
-      'PENDING': 'Sipariş alındı ve onay bekliyor.',
-      'APPROVED': 'Siparişiniz onaylandı.',
-      'SHIPPED': 'Siparişiniz kargoya verildi.',
-      'DELIVERED': 'Siparişiniz teslim edildi.',
-      'COMPLETED': 'Siparişiniz tamamlandı.',
-      'REJECTED': 'Siparişiniz reddedildi.',
+      PENDING: 'Sipariş alındı ve onay bekliyor.',
+      APPROVED: 'Siparişiniz onaylandı.',
+      SHIPPED: 'Siparişiniz kargoya verildi.',
+      DELIVERED: 'Siparişiniz teslim edildi.',
+      COMPLETED: 'Siparişiniz tamamlandı.',
+      REJECTED: 'Siparişiniz reddedildi.',
     };
-    
+
     return this.createSystemNotification(
       userId,
       'Market Siparişi',
@@ -165,23 +172,23 @@ export class NotificationService {
 
   async sendNotification(dto: any) {
     const type = dto.type || NotificationType.ADMIN_MESSAGE;
-    
+
     // Send to all users (excluding admins)
     if (dto.target === 'ALL') {
       const users = await this.prisma.user.findMany({
         where: { role: 'TALI' },
         select: { id: true },
       });
-      
+
       const notifications = await Promise.all(
         users.map((user) =>
           this.createSystemNotification(user.id, dto.title, dto.message, type),
         ),
       );
-      
+
       return { count: notifications.length, success: true };
     }
-    
+
     // Send to multiple specific users
     if (dto.target === 'USERS' && dto.userIds?.length) {
       const notifications = await Promise.all(
@@ -189,10 +196,10 @@ export class NotificationService {
           this.createSystemNotification(userId, dto.title, dto.message, type),
         ),
       );
-      
+
       return { count: notifications.length, success: true };
     }
-    
+
     // Send to single user
     if (dto.userId) {
       const notification = await this.createSystemNotification(
@@ -203,8 +210,10 @@ export class NotificationService {
       );
       return { count: 1, success: true, notification };
     }
-    
-    throw new Error('No valid target specified. Provide userId, userIds with target=USERS, or target=ALL');
+
+    throw new Error(
+      'No valid target specified. Provide userId, userIds with target=USERS, or target=ALL',
+    );
   }
 
   async findAll(userId: string) {
@@ -236,13 +245,13 @@ export class NotificationService {
 
   async notifyPremiumStatus(userId: string, status: string) {
     this.logger.log(`[NOTIFY] Premium status ${status} to user ${userId}`);
-    
+
     const statusMessages: Record<string, string> = {
-      'PENDING': 'Premium üyelik talebiniz alındı ve inceleniyor.',
-      'APPROVED': 'Tebrikler! Premium üyelik talebiniz onaylandı.',
-      'REJECTED': 'Premium üyelik talebiniz reddedildi.',
+      PENDING: 'Premium üyelik talebiniz alındı ve inceleniyor.',
+      APPROVED: 'Tebrikler! Premium üyelik talebiniz onaylandı.',
+      REJECTED: 'Premium üyelik talebiniz reddedildi.',
     };
-    
+
     return this.createSystemNotification(
       userId,
       'Premium Üyelik',

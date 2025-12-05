@@ -18,7 +18,6 @@ export class SupabaseService {
       return;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.supabase = createClient(supabaseUrl, supabaseKey) as any;
   }
 

@@ -25,21 +25,21 @@ export declare class DashboardController {
                     allowedInsuranceTypes: string[];
                 } | null;
             } & {
-                role: import("@prisma/client").$Enums.Role;
-                isApproved: boolean;
                 id: string;
-                createdAt: Date;
                 email: string;
                 password: string;
+                role: import("@prisma/client").$Enums.Role;
+                isApproved: boolean;
+                createdAt: Date;
                 updatedAt: Date;
             };
         } & {
             id: string;
+            createdAt: Date;
             userId: string;
             action: string;
             details: import("@prisma/client/runtime/library").JsonValue | null;
             ipAddress: string | null;
-            createdAt: Date;
         })[];
         totalRevenue: number | import("@prisma/client/runtime/library").Decimal;
         totalPolicies: number;

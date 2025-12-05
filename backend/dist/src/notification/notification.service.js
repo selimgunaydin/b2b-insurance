@@ -32,7 +32,11 @@ let NotificationService = NotificationService_1 = class NotificationService {
     }
     async notifyCancellationStatus(userId, status, policyNumber) {
         this.logger.log(`[NOTIFY] Cancellation status ${status} for policy ${policyNumber} to user ${userId}`);
-        const statusText = status === 'APPROVED' ? 'onaylandı' : status === 'REJECTED' ? 'reddedildi' : 'güncellendi';
+        const statusText = status === 'APPROVED'
+            ? 'onaylandı'
+            : status === 'REJECTED'
+                ? 'reddedildi'
+                : 'güncellendi';
         return this.createSystemNotification(userId, 'İptal Talebi Güncellendi', `Poliçe ${policyNumber} için iptal talebiniz ${statusText}.`, client_1.NotificationType.CANCELLATION);
     }
     async notifyAdmins(title, message) {
@@ -98,12 +102,12 @@ let NotificationService = NotificationService_1 = class NotificationService {
     async notifyMarketPurchase(purchaseId, userId, status = 'PENDING') {
         this.logger.log(`[NOTIFY] Market purchase ${purchaseId} for user ${userId} status ${status}`);
         const statusMessages = {
-            'PENDING': 'Sipariş alındı ve onay bekliyor.',
-            'APPROVED': 'Siparişiniz onaylandı.',
-            'SHIPPED': 'Siparişiniz kargoya verildi.',
-            'DELIVERED': 'Siparişiniz teslim edildi.',
-            'COMPLETED': 'Siparişiniz tamamlandı.',
-            'REJECTED': 'Siparişiniz reddedildi.',
+            PENDING: 'Sipariş alındı ve onay bekliyor.',
+            APPROVED: 'Siparişiniz onaylandı.',
+            SHIPPED: 'Siparişiniz kargoya verildi.',
+            DELIVERED: 'Siparişiniz teslim edildi.',
+            COMPLETED: 'Siparişiniz tamamlandı.',
+            REJECTED: 'Siparişiniz reddedildi.',
         };
         return this.createSystemNotification(userId, 'Market Siparişi', statusMessages[status] || `Sipariş durumu: ${status}`, client_1.NotificationType.MARKET);
     }
@@ -153,9 +157,9 @@ let NotificationService = NotificationService_1 = class NotificationService {
     async notifyPremiumStatus(userId, status) {
         this.logger.log(`[NOTIFY] Premium status ${status} to user ${userId}`);
         const statusMessages = {
-            'PENDING': 'Premium üyelik talebiniz alındı ve inceleniyor.',
-            'APPROVED': 'Tebrikler! Premium üyelik talebiniz onaylandı.',
-            'REJECTED': 'Premium üyelik talebiniz reddedildi.',
+            PENDING: 'Premium üyelik talebiniz alındı ve inceleniyor.',
+            APPROVED: 'Tebrikler! Premium üyelik talebiniz onaylandı.',
+            REJECTED: 'Premium üyelik talebiniz reddedildi.',
         };
         return this.createSystemNotification(userId, 'Premium Üyelik', statusMessages[status] || `Premium üyelik durumu: ${status}`, client_1.NotificationType.PREMIUM);
     }

@@ -22,6 +22,7 @@ const trafficSchema = z.object({
     fullName: z.string().min(2, "Ad Soyad en az 2 karakter olmalıdır"),
     phone: z.string().min(10, "Geçerli bir telefon numarası giriniz"),
     email: z.string().email("Geçersiz email").optional().or(z.literal("")),
+    birthDate: z.string().optional(),
   }),
   plateNumber: z.string().min(1, "Plaka zorunludur"),
   licenseSerial: z.string().min(1, "Ruhsat Seri No zorunludur"),
@@ -66,6 +67,10 @@ export default function TrafficRequestPage() {
         details: {
           plateNumber: data.plateNumber,
           licenseSerial: data.licenseSerial,
+          identityNumber: data.customer.tcKn,
+          fullName: data.customer.fullName,
+          birthDate: data.customer.birthDate,
+          phoneNumber: data.customer.phone,
         },
         files: data.files || [],
       });

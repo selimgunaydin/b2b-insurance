@@ -24,4 +24,3 @@ export class BadgeModule implements OnModuleInit {
     }
   }
 }
-

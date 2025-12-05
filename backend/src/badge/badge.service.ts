@@ -67,24 +67,27 @@ export class BadgeService {
   }
 
   // Update a badge
-  async updateBadge(id: string, data: Partial<{
-    name: string;
-    description: string;
-    iconUrl: string;
-    type: BadgeType;
-    criteria: BadgeCriteria;
-    points: number;
-    isActive: boolean;
-  }>) {
+  async updateBadge(
+    id: string,
+    data: Partial<{
+      name: string;
+      description: string;
+      iconUrl: string;
+      type: BadgeType;
+      criteria: BadgeCriteria;
+      points: number;
+      isActive: boolean;
+    }>,
+  ) {
     // Build update object without criteria first
     const { criteria, ...rest } = data;
     const updateData: Prisma.BadgeUpdateInput = { ...rest };
-    
+
     // Add criteria with proper type casting if provided
     if (criteria) {
       updateData.criteria = criteria as unknown as Prisma.InputJsonValue;
     }
-    
+
     return this.prisma.badge.update({
       where: { id },
       data: updateData,
@@ -97,7 +100,7 @@ export class BadgeService {
     await this.prisma.taliBadge.deleteMany({
       where: { badgeId: id },
     });
-    
+
     return this.prisma.badge.delete({
       where: { id },
     });
@@ -210,8 +213,7 @@ export class BadgeService {
 
         case 'PREMIUM_TOTAL':
           const totalPremium = taliProfile.insuranceRequests.reduce(
-            (sum, r) =>
-              sum + (r.policy ? Number(r.policy.premium) : 0),
+            (sum, r) => sum + (r.policy ? Number(r.policy.premium) : 0),
             0,
           );
           qualified = totalPremium >= criteria.threshold;
@@ -252,9 +254,7 @@ export class BadgeService {
           },
         },
       },
-      orderBy: [
-        { points: 'desc' },
-      ],
+      orderBy: [{ points: 'desc' }],
       take: limit,
     });
 

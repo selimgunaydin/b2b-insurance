@@ -145,7 +145,9 @@ __decorate([
     (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt'), roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
     (0, swagger_1.ApiBearerAuth)('JWT-auth'),
-    (0, swagger_1.ApiOperation)({ summary: 'Check and award eligible badges to a tali (admin only)' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Check and award eligible badges to a tali (admin only)',
+    }),
     __param(0, (0, common_1.Param)('taliId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),

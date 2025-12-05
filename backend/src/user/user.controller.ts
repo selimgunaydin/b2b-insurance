@@ -21,7 +21,6 @@ export class UserController {
   @UseGuards(AuthGuard('jwt'))
   @Get('profile')
   getProfile(@Request() req: any) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return this.userService.findOne(req.user.id);
   }
 

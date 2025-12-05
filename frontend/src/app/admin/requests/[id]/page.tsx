@@ -290,15 +290,85 @@ export default function AdminRequestDetailPage() {
               <CardTitle>Sigorta Detayları ({request.type})</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-2">
-                {Object.entries(details).map(([key, value]) => (
-                  <div key={key} className="contents">
-                    <span className="font-medium capitalize">{key.replace(/_/g, " ")}:</span>
-                    <span>{String(value)}</span>
-                  </div>
-                ))}
-                <div className="contents">
-                  <span className="font-medium">Oluşturulma Tarihi:</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
+                {/* Specific formatting for common sensitive fields */}
+                {/* Specific formatting for common sensitive fields */}
+                {typeof details.plateNumber === 'string' && (
+                    <div className="flex flex-col">
+                        <span className="font-medium text-sm text-muted-foreground">Plaka</span>
+                        <span className="font-semibold text-lg">{String(details.plateNumber).toUpperCase()}</span>
+                    </div>
+                )}
+                {typeof details.licenseSerial === 'string' && (
+                    <div className="flex flex-col">
+                        <span className="font-medium text-sm text-muted-foreground">Ruhsat Seri No</span>
+                        <span className="font-semibold">{String(details.licenseSerial)}</span>
+                    </div>
+                )}
+                {typeof details.identityNumber === 'string' && (
+                    <div className="flex flex-col">
+                        <span className="font-medium text-sm text-muted-foreground">TC Kimlik No</span>
+                        <span className="font-semibold">{String(details.identityNumber)}</span>
+                    </div>
+                )}
+                {typeof details.asbisNo === 'string' && (
+                    <div className="flex flex-col">
+                        <span className="font-medium text-sm text-muted-foreground">ASBİS No</span>
+                        <span className="font-semibold">{String(details.asbisNo)}</span>
+                    </div>
+                )}
+
+                {/* Render other fields dynamically, excluding already rendered ones */}
+                {Object.entries(details).map(([key, value]) => {
+                  if (["plateNumber", "licenseSerial", "identityNumber", "asbisNo"].includes(key)) return null;
+                  // Skip empty values or technical keys if any
+                  if (!value) return null;
+
+                  const labelMapping: Record<string, string> = {
+                    plateNumber: "Plaka",
+                    licenseSerial: "Ruhsat Seri No",
+                    identityNumber: "TC Kimlik No",
+                    fullName: "Ad Soyad",
+                    birthDate: "Doğum Tarihi",
+                    phoneNumber: "Telefon",
+                    address: "Adres",
+                    buildingConstructionYear: "Bina İnşa Yılı",
+                    totalFloors: "Kat Sayısı",
+                    flatFloor: "Daire Katı",
+                    grossSquareMeters: "Brüt m²",
+                    buildingNumber: "Bina No",
+                    occupantType: "Sıfat (Kiracı/Ev Sahibi)",
+                    residenceType: "Kullanım Şekli",
+                    buildingValue: "Bina Bedeli",
+                    electronicDeviceValue: "Elektronik Cihaz Bedeli",
+                    glassCoverageValue: "Cam Teminat Bedeli",
+                    decorationCoverageValue: "Dekorasyon Teminat Bedeli",
+                    isolationCoverageValue: "İzolasyon Teminat Bedeli",
+                    theftCoverage: "Hırsızlık Teminatı",
+                    isSecuritySite: "Güvenlikli Site",
+                    isUnoccupied: "Boş Kalıyor Mu",
+                    requestedImmAmount: "İstenen İMM",
+                    substitutionVehicleDuration: "İkame Araç Süresi",
+                    profession: "Meslek",
+                    height: "Boy",
+                    weight: "Kilo",
+                    diseases: "Hastalıklar",
+                    city: "İl",
+                    uavtCode: "UAVT Kodu"
+                  };
+
+                  return (
+                    <div key={key} className="flex flex-col">
+                      <span className="font-medium text-sm text-muted-foreground capitalize">
+                        {labelMapping[key] || key.replace(/_/g, " ").replace(/([A-Z])/g, ' $1').trim()}
+                      </span>
+                      <span className="font-medium">{String(value)}</span>
+                    </div>
+                  );
+                })}
+                
+                <div className="flex flex-col pt-2 border-t md:col-span-2">
+                  <span className="font-medium text-sm text-muted-foreground">Oluşturulma Tarihi</span>
                   <span>{format(new Date(request.createdAt), "d MMMM yyyy HH:mm", { locale: tr })}</span>
                 </div>
               </div>

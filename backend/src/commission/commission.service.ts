@@ -15,7 +15,7 @@ export class CommissionService {
 
   async getRatesForMembership(membershipType: string) {
     const cacheKey = `commission_rates_${membershipType}`;
-    
+
     // Try to get from cache
     const cached = await this.cacheManager.get(cacheKey);
     if (cached) {
@@ -27,7 +27,7 @@ export class CommissionService {
         key: { startsWith: `commission_${membershipType}_` },
       },
     });
-    
+
     const result = settings.map((s) => ({
       insuranceType: s.key.split('_')[2],
       rate: parseFloat(s.value),
@@ -35,13 +35,13 @@ export class CommissionService {
 
     // Store in cache
     await this.cacheManager.set(cacheKey, result, CACHE_TTL);
-    
+
     return result;
   }
 
   async getAllRates() {
     const cacheKey = 'commission_all_rates';
-    
+
     // Try to get from cache
     const cached = await this.cacheManager.get(cacheKey);
     if (cached) {
@@ -51,7 +51,7 @@ export class CommissionService {
     const settings = await this.prisma.systemSetting.findMany({
       where: { category: 'COMMISSION' },
     });
-    
+
     const result = settings.map((s) => {
       const parts = s.key.split('_');
       return {
@@ -65,7 +65,7 @@ export class CommissionService {
 
     // Store in cache
     await this.cacheManager.set(cacheKey, result, CACHE_TTL);
-    
+
     return result;
   }
 
@@ -79,8 +79,7 @@ export class CommissionService {
     await this.cacheManager.del('commission_all_rates');
     await this.cacheManager.del('commission_rates_STANDARD');
     await this.cacheManager.del('commission_rates_PREMIUM');
-    
+
     return result;
   }
 }
-

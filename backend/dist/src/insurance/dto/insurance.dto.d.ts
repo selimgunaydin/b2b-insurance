@@ -6,15 +6,15 @@ export declare class CustomerDataDto {
     email?: string;
 }
 export declare class InsuranceDetailsDto {
-    plaka?: string;
-    ruhsatSeriNo?: string;
+    plateNumber?: string;
+    licenseSerial?: string;
     asbisNo?: string;
 }
 export declare class CreateInsuranceRequestDto {
     customerId?: string;
     customerData?: CustomerDataDto;
     type: InsuranceType;
-    details: InsuranceDetailsDto;
+    details: any;
     files?: string[];
 }
 export declare class OfferItemDto {

@@ -23,17 +23,24 @@ const daskSchema = z.object({
     fullName: z.string().min(2, "Ad Soyad en az 2 karakter olmalıdır"),
     phone: z.string().min(10, "Geçerli bir telefon numarası giriniz"),
     email: z.string().email("Geçersiz email").optional().or(z.literal("")),
+    birthDate: z.string().optional(),
   }),
   address: z.string().min(10, "Açık adres gereklidir"),
   uavtCode: z.string().min(10, "UAVT Kodu gereklidir"),
   buildingYear: z.string().min(4, "Bina yapım yılı gereklidir"),
   squareMeters: z.string().min(1, "Metrekare bilgisi gereklidir"),
+  totalFloors: z.string().min(1, "Kat sayısı gereklidir"),
+  flatFloor: z.string().min(1, "Daire katı gereklidir"),
+  buildingNo: z.string().min(1, "Bina No gereklidir"),
+  ownerOrTenant: z.enum(["OWNER", "TENANT"]),
+  residenceType: z.enum(["RESIDENCE", "COMMERCIAL"]),
   files: z.array(z.string()).optional(),
 });
 
 type DaskFormValues = z.infer<typeof daskSchema>;
 
 import { useToast } from "@/hooks/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function DaskRequestPage() {
   const router = useRouter();
@@ -49,11 +56,17 @@ export default function DaskRequestPage() {
         fullName: "",
         phone: "",
         email: "",
+        birthDate: "",
       },
       address: "",
       uavtCode: "",
       buildingYear: "",
       squareMeters: "",
+      totalFloors: "",
+      flatFloor: "",
+      buildingNo: "",
+      ownerOrTenant: "OWNER",
+      residenceType: "RESIDENCE",
       files: [],
     },
   });
@@ -70,8 +83,16 @@ export default function DaskRequestPage() {
         details: {
           address: data.address,
           uavtCode: data.uavtCode,
-          buildingYear: data.buildingYear,
-          squareMeters: data.squareMeters,
+          buildingConstructionYear: data.buildingYear,
+          grossSquareMeters: data.squareMeters,
+          totalFloors: data.totalFloors,
+          flatFloor: data.flatFloor,
+          buildingNumber: data.buildingNo,
+          occupantType: data.ownerOrTenant,
+          residenceType: data.residenceType,
+          identityNumber: data.customer.tcKn,
+          birthDate: data.customer.birthDate,
+          phoneNumber: data.customer.phone,
         },
         files: data.files || [],
       });
@@ -119,59 +140,145 @@ export default function DaskRequestPage() {
 
               <div className="border-t pt-4 space-y-4">
                 <h3 className="text-lg font-medium">Bina Bilgileri</h3>
-                <FormField
-                  control={form.control}
-                  name="address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Açık Adres</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="Mahalle, Cadde, Sokak, No..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="uavtCode"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>UAVT Kodu</FormLabel>
+                          <FormControl>
+                            <Input placeholder="10 haneli kod" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="buildingYear"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Bina Yapım Yılı</FormLabel>
+                          <FormControl>
+                            <Input placeholder="2010" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="totalFloors"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Bina Kat Sayısı</FormLabel>
+                          <FormControl>
+                            <Input placeholder="5" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="flatFloor"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Daire Katı</FormLabel>
+                          <FormControl>
+                            <Input placeholder="3" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="squareMeters"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Daire m² (Brüt)</FormLabel>
+                          <FormControl>
+                            <Input placeholder="100" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="ownerOrTenant"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Sıfat</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Seçiniz" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="OWNER">Mal Sahibi</SelectItem>
+                              <SelectItem value="TENANT">Kiracı</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="residenceType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Kullanım Şekli</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Seçiniz" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="RESIDENCE">Mesken</SelectItem>
+                              <SelectItem value="COMMERCIAL">Ticarethane</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <FormField
                     control={form.control}
-                    name="uavtCode"
+                    name="buildingNo"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>UAVT Kodu</FormLabel>
+                        <FormLabel>Bina No</FormLabel>
                         <FormControl>
-                          <Input placeholder="10 haneli kod" {...field} />
+                          <Input placeholder="10" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name="buildingYear"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Bina Yapım Yılı</FormLabel>
-                        <FormControl>
-                          <Input placeholder="2010" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="squareMeters"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Daire m² (Brüt)</FormLabel>
-                        <FormControl>
-                          <Input placeholder="100" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="md:col-span-3">
+                    <FormField
+                      control={form.control}
+                      name="address"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Açık Adres</FormLabel>
+                          <FormControl>
+                            <Textarea placeholder="Mahalle, Cadde, Sokak..." {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
               </div>
 

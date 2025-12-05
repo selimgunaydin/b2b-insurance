@@ -43,7 +43,12 @@ export class CmsService {
   }
 
   async bulkUpsert(
-    items: Array<{ key: string; value: string; type: string; category: string }>,
+    items: Array<{
+      key: string;
+      value: string;
+      type: string;
+      category: string;
+    }>,
   ) {
     const results = [];
     for (const item of items) {
@@ -144,7 +149,8 @@ export class CmsService {
       },
       {
         key: 'feature_1_description',
-        value: 'Poliçe oluşturma ve yönetim süreçlerinizi dakikalar içinde tamamlayın',
+        value:
+          'Poliçe oluşturma ve yönetim süreçlerinizi dakikalar içinde tamamlayın',
         type: 'TEXT',
         category: 'HOME',
       },
@@ -219,13 +225,14 @@ export class CmsService {
       },
       {
         key: 'about_vision',
-        value: 'Türkiye\'nin en güvenilir dijital sigorta platformu olmak.',
+        value: "Türkiye'nin en güvenilir dijital sigorta platformu olmak.",
         type: 'TEXT',
         category: 'ABOUT',
       },
       {
         key: 'about_mission',
-        value: 'Sigorta sektörünü dijitalleştirerek, tali sigortacıların ve sigorta şirketlerinin iş süreçlerini kolaylaştırmak.',
+        value:
+          'Sigorta sektörünü dijitalleştirerek, tali sigortacıların ve sigorta şirketlerinin iş süreçlerini kolaylaştırmak.',
         type: 'TEXT',
         category: 'ABOUT',
       },
@@ -321,7 +328,8 @@ export class CmsService {
       },
       {
         key: 'seo_description',
-        value: 'Tali ve sigorta şirketleri için modern B2B sigorta yönetim platformu. Hızlı, güvenli ve kolay.',
+        value:
+          'Tali ve sigorta şirketleri için modern B2B sigorta yönetim platformu. Hızlı, güvenli ve kolay.',
         type: 'TEXT',
         category: 'SEO',
       },

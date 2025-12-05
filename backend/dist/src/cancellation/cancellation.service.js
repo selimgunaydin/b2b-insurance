@@ -65,8 +65,8 @@ let CancellationService = class CancellationService {
                         tali: true,
                         customer: true,
                         policy: true,
-                    }
-                }
+                    },
+                },
             },
             orderBy: { createdAt: 'desc' },
         });

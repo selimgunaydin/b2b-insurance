@@ -9,7 +9,7 @@ import cookieParser from 'cookie-parser';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const logger = new Logger('Bootstrap');
-  
+
   app.set('trust proxy', 1); // Trust proxy for Render/Heroku
   app.enableCors({
     origin: [
@@ -30,7 +30,8 @@ async function bootstrap() {
   // Swagger API Documentation
   const config = new DocumentBuilder()
     .setTitle('B2B Sigorta API')
-    .setDescription(`
+    .setDescription(
+      `
       B2B Sigorta Platformu API Dokümantasyonu
       
       ## Özellikler
@@ -42,7 +43,8 @@ async function bootstrap() {
       - Hedef ve ödül sistemi
       - CMS içerik yönetimi
       - Market ve ürün satışı
-    `)
+    `,
+    )
     .setVersion('1.0')
     .addBearerAuth(
       {
@@ -77,9 +79,10 @@ async function bootstrap() {
 
   const port = process.env.PORT ?? 3001;
   await app.listen(port);
-  
+
   logger.log(`Application is running on: http://localhost:${port}`);
-  logger.log(`Swagger API docs available at: http://localhost:${port}/api-docs`);
+  logger.log(
+    `Swagger API docs available at: http://localhost:${port}/api-docs`,
+  );
 }
 bootstrap();
-

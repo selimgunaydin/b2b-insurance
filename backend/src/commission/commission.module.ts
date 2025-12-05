@@ -16,4 +16,3 @@ import { PrismaModule } from '../prisma/prisma.module';
   exports: [CommissionService],
 })
 export class CommissionModule {}
-

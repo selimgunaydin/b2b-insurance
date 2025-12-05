@@ -1,0 +1,209 @@
+yarn run v1.22.22
+$ eslint
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/next.config.ts
+  5:3  error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/(website)/hakkimizda/page.tsx
+  1:26  warning  'Users' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/(website)/page.tsx
+  42:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/(website)/referanslar/page.tsx
+  25:20  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  84:17  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  85:68  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/admin/cancellations/[id]/page.tsx
+  13:53   warning  'AlertTriangle' is defined but never used                                                                        @typescript-eslint/no-unused-vars
+  13:68   warning  'Download' is defined but never used                                                                             @typescript-eslint/no-unused-vars
+  13:111  warning  'MessageSquare' is defined but never used                                                                        @typescript-eslint/no-unused-vars
+  76:6    warning  React Hook useEffect has a missing dependency: 'fetchRequest'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/admin/cancellations/page.tsx
+  72:6  warning  React Hook useEffect has a missing dependency: 'fetchRequests'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/admin/commissions/page.tsx
+  46:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/admin/companies/page.tsx
+    6:29  warning  'CardHeader' is defined but never used  @typescript-eslint/no-unused-vars
+    6:41  warning  'CardTitle' is defined but never used   @typescript-eslint/no-unused-vars
+  170:42  warning  'err' is defined but never used         @typescript-eslint/no-unused-vars
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/admin/customers/page.tsx
+   6:41  warning  'CardTitle' is defined but never used  @typescript-eslint/no-unused-vars
+  61:14  warning  'error' is defined but never used      @typescript-eslint/no-unused-vars
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/admin/financials/page.tsx
+  6:60  warning  'ArrowUpRight' is defined but never used    @typescript-eslint/no-unused-vars
+  6:74  warning  'ArrowDownRight' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/admin/goals/page.tsx
+  254:13  warning  'rewardValue' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  254:29  warning  'rest' is assigned a value but never used         @typescript-eslint/no-unused-vars
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/admin/market/page.tsx
+   14:39  warning  'CheckCircle' is defined but never used            @typescript-eslint/no-unused-vars
+   14:52  warning  'XCircle' is defined but never used                @typescript-eslint/no-unused-vars
+   14:61  warning  'Truck' is defined but never used                  @typescript-eslint/no-unused-vars
+   79:9   warning  'fileInputRef' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  173:14  warning  'error' is defined but never used                  @typescript-eslint/no-unused-vars
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/admin/notifications/page.tsx
+  53:6  warning  React Hook useEffect has a missing dependency: 'markAllAsRead'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/admin/page.tsx
+    7:27  warning  'AlertCircle' is defined but never used                                                                @typescript-eslint/no-unused-vars
+   30:9   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+   51:14  warning  'e' is defined but never used                                                                          @typescript-eslint/no-unused-vars
+  223:22  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+  256:16  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/admin/policies/[id]/page.tsx
+  7:52  warning  'CardDescription' is defined but never used  @typescript-eslint/no-unused-vars
+  9:79  warning  'FileText' is defined but never used         @typescript-eslint/no-unused-vars
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/admin/policies/page.tsx
+   6:41  warning  'CardTitle' is defined but never used  @typescript-eslint/no-unused-vars
+  10:63  warning  'Filter' is defined but never used     @typescript-eslint/no-unused-vars
+  10:71  warning  'FileText' is defined but never used   @typescript-eslint/no-unused-vars
+  74:14  warning  'error' is defined but never used      @typescript-eslint/no-unused-vars
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/admin/requests/[id]/page.tsx
+   7:52  warning  'CardDescription' is defined but never used  @typescript-eslint/no-unused-vars
+  12:81  warning  'XCircle' is defined but never used          @typescript-eslint/no-unused-vars
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/admin/requests/page.tsx
+  35:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/admin/settings/page.tsx
+   13:51  warning  'Save' is defined but never used                                        @typescript-eslint/no-unused-vars
+   14:17  warning  'Palette' is defined but never used                                     @typescript-eslint/no-unused-vars
+   14:26  warning  'Globe' is defined but never used                                       @typescript-eslint/no-unused-vars
+   29:7   warning  'CATEGORY_CONFIG' is assigned a value but never used                    @typescript-eslint/no-unused-vars
+  315:23  error    Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/admin/statistics/page.tsx
+  6:35  warning  'TrendingUp' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/admin/users/page.tsx
+   9:26  warning  'X' is defined but never used        @typescript-eslint/no-unused-vars
+   9:34  warning  'UserCog' is defined but never used  @typescript-eslint/no-unused-vars
+  40:14  warning  'error' is defined but never used    @typescript-eslint/no-unused-vars
+  50:14  warning  'error' is defined but never used    @typescript-eslint/no-unused-vars
+  68:14  warning  'error' is defined but never used    @typescript-eslint/no-unused-vars
+  89:14  warning  'error' is defined but never used    @typescript-eslint/no-unused-vars
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/admin/website/page.tsx
+  218:9   warning  'categories' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  352:41  warning  'loadingToast' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/auth/login/page.tsx
+  52:7  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/auth/register/page.tsx
+  82:7  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/dashboard/badges/page.tsx
+  15:11  warning  'user' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/dashboard/customers/page.tsx
+  6:41  warning  'CardTitle' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/dashboard/leaderboard/page.tsx
+  8:32  warning  'User' is defined but never used         @typescript-eslint/no-unused-vars
+  9:34  warning  'AvatarImage' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/dashboard/market/page.tsx
+   10:10  warning  'Input' is defined but never used                                                                      @typescript-eslint/no-unused-vars
+   41:3   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+   43:3   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+   84:5   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+  100:5   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/dashboard/notifications/page.tsx
+   7:97  warning  'Gift' is defined but never used                                                                                  @typescript-eslint/no-unused-vars
+  55:6   warning  React Hook useEffect has a missing dependency: 'markAllAsRead'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/dashboard/policies/page.tsx
+   6:41  warning  'CardTitle' is defined but never used  @typescript-eslint/no-unused-vars
+  10:28  warning  'Filter' is defined but never used     @typescript-eslint/no-unused-vars
+  10:36  warning  'FileText' is defined but never used   @typescript-eslint/no-unused-vars
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/dashboard/premium/page.tsx
+  50:5  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+  60:3  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/dashboard/profile/page.tsx
+  8:32  warning  'Mail' is defined but never used      @typescript-eslint/no-unused-vars
+  8:38  warning  'FileText' is defined but never used  @typescript-eslint/no-unused-vars
+  8:48  warning  'Shield' is defined but never used    @typescript-eslint/no-unused-vars
+  8:63  warning  'Edit' is defined but never used      @typescript-eslint/no-unused-vars
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/dashboard/requests/[id]/page.tsx
+  133:9  warning  'details' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/dashboard/requests/cancellation/page.tsx
+   16:19  warning  'Upload' is defined but never used                                                                     @typescript-eslint/no-unused-vars
+   88:7   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+  197:37  warning  'value' is defined but never used                                                                      @typescript-eslint/no-unused-vars
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/dashboard/requests/new/dask/page.tsx
+  101:5  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/dashboard/requests/new/health/page.tsx
+  16:19  warning  'Upload' is defined but never used                                                                     @typescript-eslint/no-unused-vars
+  87:7   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/dashboard/requests/new/housing/page.tsx
+   16:19  warning  'Upload' is defined but never used                                                                     @typescript-eslint/no-unused-vars
+  124:7   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/dashboard/requests/new/kasko/page.tsx
+  16:19  warning  'Upload' is defined but never used                                                                     @typescript-eslint/no-unused-vars
+  85:7   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/app/dashboard/requests/new/traffic/page.tsx
+  16:19  warning  'Upload' is defined but never used                                                                     @typescript-eslint/no-unused-vars
+  79:7   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/components/admin/admin-points-modal.tsx
+  54:7  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+  73:5  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/components/admin/admin-user-edit-modal.tsx
+  45:5  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+  58:5  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/components/chat/chat-component.tsx
+    4:16  warning  'CardContent' is defined but never used                                                       @typescript-eslint/no-unused-vars
+  103:31  warning  'isMe' is assigned a value but never used                                                     @typescript-eslint/no-unused-vars
+  137:54  warning  Unused eslint-disable directive (no problems were reported from '@next/next/no-img-element')
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/components/forms/customer-form.tsx
+  8:3  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/components/layout/tali-sidebar.tsx
+   9:3   warning  'LayoutDashboard' is defined but never used  @typescript-eslint/no-unused-vars
+  10:3   warning  'Settings' is defined but never used         @typescript-eslint/no-unused-vars
+  10:13  warning  'MessageSquare' is defined but never used    @typescript-eslint/no-unused-vars
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/components/maintenance-check.tsx
+  23:9   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+  24:9   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+  25:15  warning  'error' is assigned a value but never used                                                             @typescript-eslint/no-unused-vars
+  33:3   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/components/profile/profile-edit-modal.tsx
+  47:7  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+  59:5  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/Users/selimgunaydin/Desktop/b2b-insurance/frontend/src/middleware.draft.ts
+  7:28  warning  '_req' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 108 problems (5 errors, 103 warnings)
+  0 errors and 28 warnings potentially fixable with the `--fix` option.
+
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.

@@ -205,7 +205,7 @@ let CmsService = class CmsService {
             },
             {
                 key: 'about_vision',
-                value: 'Türkiye\'nin en güvenilir dijital sigorta platformu olmak.',
+                value: "Türkiye'nin en güvenilir dijital sigorta platformu olmak.",
                 type: 'TEXT',
                 category: 'ABOUT',
             },

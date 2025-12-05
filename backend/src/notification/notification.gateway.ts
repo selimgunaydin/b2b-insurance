@@ -104,7 +104,9 @@ export class NotificationGateway
         this.connectedUsers.delete(client.userId);
       }
 
-      this.logger.log(`Client ${client.id} (user: ${client.userId}) disconnected`);
+      this.logger.log(
+        `Client ${client.id} (user: ${client.userId}) disconnected`,
+      );
     }
   }
 
@@ -137,51 +139,66 @@ export class NotificationGateway
   // === SPECIFIC EVENTS ===
 
   // Notify about policy status change
-  notifyPolicyUpdate(userId: string, data: {
-    policyId: string;
-    policyNumber: string;
-    status: string;
-    message: string;
-  }) {
+  notifyPolicyUpdate(
+    userId: string,
+    data: {
+      policyId: string;
+      policyNumber: string;
+      status: string;
+      message: string;
+    },
+  ) {
     this.sendToUser(userId, 'policy_update', data);
   }
 
   // Notify about insurance request status change
-  notifyRequestUpdate(userId: string, data: {
-    requestId: string;
-    status: string;
-    message: string;
-  }) {
+  notifyRequestUpdate(
+    userId: string,
+    data: {
+      requestId: string;
+      status: string;
+      message: string;
+    },
+  ) {
     this.sendToUser(userId, 'request_update', data);
   }
 
   // Notify about new chat message
-  notifyChatMessage(userId: string, data: {
-    messageId: string;
-    senderId: string;
-    senderName: string;
-    message: string;
-    createdAt: string;
-  }) {
+  notifyChatMessage(
+    userId: string,
+    data: {
+      messageId: string;
+      senderId: string;
+      senderName: string;
+      message: string;
+      createdAt: string;
+    },
+  ) {
     this.sendToUser(userId, 'chat_message', data);
   }
 
   // Notify about badge earned
-  notifyBadgeEarned(userId: string, data: {
-    badgeId: string;
-    badgeName: string;
-    badgeDescription: string;
-    points: number;
-  }) {
+  notifyBadgeEarned(
+    userId: string,
+    data: {
+      badgeId: string;
+      badgeName: string;
+      badgeDescription: string;
+      points: number;
+    },
+  ) {
     this.sendToUser(userId, 'badge_earned', data);
   }
 
   // Notify about goal completed
-  notifyGoalCompleted(userId: string, data: {
-    goalId: string;
-    goalName: string;
-    reward: number;
-  }) {
+  notifyGoalCompleted(
+    userId: string,
+    data: {
+      goalId: string;
+      goalName: string;
+      reward: number;
+    },
+  ) {
     this.sendToUser(userId, 'goal_completed', data);
   }
 
@@ -221,11 +238,13 @@ export class NotificationGateway
 
   // Subscribe to typing status
   @SubscribeMessage('typing')
-  handleTyping(client: AuthenticatedSocket, data: { receiverId: string; isTyping: boolean }) {
+  handleTyping(
+    client: AuthenticatedSocket,
+    data: { receiverId: string; isTyping: boolean },
+  ) {
     this.sendToUser(data.receiverId, 'user_typing', {
       userId: client.userId,
       isTyping: data.isTyping,
     });
   }
 }
-

@@ -52,7 +52,6 @@ export class SettingsController {
     @Body('value') value: string,
     @Request() req: any,
   ) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return this.settingsService.updateSetting(key, value, req.user.id);
   }
 }

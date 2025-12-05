@@ -22,9 +22,12 @@ const kaskoSchema = z.object({
     fullName: z.string().min(2, "Ad Soyad en az 2 karakter olmalıdır"),
     phone: z.string().min(10, "Geçerli bir telefon numarası giriniz"),
     email: z.string().email("Geçersiz email").optional().or(z.literal("")),
+    birthDate: z.string().optional(),
   }),
   plateNumber: z.string().min(1, "Plaka zorunludur"),
-  licenseSerial: z.string().min(1, "Ruhsat Seri No zorunludur"),
+  licenseSerial: z.string().min(1, "Belge Seri No zorunludur"),
+  immAmount: z.string().min(1, "İMM tutarı seçiniz"),
+  substitutionVehicleDuration: z.string().min(1, "İkame araç süresi seçiniz"),
   profession: z.string().optional(),
   files: z.array(z.string()).optional(),
 });
@@ -44,9 +47,12 @@ export default function KaskoRequestPage() {
         fullName: "",
         phone: "",
         email: "",
+        birthDate: "",
       },
       plateNumber: "",
       licenseSerial: "",
+      immAmount: "",
+      substitutionVehicleDuration: "",
       profession: "",
       files: [],
     },
@@ -64,6 +70,12 @@ export default function KaskoRequestPage() {
         details: {
           plateNumber: data.plateNumber,
           licenseSerial: data.licenseSerial,
+          identityNumber: data.customer.tcKn,
+          fullName: data.customer.fullName,
+          birthDate: data.customer.birthDate,
+          phoneNumber: data.customer.phone,
+          requestedImmAmount: data.immAmount,
+          substitutionVehicleDuration: data.substitutionVehicleDuration,
           profession: data.profession,
         },
         files: data.files || [],
@@ -108,7 +120,7 @@ export default function KaskoRequestPage() {
               </div>
 
               <div className="border-t pt-4 space-y-4">
-                <h3 className="text-lg font-medium">Araç Bilgileri</h3>
+                <h3 className="text-lg font-medium">Araç ve Teminat Bilgileri</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -128,9 +140,53 @@ export default function KaskoRequestPage() {
                     name="licenseSerial"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Ruhsat Seri No</FormLabel>
+                        <FormLabel>Belge Seri No / Ruhsat Seri No</FormLabel>
                         <FormControl>
                           <Input placeholder="AB 123456" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="immAmount"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>İstenen İMM Miktarı</FormLabel>
+                        <FormControl>
+                            <select 
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                {...field}
+                            >
+                                <option value="">Seçiniz</option>
+                                <option value="1000000">1.000.000 TL</option>
+                                <option value="3000000">3.000.000 TL</option>
+                                <option value="5000000">5.000.000 TL</option>
+                                <option value="10000000">10.000.000 TL</option>
+                                <option value="SINIRSIZ">Sınırsız</option>
+                            </select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="substitutionVehicleDuration"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>İkame Araç Süresi</FormLabel>
+                        <FormControl>
+                            <select 
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                {...field}
+                            >
+                                <option value="">Seçiniz</option>
+                                <option value="7">7 Gün</option>
+                                <option value="14">14 Gün</option>
+                                <option value="30">30 Gün</option>
+                            </select>
                         </FormControl>
                         <FormMessage />
                       </FormItem>

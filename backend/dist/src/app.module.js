@@ -38,6 +38,9 @@ const export_module_1 = require("./export/export.module");
 const ocr_module_1 = require("./ocr/ocr.module");
 const badge_module_1 = require("./badge/badge.module");
 const email_module_1 = require("./email/email.module");
+const logger_module_1 = require("./logger/logger.module");
+const core_2 = require("@nestjs/core");
+const logging_interceptor_1 = require("./logger/logging.interceptor");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -87,6 +90,7 @@ exports.AppModule = AppModule = __decorate([
             ocr_module_1.OcrModule,
             badge_module_1.BadgeModule,
             email_module_1.EmailModule,
+            logger_module_1.LoggerModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [
@@ -94,6 +98,10 @@ exports.AppModule = AppModule = __decorate([
             {
                 provide: core_1.APP_GUARD,
                 useClass: throttler_1.ThrottlerGuard,
+            },
+            {
+                provide: core_2.APP_INTERCEPTOR,
+                useClass: logging_interceptor_1.LoggingInterceptor,
             },
         ],
     })

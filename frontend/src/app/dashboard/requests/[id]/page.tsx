@@ -193,12 +193,49 @@ export default function TaliRequestDetailPage() {
                   <Label>Sigorta Türü</Label>
                   <div className="font-medium">{request.type}</div>
                 </div>
-                {Object.entries(request.details as Record<string, unknown>).map(([key, value]) => (
-                  <div key={key}>
-                    <Label className="capitalize">{key.replace(/_/g, " ")}</Label>
-                    <div className="font-medium">{String(value)}</div>
-                  </div>
-                ))}
+                {Object.entries(request.details as Record<string, unknown>).map(([key, value]) => {
+                  const labelMapping: Record<string, string> = {
+                    plateNumber: "Plaka",
+                    licenseSerial: "Ruhsat Seri No",
+                    identityNumber: "TC Kimlik No",
+                    fullName: "Ad Soyad",
+                    birthDate: "Doğum Tarihi",
+                    phoneNumber: "Telefon",
+                    address: "Adres",
+                    buildingConstructionYear: "Bina İnşa Yılı",
+                    totalFloors: "Kat Sayısı",
+                    flatFloor: "Daire Katı",
+                    grossSquareMeters: "Brüt m²",
+                    buildingNumber: "Bina No",
+                    occupantType: "Sıfat (Kiracı/Ev Sahibi)",
+                    residenceType: "Kullanım Şekli",
+                    buildingValue: "Bina Bedeli",
+                    electronicDeviceValue: "Elektronik Cihaz Bedeli",
+                    glassCoverageValue: "Cam Teminat Bedeli",
+                    decorationCoverageValue: "Dekorasyon Teminat Bedeli",
+                    isolationCoverageValue: "İzolasyon Teminat Bedeli",
+                    theftCoverage: "Hırsızlık Teminatı",
+                    isSecuritySite: "Güvenlikli Site",
+                    isUnoccupied: "Boş Kalıyor Mu",
+                    requestedImmAmount: "İstenen İMM",
+                    substitutionVehicleDuration: "İkame Araç Süresi",
+                    profession: "Meslek",
+                    height: "Boy",
+                    weight: "Kilo",
+                    diseases: "Hastalıklar",
+                    city: "İl",
+                    uavtCode: "UAVT Kodu"
+                  };
+                  
+                  return (
+                    <div key={key}>
+                      <Label className="capitalize">
+                        {labelMapping[key] || key.replace(/_/g, " ").replace(/([A-Z])/g, ' $1').trim()}
+                      </Label>
+                      <div className="font-medium">{String(value)}</div>
+                    </div>
+                  );
+                })}
                 <div>
                   <Label>Oluşturulma Tarihi</Label>
                   <div className="font-medium">{format(new Date(request.createdAt), "d MMMM yyyy HH:mm", { locale: tr })}</div>

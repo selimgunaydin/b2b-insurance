@@ -36,13 +36,13 @@ const housingSchema = z.object({
   ownerOrTenant: z.enum(["OWNER", "TENANT"]),
   residenceType: z.enum(["RESIDENCE", "COMMERCIAL"]),
   buildingValue: z.string().min(1, "Bina bedeli gereklidir"),
-  belongingsValue: z.string().optional(),
+  electronicBelongingsValue: z.string().optional(),
+  glassCoverageValue: z.string().optional(),
+  decorationCoverageValue: z.string().optional(),
+  isolationCoverageValue: z.string().optional(),
   
-  // Coverages
+  // Coverages / Questions
   theftCoverage: z.boolean().optional(),
-  glassCoverage: z.boolean().optional(),
-  decorationCoverage: z.boolean().optional(),
-  isolationCoverage: z.boolean().optional(),
   
   // Questions
   isSecuritySite: z.boolean().optional(),
@@ -76,11 +76,11 @@ export default function HousingRequestPage() {
       ownerOrTenant: "OWNER",
       residenceType: "RESIDENCE",
       buildingValue: "",
-      belongingsValue: "",
+      electronicBelongingsValue: "",
+      glassCoverageValue: "",
+      decorationCoverageValue: "",
+      isolationCoverageValue: "",
       theftCoverage: false,
-      glassCoverage: false,
-      decorationCoverage: false,
-      isolationCoverage: false,
       isSecuritySite: false,
       isUnoccupied: false,
       files: [],
@@ -97,8 +97,25 @@ export default function HousingRequestPage() {
         customerId: null,
         customerData: data.customer,
         details: {
-          ...data,
-          customer: undefined, // Remove customer from details as it's handled separately
+          buildingConstructionYear: data.constructionYear,
+          totalFloors: data.totalFloors,
+          flatFloor: data.flatFloor,
+          grossSquareMeters: data.grossM2,
+          buildingNumber: data.buildingNo,
+          address: data.address,
+          occupantType: data.ownerOrTenant,
+          residenceType: data.residenceType,
+          buildingValue: data.buildingValue,
+          electronicDeviceValue: data.electronicBelongingsValue,
+          glassCoverageValue: data.glassCoverageValue,
+          decorationCoverageValue: data.decorationCoverageValue,
+          isolationCoverageValue: data.isolationCoverageValue,
+          theftCoverage: data.theftCoverage ? "YES" : "NO",
+          isSecuritySite: data.isSecuritySite ? "YES" : "NO",
+          isUnoccupied: data.isUnoccupied ? "YES" : "NO",
+          identityNumber: data.customer.tcKn,
+          birthDate: data.customer.birthDate,
+          phoneNumber: data.customer.phone,
         },
         files: data.files || [],
       });
@@ -296,12 +313,51 @@ export default function HousingRequestPage() {
                   />
                   <FormField
                     control={form.control}
-                    name="belongingsValue"
+                    name="electronicBelongingsValue"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Eşya Bedeli (TL) (Opsiyonel)</FormLabel>
+                        <FormLabel>Elektronik Eşya Bedeli (TL) (Opsiyonel)</FormLabel>
                         <FormControl>
-                          <Input placeholder="500.000" {...field} />
+                          <Input placeholder="50.000" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                   <FormField
+                    control={form.control}
+                    name="glassCoverageValue"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Cam Teminat Bedeli (TL) (Opsiyonel)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="10.000" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                   <FormField
+                    control={form.control}
+                    name="decorationCoverageValue"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Dekorasyon Teminat Bedeli (TL) (Opsiyonel)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="100.000" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                   <FormField
+                    control={form.control}
+                    name="isolationCoverageValue"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>İzolasyon Teminat Bedeli (TL) (Opsiyonel)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="20.000" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -319,49 +375,7 @@ export default function HousingRequestPage() {
                           <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                         </FormControl>
                         <div className="space-y-1 leading-none">
-                          <FormLabel>Hırsızlık Teminatı</FormLabel>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="glassCoverage"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                        <FormControl>
-                          <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel>Cam Kırılması Teminatı</FormLabel>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="decorationCoverage"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                        <FormControl>
-                          <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel>Dekorasyon Teminatı</FormLabel>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="isolationCoverage"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                        <FormControl>
-                          <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel>İzolasyon Eksikliği Teminatı</FormLabel>
+                          <FormLabel>Hırsızlık Teminatı İstiyorum</FormLabel>
                         </div>
                       </FormItem>
                     )}

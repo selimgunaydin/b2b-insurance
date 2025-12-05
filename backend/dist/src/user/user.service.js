@@ -24,10 +24,10 @@ let UserService = class UserService {
                 taliProfile: {
                     include: {
                         badges: {
-                            include: { badge: true }
-                        }
-                    }
-                }
+                            include: { badge: true },
+                        },
+                    },
+                },
             },
         });
     }

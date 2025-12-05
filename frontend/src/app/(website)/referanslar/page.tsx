@@ -22,7 +22,7 @@ export default function ReferencesPage() {
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Referanslarımız</h1>
           <p className="text-xl text-gray-600">
-            Türkiye'nin önde gelen sigorta şirketleri ile çalışıyoruz
+            Türkiye&apos;nin önde gelen sigorta şirketleri ile çalışıyoruz
           </p>
         </div>
 
@@ -81,8 +81,8 @@ export default function ReferencesPage() {
             <CardContent className="p-8 text-center">
               <Star className="h-8 w-8 text-yellow-500 mx-auto mb-4" />
               <blockquote className="text-lg italic mb-4">
-                "B2B Sigorta platformu sayesinde iş süreçlerimiz çok daha hızlandı. 
-                Müşterilerimize daha kaliteli hizmet sunabiliyoruz."
+                &quot;B2B Sigorta platformu sayesinde iş süreçlerimiz çok daha hızlandı. 
+                Müşterilerimize daha kaliteli hizmet sunabiliyoruz.&quot;
               </blockquote>
               <p className="font-semibold">Ahmet Yılmaz</p>
               <p className="text-sm text-gray-600">Tali Sigortacı, İstanbul</p>

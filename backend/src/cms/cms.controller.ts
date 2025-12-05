@@ -66,7 +66,12 @@ export class CmsController {
   async bulkUpsert(
     @Body()
     body: {
-      items: Array<{ key: string; value: string; type: string; category: string }>;
+      items: Array<{
+        key: string;
+        value: string;
+        type: string;
+        category: string;
+      }>;
     },
   ) {
     return this.cmsService.bulkUpsert(body.items);

@@ -183,9 +183,7 @@ let BadgeService = BadgeService_1 = class BadgeService {
                     },
                 },
             },
-            orderBy: [
-                { points: 'desc' },
-            ],
+            orderBy: [{ points: 'desc' }],
             take: limit,
         });
         return talis.map((tali, index) => ({

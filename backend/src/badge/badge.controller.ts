@@ -116,7 +116,9 @@ export class BadgeController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.ADMIN)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Check and award eligible badges to a tali (admin only)' })
+  @ApiOperation({
+    summary: 'Check and award eligible badges to a tali (admin only)',
+  })
   async checkAndAwardBadges(@Param('taliId') taliId: string) {
     return this.badgeService.checkAndAwardBadges(taliId);
   }

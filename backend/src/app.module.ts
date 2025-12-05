@@ -31,6 +31,9 @@ import { ExportModule } from './export/export.module';
 import { OcrModule } from './ocr/ocr.module';
 import { BadgeModule } from './badge/badge.module';
 import { EmailModule } from './email/email.module';
+import { LoggerModule } from './logger/logger.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { LoggingInterceptor } from './logger/logging.interceptor';
 
 @Module({
   imports: [
@@ -40,12 +43,12 @@ import { EmailModule } from './email/email.module';
       {
         name: 'short',
         ttl: 1000, // 1 second
-        limit: 5,  // 5 requests per second
+        limit: 5, // 5 requests per second
       },
       {
         name: 'medium',
         ttl: 10000, // 10 seconds
-        limit: 30,  // 30 requests per 10 seconds
+        limit: 30, // 30 requests per 10 seconds
       },
       {
         name: 'long',
@@ -78,6 +81,7 @@ import { EmailModule } from './email/email.module';
     OcrModule,
     BadgeModule,
     EmailModule,
+    LoggerModule,
   ],
   controllers: [AppController],
   providers: [
@@ -85,6 +89,10 @@ import { EmailModule } from './email/email.module';
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
     },
   ],
 })

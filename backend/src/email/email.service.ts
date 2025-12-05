@@ -38,17 +38,24 @@ export class EmailService {
 
       this.logger.log('Email transporter initialized');
     } else {
-      this.logger.warn('Email configuration not found. Email service will log emails instead of sending.');
+      this.logger.warn(
+        'Email configuration not found. Email service will log emails instead of sending.',
+      );
     }
   }
 
   private getFrom(): string {
-    return this.configService.get<string>('SMTP_FROM') || 'B2B Sigorta <noreply@b2bsigorta.com>';
+    return (
+      this.configService.get<string>('SMTP_FROM') ||
+      'B2B Sigorta <noreply@b2bsigorta.com>'
+    );
   }
 
   async sendEmail(options: EmailOptions): Promise<boolean> {
     if (!this.transporter) {
-      this.logger.log(`[EMAIL-MOCK] To: ${options.to}, Subject: ${options.subject}`);
+      this.logger.log(
+        `[EMAIL-MOCK] To: ${options.to}, Subject: ${options.subject}`,
+      );
       this.logger.log(`[EMAIL-MOCK] Content: ${options.text || options.html}`);
       return true;
     }
@@ -65,7 +72,9 @@ export class EmailService {
       this.logger.log(`Email sent to ${options.to}`);
       return true;
     } catch (error) {
-      this.logger.error(`Failed to send email to ${options.to}: ${error.message}`);
+      this.logger.error(
+        `Failed to send email to ${options.to}: ${error.message}`,
+      );
       return false;
     }
   }
@@ -107,7 +116,7 @@ export class EmailService {
 
     return this.sendEmail({
       to,
-      subject: 'B2B Sigorta\'ya Hoşgeldiniz!',
+      subject: "B2B Sigorta'ya Hoşgeldiniz!",
       html,
     });
   }
@@ -160,7 +169,12 @@ export class EmailService {
   }
 
   // Policy created notification
-  async sendPolicyCreatedEmail(to: string, name: string, policyNumber: string, policyType: string): Promise<boolean> {
+  async sendPolicyCreatedEmail(
+    to: string,
+    name: string,
+    policyNumber: string,
+    policyType: string,
+  ): Promise<boolean> {
     const html = `
       <!DOCTYPE html>
       <html>
@@ -204,7 +218,12 @@ export class EmailService {
   }
 
   // Policy renewal reminder
-  async sendPolicyRenewalReminder(to: string, name: string, policyNumber: string, expiryDate: string): Promise<boolean> {
+  async sendPolicyRenewalReminder(
+    to: string,
+    name: string,
+    policyNumber: string,
+    expiryDate: string,
+  ): Promise<boolean> {
     const html = `
       <!DOCTYPE html>
       <html>
@@ -249,7 +268,12 @@ export class EmailService {
   }
 
   // Badge earned notification
-  async sendBadgeEarnedEmail(to: string, name: string, badgeName: string, badgeDescription: string): Promise<boolean> {
+  async sendBadgeEarnedEmail(
+    to: string,
+    name: string,
+    badgeName: string,
+    badgeDescription: string,
+  ): Promise<boolean> {
     const html = `
       <!DOCTYPE html>
       <html>

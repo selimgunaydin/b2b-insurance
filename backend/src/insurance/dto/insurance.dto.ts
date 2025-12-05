@@ -28,11 +28,11 @@ export class CustomerDataDto {
 export class InsuranceDetailsDto {
   @IsString()
   @IsOptional()
-  plaka?: string;
+  plateNumber?: string;
 
   @IsString()
   @IsOptional()
-  ruhsatSeriNo?: string;
+  licenseSerial?: string;
 
   @IsString()
   @IsOptional()
@@ -53,9 +53,7 @@ export class CreateInsuranceRequestDto {
   type: InsuranceType;
 
   @IsOptional()
-  @ValidateNested()
-  @Type(() => InsuranceDetailsDto)
-  details: InsuranceDetailsDto;
+  details: any;
 
   @IsArray()
   @IsOptional()

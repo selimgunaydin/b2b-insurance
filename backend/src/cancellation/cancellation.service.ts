@@ -73,14 +73,14 @@ export class CancellationService {
 
   async findAll() {
     return this.prisma.cancellationRequest.findMany({
-      include: { 
+      include: {
         policy: {
           include: {
             tali: true,
             customer: true,
             policy: true,
-          }
-        } 
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -118,7 +118,7 @@ export class CancellationService {
   async updateStatus(id: string, dto: UpdateCancellationStatusDto) {
     const request = await this.prisma.cancellationRequest.update({
       where: { id },
-      data: { 
+      data: {
         status: dto.status,
         adminResponse: dto.adminResponse,
       },
@@ -133,14 +133,15 @@ export class CancellationService {
     });
 
     if (request.policy && request.policy.tali) {
-      const statusMessage = dto.status === 'APPROVED' 
-        ? 'onaylandı' 
-        : dto.status === 'REJECTED' 
-        ? 'reddedildi' 
-        : 'güncellendi';
-      
+      const statusMessage =
+        dto.status === 'APPROVED'
+          ? 'onaylandı'
+          : dto.status === 'REJECTED'
+            ? 'reddedildi'
+            : 'güncellendi';
+
       const policyNumber = request.policy.policy?.policyNumber || 'Beklemede';
-      
+
       await this.notificationService.createSystemNotification(
         request.policy.tali.userId,
         'İptal Talebi Güncellendi',

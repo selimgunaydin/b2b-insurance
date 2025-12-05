@@ -38,8 +38,8 @@ __decorate([
     __metadata("design:type", String)
 ], CustomerDataDto.prototype, "email", void 0);
 class InsuranceDetailsDto {
-    plaka;
-    ruhsatSeriNo;
+    plateNumber;
+    licenseSerial;
     asbisNo;
 }
 exports.InsuranceDetailsDto = InsuranceDetailsDto;
@@ -47,12 +47,12 @@ __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], InsuranceDetailsDto.prototype, "plaka", void 0);
+], InsuranceDetailsDto.prototype, "plateNumber", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], InsuranceDetailsDto.prototype, "ruhsatSeriNo", void 0);
+], InsuranceDetailsDto.prototype, "licenseSerial", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
@@ -83,9 +83,7 @@ __decorate([
 ], CreateInsuranceRequestDto.prototype, "type", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.ValidateNested)(),
-    (0, class_transformer_1.Type)(() => InsuranceDetailsDto),
-    __metadata("design:type", InsuranceDetailsDto)
+    __metadata("design:type", Object)
 ], CreateInsuranceRequestDto.prototype, "details", void 0);
 __decorate([
     (0, class_validator_1.IsArray)(),

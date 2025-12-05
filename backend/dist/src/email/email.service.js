@@ -77,7 +77,8 @@ let EmailService = EmailService_1 = class EmailService {
         }
     }
     getFrom() {
-        return this.configService.get('SMTP_FROM') || 'B2B Sigorta <noreply@b2bsigorta.com>';
+        return (this.configService.get('SMTP_FROM') ||
+            'B2B Sigorta <noreply@b2bsigorta.com>');
     }
     async sendEmail(options) {
         if (!this.transporter) {
@@ -136,7 +137,7 @@ let EmailService = EmailService_1 = class EmailService {
     `;
         return this.sendEmail({
             to,
-            subject: 'B2B Sigorta\'ya Hoşgeldiniz!',
+            subject: "B2B Sigorta'ya Hoşgeldiniz!",
             html,
         });
     }

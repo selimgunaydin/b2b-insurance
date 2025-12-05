@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  // @ts-ignore
+  // @ts-expect-error -- ESLint config not fully typed in NextConfig
   eslint: {
     ignoreDuringBuilds: true,
   },
