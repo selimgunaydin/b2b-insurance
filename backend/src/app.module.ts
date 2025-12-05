@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule } from '@nestjs/config';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
@@ -27,10 +29,30 @@ import { PremiumModule } from './premium/premium.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { ExportModule } from './export/export.module';
 import { OcrModule } from './ocr/ocr.module';
+import { BadgeModule } from './badge/badge.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    // Rate limiting - 100 requests per minute globally
+    ThrottlerModule.forRoot([
+      {
+        name: 'short',
+        ttl: 1000, // 1 second
+        limit: 5,  // 5 requests per second
+      },
+      {
+        name: 'medium',
+        ttl: 10000, // 10 seconds
+        limit: 30,  // 30 requests per 10 seconds
+      },
+      {
+        name: 'long',
+        ttl: 60000, // 1 minute
+        limit: 100, // 100 requests per minute
+      },
+    ]),
     PrismaModule,
     AuthModule,
     UserModule,
@@ -54,8 +76,16 @@ import { OcrModule } from './ocr/ocr.module';
     TransactionsModule,
     ExportModule,
     OcrModule,
+    BadgeModule,
+    EmailModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

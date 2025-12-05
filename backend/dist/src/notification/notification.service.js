@@ -8,17 +8,23 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var NotificationService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const client_1 = require("@prisma/client");
+const notification_gateway_1 = require("./notification.gateway");
 let NotificationService = NotificationService_1 = class NotificationService {
     prisma;
+    notificationGateway;
     logger = new common_1.Logger(NotificationService_1.name);
-    constructor(prisma) {
+    constructor(prisma, notificationGateway) {
         this.prisma = prisma;
+        this.notificationGateway = notificationGateway;
     }
     sendWhatsapp(phone, message) {
         this.logger.log(`[WHATSAPP] Sending to ${phone}: ${message}`);
@@ -29,9 +35,27 @@ let NotificationService = NotificationService_1 = class NotificationService {
         const statusText = status === 'APPROVED' ? 'onaylandı' : status === 'REJECTED' ? 'reddedildi' : 'güncellendi';
         return this.createSystemNotification(userId, 'İptal Talebi Güncellendi', `Poliçe ${policyNumber} için iptal talebiniz ${statusText}.`, client_1.NotificationType.CANCELLATION);
     }
-    notifyAdmins(title, message) {
+    async notifyAdmins(title, message) {
         this.logger.log(`[NOTIFY] Admin notification: ${title} - ${message}`);
-        return Promise.resolve(true);
+        const admins = await this.prisma.user.findMany({
+            where: { role: 'ADMIN' },
+            select: { id: true },
+        });
+        const notifications = await Promise.all(admins.map((admin) => this.prisma.notification.create({
+            data: {
+                userId: admin.id,
+                title,
+                message,
+                type: client_1.NotificationType.SYSTEM,
+            },
+        })));
+        this.notificationGateway.sendToAdmins('notification', {
+            title,
+            message,
+            type: 'SYSTEM',
+            createdAt: new Date().toISOString(),
+        });
+        return { count: notifications.length, success: true };
     }
     async notifyOfferReady(userId, requestId) {
         this.logger.log(`[NOTIFY] Offer ready for request ${requestId} to user ${userId}`);
@@ -53,7 +77,7 @@ let NotificationService = NotificationService_1 = class NotificationService {
             this.logger.warn(`[NOTIFY] Cannot create notification: User ${userId} not found`);
             return null;
         }
-        return this.prisma.notification.create({
+        const notification = await this.prisma.notification.create({
             data: {
                 userId,
                 title,
@@ -61,6 +85,15 @@ let NotificationService = NotificationService_1 = class NotificationService {
                 type,
             },
         });
+        this.notificationGateway.sendToUser(userId, 'notification', {
+            id: notification.id,
+            title,
+            message,
+            type,
+            isRead: false,
+            createdAt: notification.createdAt.toISOString(),
+        });
+        return notification;
     }
     async notifyMarketPurchase(purchaseId, userId, status = 'PENDING') {
         this.logger.log(`[NOTIFY] Market purchase ${purchaseId} for user ${userId} status ${status}`);
@@ -130,6 +163,8 @@ let NotificationService = NotificationService_1 = class NotificationService {
 exports.NotificationService = NotificationService;
 exports.NotificationService = NotificationService = NotificationService_1 = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __param(1, (0, common_1.Inject)((0, common_1.forwardRef)(() => notification_gateway_1.NotificationGateway))),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notification_gateway_1.NotificationGateway])
 ], NotificationService);
 //# sourceMappingURL=notification.service.js.map

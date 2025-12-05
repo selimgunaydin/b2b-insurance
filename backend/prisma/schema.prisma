@@ -101,6 +101,7 @@ model TaliProfile {
   rewards           Reward[]
   purchases         MarketPurchase[]
   premiumRequests   PremiumRequest[]
+  badges            TaliBadge[]
 }
 
 model Customer {
@@ -116,6 +117,10 @@ model Customer {
   updatedAt DateTime @updatedAt
 
   insuranceRequests InsuranceRequest[]
+
+  // Performance indexes
+  @@index([taliId, createdAt])
+  @@index([fullName])
 }
 
 model InsuranceRequest {
@@ -143,6 +148,12 @@ model InsuranceRequest {
 
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+
+  // Performance indexes
+  @@index([taliId, status])
+  @@index([customerId, createdAt])
+  @@index([type, status])
+  @@index([status, createdAt])
 }
 
 enum PolicyStatus {
@@ -167,6 +178,10 @@ model Policy {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Performance indexes
+  @@index([status, endDate])
+  @@index([company])
 }
 
 model CommissionRate {
@@ -187,6 +202,10 @@ model Transactions {
   status    TransactionStatus @default(PENDING)
   description String?
   createdAt DateTime          @default(now())
+
+  // Performance indexes
+  @@index([userId, createdAt])
+  @@index([type, status])
 }
 
 model CancellationRequest {
@@ -210,6 +229,10 @@ model AuditLog {
   details   Json?
   ipAddress String?
   createdAt DateTime @default(now())
+
+  // Performance indexes
+  @@index([userId, action])
+  @@index([createdAt])
 }
 
 model Message {
@@ -251,6 +274,10 @@ model Notification {
   isRead    Boolean  @default(false)
   type      NotificationType @default(SYSTEM)
   createdAt DateTime @default(now())
+
+  // Performance indexes
+  @@index([userId, isRead, createdAt])
+  @@index([type, createdAt])
 }
 
 enum NotificationType {
@@ -384,3 +411,40 @@ model PremiumRequest {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+// === GAMIFICATION ===
+
+enum BadgeType {
+  POLICY_COUNT      // Belirli sayıda poliçe
+  PREMIUM_TOTAL     // Toplam prim tutarı
+  CUSTOMER_COUNT    // Müşteri sayısı
+  STREAK            // Ardışık gün/hafta
+  SPECIAL           // Özel rozetler
+}
+
+model Badge {
+  id          String    @id @default(uuid())
+  name        String
+  description String
+  iconUrl     String?
+  type        BadgeType
+  criteria    Json      // { threshold: 10, insuranceType?: "KASKO" }
+  points      Int       @default(0) // Bonus puan
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  
+  taliBadges  TaliBadge[]
+}
+
+model TaliBadge {
+  id        String   @id @default(uuid())
+  taliId    String
+  tali      TaliProfile @relation(fields: [taliId], references: [id])
+  badgeId   String
+  badge     Badge    @relation(fields: [badgeId], references: [id])
+  earnedAt  DateTime @default(now())
+  
+  @@unique([taliId, badgeId])
+  @@index([taliId])
+}
+

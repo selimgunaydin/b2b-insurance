@@ -1,18 +1,11 @@
+import type { Cache } from 'cache-manager';
 import { PrismaService } from '../prisma/prisma.service';
 export declare class CommissionService {
     private prisma;
-    constructor(prisma: PrismaService);
-    getRatesForMembership(membershipType: string): Promise<{
-        insuranceType: string;
-        rate: number;
-    }[]>;
-    getAllRates(): Promise<{
-        id: string;
-        key: string;
-        membershipType: string;
-        insuranceType: string;
-        rate: number;
-    }[]>;
+    private cacheManager;
+    constructor(prisma: PrismaService, cacheManager: Cache);
+    getRatesForMembership(membershipType: string): Promise<{}>;
+    getAllRates(): Promise<{}>;
     updateRate(id: string, rate: number): Promise<{
         id: string;
         updatedAt: Date;

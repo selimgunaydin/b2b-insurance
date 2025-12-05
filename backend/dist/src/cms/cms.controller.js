@@ -30,11 +30,18 @@ let CmsController = class CmsController {
     async getContentByCategory(category) {
         return this.cmsService.getContentByCategory(category);
     }
+    async getMultipleByKeys(keys) {
+        const keyArray = keys.split(',').map((k) => k.trim());
+        return this.cmsService.getMultipleByKeys(keyArray);
+    }
     async getContentByKey(key) {
         return this.cmsService.getContentByKey(key);
     }
     async upsertContent(body) {
         return this.cmsService.upsertContent(body.key, body.value, body.type, body.category);
+    }
+    async bulkUpsert(body) {
+        return this.cmsService.bulkUpsert(body.items);
     }
     async deleteContent(key) {
         return this.cmsService.deleteContent(key);
@@ -59,6 +66,13 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], CmsController.prototype, "getContentByCategory", null);
 __decorate([
+    (0, common_1.Get)('keys'),
+    __param(0, (0, common_1.Query)('keys')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], CmsController.prototype, "getMultipleByKeys", null);
+__decorate([
     (0, common_1.Get)(':key'),
     __param(0, (0, common_1.Param)('key')),
     __metadata("design:type", Function),
@@ -74,6 +88,15 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], CmsController.prototype, "upsertContent", null);
+__decorate([
+    (0, common_1.Post)('bulk'),
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt'), roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], CmsController.prototype, "bulkUpsert", null);
 __decorate([
     (0, common_1.Delete)(':key'),
     (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt'), roles_guard_1.RolesGuard),

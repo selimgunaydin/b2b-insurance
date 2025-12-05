@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { CmsService } from './cms.service';
@@ -26,6 +27,12 @@ export class CmsController {
   @Get('category/:category')
   async getContentByCategory(@Param('category') category: string) {
     return this.cmsService.getContentByCategory(category);
+  }
+
+  @Get('keys')
+  async getMultipleByKeys(@Query('keys') keys: string) {
+    const keyArray = keys.split(',').map((k) => k.trim());
+    return this.cmsService.getMultipleByKeys(keyArray);
   }
 
   @Get(':key')
@@ -51,6 +58,18 @@ export class CmsController {
       body.type,
       body.category,
     );
+  }
+
+  @Post('bulk')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.ADMIN)
+  async bulkUpsert(
+    @Body()
+    body: {
+      items: Array<{ key: string; value: string; type: string; category: string }>;
+    },
+  ) {
+    return this.cmsService.bulkUpsert(body.items);
   }
 
   @Delete(':key')

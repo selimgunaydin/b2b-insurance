@@ -2,17 +2,8 @@ import { CommissionService } from './commission.service';
 export declare class CommissionController {
     private readonly commissionService;
     constructor(commissionService: CommissionService);
-    getMyRates(req: any): Promise<{
-        insuranceType: string;
-        rate: number;
-    }[]>;
-    getAllRates(): Promise<{
-        id: string;
-        key: string;
-        membershipType: string;
-        insuranceType: string;
-        rate: number;
-    }[]>;
+    getMyRates(req: any): Promise<{}>;
+    getAllRates(): Promise<{}>;
     updateRate(id: string, rate: number): Promise<{
         id: string;
         updatedAt: Date;

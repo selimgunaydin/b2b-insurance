@@ -8,6 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommissionModule = void 0;
 const common_1 = require("@nestjs/common");
+const cache_manager_1 = require("@nestjs/cache-manager");
 const commission_service_1 = require("./commission.service");
 const commission_controller_1 = require("./commission.controller");
 const prisma_module_1 = require("../prisma/prisma.module");
@@ -16,9 +17,15 @@ let CommissionModule = class CommissionModule {
 exports.CommissionModule = CommissionModule;
 exports.CommissionModule = CommissionModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule],
+        imports: [
+            prisma_module_1.PrismaModule,
+            cache_manager_1.CacheModule.register({
+                ttl: 300000,
+            }),
+        ],
         controllers: [commission_controller_1.CommissionController],
         providers: [commission_service_1.CommissionService],
+        exports: [commission_service_1.CommissionService],
     })
 ], CommissionModule);
 //# sourceMappingURL=commission.module.js.map

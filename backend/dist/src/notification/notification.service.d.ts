@@ -1,9 +1,11 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationType } from '@prisma/client';
+import { NotificationGateway } from './notification.gateway';
 export declare class NotificationService {
     private prisma;
+    private notificationGateway;
     private readonly logger;
-    constructor(prisma: PrismaService);
+    constructor(prisma: PrismaService, notificationGateway: NotificationGateway);
     sendWhatsapp(phone: string, message: string): Promise<boolean>;
     notifyCancellationStatus(userId: string, status: string, policyNumber: string): Promise<{
         id: string;
@@ -14,7 +16,10 @@ export declare class NotificationService {
         title: string;
         isRead: boolean;
     } | null>;
-    notifyAdmins(title: string, message: string): Promise<boolean>;
+    notifyAdmins(title: string, message: string): Promise<{
+        count: number;
+        success: boolean;
+    }>;
     notifyOfferReady(userId: string, requestId: string): Promise<{
         id: string;
         createdAt: Date;

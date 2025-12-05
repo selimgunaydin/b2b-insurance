@@ -1,9 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, createContext, useContext } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { Loader2 } from "lucide-react";
+import { SocketProvider } from "@/providers/socket-provider";
+
+interface User {
+  id: string;
+  email: string;
+  role: string;
+  isApproved: boolean;
+  taliProfile?: {
+    fullName: string;
+    points: number;
+    membershipType: string;
+  };
+}
+
+interface AuthContextType {
+  user: User | null;
+  token: string | null;
+}
+
+const AuthContext = createContext<AuthContextType>({ user: null, token: null });
+
+export function useAuth() {
+  return useContext(AuthContext);
+}
 
 interface RoleGuardProps {
   children: React.ReactNode;
@@ -14,24 +38,29 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const token = localStorage.getItem("token");
-        if (!token) {
+        const storedToken = localStorage.getItem("token");
+        if (!storedToken) {
           router.push("/auth/login");
           return;
         }
 
-        const res = await api.get("/user/profile");
-        const user = res.data;
+        setToken(storedToken);
 
-        if (allowedRoles.includes(user.role)) {
+        const res = await api.get("/user/profile");
+        const userData = res.data;
+        setUser(userData);
+
+        if (allowedRoles.includes(userData.role)) {
           setIsAuthorized(true);
         } else {
           // Redirect to appropriate dashboard if logged in but wrong role
-          if (user.role === "ADMIN") {
+          if (userData.role === "ADMIN") {
             router.push("/admin");
           } else {
             router.push("/dashboard");
@@ -52,7 +81,7 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
       </div>
     );
   }
@@ -61,5 +90,12 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
     return null; // Will redirect
   }
 
-  return <>{children}</>;
+  return (
+    <AuthContext.Provider value={{ user, token }}>
+      <SocketProvider token={token}>
+        {children}
+      </SocketProvider>
+    </AuthContext.Provider>
+  );
 }
+

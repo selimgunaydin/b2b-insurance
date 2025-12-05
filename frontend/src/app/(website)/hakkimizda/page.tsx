@@ -1,20 +1,55 @@
-import { Shield, Target, Users,Heart } from "lucide-react";
+import { Shield, Target, Users, Heart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+
+// Fetch CMS content on server side
+async function getCmsContent() {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const res = await fetch(`${baseUrl}/cms/category/ABOUT`, {
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    
+    const content: Record<string, string> = {};
+    data.forEach((item: { key: string; value: string }) => {
+      content[item.key] = item.value;
+    });
+    return content;
+  } catch (error) {
+    console.error("Failed to fetch CMS content:", error);
+    return null;
+  }
+}
 
 export const metadata = {
   title: "Hakkımızda | B2B Sigorta",
   description: "B2B Sigorta hakkında bilgi edinin. Misyonumuz, vizyonumuz ve değerlerimiz.",
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const cms = await getCmsContent();
+  
+  const title = cms?.about_title || "Hakkımızda";
+  const text = cms?.about_text || "B2B Sigorta, tali sigortacılar ve sigorta şirketleri arasında köprü görevi gören modern bir dijital platformdur.";
+  const vision = cms?.about_vision || "Türkiye'nin en büyük ve en güvenilir B2B sigorta platformu olmak";
+  const mission = cms?.about_mission || "Sigorta sektöründe dijital dönüşüme öncülük ederek, süreçleri hızlandırmak ve kolaylaştırmak";
+  const image = cms?.about_image;
+
   return (
     <div className="py-16">
       <div className="container mx-auto px-4 max-w-4xl">
-        <h1 className="text-4xl md:text-5xl font-bold text-center mb-8">Hakkımızda</h1>
+        <h1 className="text-4xl md:text-5xl font-bold text-center mb-8">{title}</h1>
+        
+        {image && (
+          <div className="mb-8 rounded-lg overflow-hidden">
+            <img src={image} alt={title} className="w-full h-64 object-cover" />
+          </div>
+        )}
         
         <div className="prose prose-lg max-w-none space-y-6 mb-16">
           <p className="text-xl text-gray-600 text-center">
-            B2B Sigorta, tali sigortacılar ve sigorta şirketleri arasında köprü görevi gören modern bir dijital platformdur.
+            {text}
           </p>
           
           <p>
@@ -38,7 +73,7 @@ export default function AboutPage() {
               </div>
               <h3 className="font-semibold text-lg">Misyonumuz</h3>
               <p className="text-sm text-gray-600">
-                Sigorta sektöründe dijital dönüşüme öncülük ederek, süreçleri hızlandırmak ve kolaylaştırmak
+                {mission}
               </p>
             </CardContent>
           </Card>
@@ -50,7 +85,7 @@ export default function AboutPage() {
               </div>
               <h3 className="font-semibold text-lg">Vizyonumuz</h3>
               <p className="text-sm text-gray-600">
-                Türkiye'nin en büyük ve en güvenilir B2B sigorta platformu olmak
+                {vision}
               </p>
             </CardContent>
           </Card>

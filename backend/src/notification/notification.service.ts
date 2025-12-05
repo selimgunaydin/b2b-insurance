@@ -1,12 +1,17 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationType } from '@prisma/client';
+import { NotificationGateway } from './notification.gateway';
 
 @Injectable()
 export class NotificationService {
   private readonly logger = new Logger(NotificationService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => NotificationGateway))
+    private notificationGateway: NotificationGateway,
+  ) {}
 
   sendWhatsapp(phone: string, message: string) {
     this.logger.log(`[WHATSAPP] Sending to ${phone}: ${message}`);
@@ -32,10 +37,37 @@ export class NotificationService {
     );
   }
 
-  notifyAdmins(title: string, message: string) {
+  async notifyAdmins(title: string, message: string) {
     this.logger.log(`[NOTIFY] Admin notification: ${title} - ${message}`);
-    // In real app, find admin users and notify
-    return Promise.resolve(true);
+    
+    // Find all admin users and create notifications
+    const admins = await this.prisma.user.findMany({
+      where: { role: 'ADMIN' },
+      select: { id: true },
+    });
+
+    const notifications = await Promise.all(
+      admins.map((admin) =>
+        this.prisma.notification.create({
+          data: {
+            userId: admin.id,
+            title,
+            message,
+            type: NotificationType.SYSTEM,
+          },
+        }),
+      ),
+    );
+
+    // Send real-time notification to all admins
+    this.notificationGateway.sendToAdmins('notification', {
+      title,
+      message,
+      type: 'SYSTEM',
+      createdAt: new Date().toISOString(),
+    });
+
+    return { count: notifications.length, success: true };
   }
 
   async notifyOfferReady(userId: string, requestId: string) {
@@ -83,7 +115,7 @@ export class NotificationService {
       return null;
     }
 
-    return this.prisma.notification.create({
+    const notification = await this.prisma.notification.create({
       data: {
         userId,
         title,
@@ -91,6 +123,18 @@ export class NotificationService {
         type,
       },
     });
+
+    // Send real-time notification via WebSocket
+    this.notificationGateway.sendToUser(userId, 'notification', {
+      id: notification.id,
+      title,
+      message,
+      type,
+      isRead: false,
+      createdAt: notification.createdAt.toISOString(),
+    });
+
+    return notification;
   }
 
   async notifyMarketPurchase(

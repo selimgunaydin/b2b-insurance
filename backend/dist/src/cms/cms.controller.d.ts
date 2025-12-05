@@ -18,6 +18,14 @@ export declare class CmsController {
         type: string;
         category: string;
     }[]>;
+    getMultipleByKeys(keys: string): Promise<{
+        id: string;
+        updatedAt: Date;
+        key: string;
+        value: string;
+        type: string;
+        category: string;
+    }[]>;
     getContentByKey(key: string): Promise<{
         id: string;
         updatedAt: Date;
@@ -39,6 +47,21 @@ export declare class CmsController {
         type: string;
         category: string;
     }>;
+    bulkUpsert(body: {
+        items: Array<{
+            key: string;
+            value: string;
+            type: string;
+            category: string;
+        }>;
+    }): Promise<{
+        id: string;
+        updatedAt: Date;
+        key: string;
+        value: string;
+        type: string;
+        category: string;
+    }[]>;
     deleteContent(key: string): Promise<{
         id: string;
         updatedAt: Date;

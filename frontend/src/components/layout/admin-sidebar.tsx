@@ -34,6 +34,7 @@ export function AdminSidebar() {
     { href: "/admin/commissions", label: "Komisyonlar", icon: Percent },
     { href: "/admin/premium", label: "Premium", icon: Crown },
     { href: "/admin/notifications", label: "Bildirimler", icon: ShieldAlert },
+    { href: "/admin/website", label: "CMS", icon: Globe },
     { href: "/admin/settings", label: "Ayarlar", icon: Settings },
   ];
 
