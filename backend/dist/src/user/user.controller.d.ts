@@ -10,9 +10,9 @@ export declare class UserController {
                     createdAt: Date;
                     name: string;
                     points: number;
+                    type: import("@prisma/client").$Enums.BadgeType;
                     description: string;
                     iconUrl: string | null;
-                    type: import("@prisma/client").$Enums.BadgeType;
                     criteria: import("@prisma/client/runtime/library").JsonValue;
                     isActive: boolean;
                 };

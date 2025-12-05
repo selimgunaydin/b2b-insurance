@@ -8,8 +8,8 @@ export declare class PremiumController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        status: import("@prisma/client").$Enums.PremiumRequestStatus;
         taliId: string;
+        status: import("@prisma/client").$Enums.PremiumRequestStatus;
         paymentMethod: string;
     }>;
     findAllRequests(): Promise<({
@@ -42,16 +42,16 @@ export declare class PremiumController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        status: import("@prisma/client").$Enums.PremiumRequestStatus;
         taliId: string;
+        status: import("@prisma/client").$Enums.PremiumRequestStatus;
         paymentMethod: string;
     })[]>;
     approveRequest(id: string): Promise<[{
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        status: import("@prisma/client").$Enums.PremiumRequestStatus;
         taliId: string;
+        status: import("@prisma/client").$Enums.PremiumRequestStatus;
         paymentMethod: string;
     }, {
         id: string;
@@ -72,8 +72,8 @@ export declare class PremiumController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        status: import("@prisma/client").$Enums.PremiumRequestStatus;
         taliId: string;
+        status: import("@prisma/client").$Enums.PremiumRequestStatus;
         paymentMethod: string;
     }>;
 }

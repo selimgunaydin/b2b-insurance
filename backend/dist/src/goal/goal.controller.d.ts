@@ -8,6 +8,7 @@ export declare class GoalController {
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
+        isActive: boolean;
         title: string;
         targetType: import("@prisma/client").$Enums.GoalTargetType;
         policyType: import("@prisma/client").$Enums.InsuranceType | null;
@@ -16,13 +17,13 @@ export declare class GoalController {
         rewardPoints: import("@prisma/client/runtime/library").Decimal;
         startDate: Date;
         endDate: Date;
-        isActive: boolean;
     }>;
     create(body: CreateGoalDto): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
+        isActive: boolean;
         title: string;
         targetType: import("@prisma/client").$Enums.GoalTargetType;
         policyType: import("@prisma/client").$Enums.InsuranceType | null;
@@ -31,13 +32,13 @@ export declare class GoalController {
         rewardPoints: import("@prisma/client/runtime/library").Decimal;
         startDate: Date;
         endDate: Date;
-        isActive: boolean;
     }>;
     findAll(): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
+        isActive: boolean;
         title: string;
         targetType: import("@prisma/client").$Enums.GoalTargetType;
         policyType: import("@prisma/client").$Enums.InsuranceType | null;
@@ -46,7 +47,6 @@ export declare class GoalController {
         rewardPoints: import("@prisma/client/runtime/library").Decimal;
         startDate: Date;
         endDate: Date;
-        isActive: boolean;
     }[]>;
     getMyGoals(req: any): Promise<({
         goal: {
@@ -54,6 +54,7 @@ export declare class GoalController {
             createdAt: Date;
             updatedAt: Date;
             description: string | null;
+            isActive: boolean;
             title: string;
             targetType: import("@prisma/client").$Enums.GoalTargetType;
             policyType: import("@prisma/client").$Enums.InsuranceType | null;
@@ -62,7 +63,6 @@ export declare class GoalController {
             rewardPoints: import("@prisma/client/runtime/library").Decimal;
             startDate: Date;
             endDate: Date;
-            isActive: boolean;
         };
     } & {
         id: string;
@@ -78,6 +78,7 @@ export declare class GoalController {
             createdAt: Date;
             updatedAt: Date;
             description: string | null;
+            isActive: boolean;
             title: string;
             targetType: import("@prisma/client").$Enums.GoalTargetType;
             policyType: import("@prisma/client").$Enums.InsuranceType | null;
@@ -86,7 +87,6 @@ export declare class GoalController {
             rewardPoints: import("@prisma/client/runtime/library").Decimal;
             startDate: Date;
             endDate: Date;
-            isActive: boolean;
         };
     } & {
         id: string;
