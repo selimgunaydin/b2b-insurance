@@ -3,7 +3,26 @@ export declare class UserService {
     private prisma;
     constructor(prisma: PrismaService);
     findOne(id: string): Promise<({
-        taliProfile: {
+        taliProfile: ({
+            badges: ({
+                badge: {
+                    id: string;
+                    createdAt: Date;
+                    name: string;
+                    points: number;
+                    description: string;
+                    iconUrl: string | null;
+                    type: import("@prisma/client").$Enums.BadgeType;
+                    criteria: import("@prisma/client/runtime/library").JsonValue;
+                    isActive: boolean;
+                };
+            } & {
+                id: string;
+                taliId: string;
+                badgeId: string;
+                earnedAt: Date;
+            })[];
+        } & {
             id: string;
             userId: string;
             fullName: string;
@@ -17,7 +36,7 @@ export declare class UserService {
             hasKvkkApproval: boolean;
             hasContractApproval: boolean;
             allowedInsuranceTypes: string[];
-        } | null;
+        }) | null;
     } & {
         id: string;
         email: string;

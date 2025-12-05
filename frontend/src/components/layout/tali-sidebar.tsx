@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import { LayoutDashboard, FileText, User, LogOut, PlusCircle, Wallet, Target, Settings, MessageSquare, Home, Users, Shield, ShoppingBag, XCircle, Bell, X, Menu, ChevronRight, ChevronLeft, Crown, History } from "lucide-react";
+import { LayoutDashboard, FileText, User, LogOut, PlusCircle, Wallet, Target, Settings, MessageSquare, Home, Users, Shield, ShoppingBag, XCircle, Bell, X, Menu, ChevronRight, ChevronLeft, Crown, History, Award, Trophy } from "lucide-react";
 
 export function TaliSidebar() {
   const router = useRouter();
@@ -28,6 +28,8 @@ export function TaliSidebar() {
     { href: "/dashboard/goals", label: "Hedeflerim", icon: Target },
     { href: "/dashboard/earnings", label: "Kazançlarım", icon: Wallet },
     { href: "/dashboard/transactions", label: "Puan Geçmişi", icon: History },
+    { href: "/dashboard/badges", label: "Rozetlerim", icon: Award },
+    { href: "/dashboard/leaderboard", label: "Liderlik", icon: Trophy },
     { href: "/dashboard/premium", label: "Premium", icon: Crown },
     { href: "/dashboard/requests/cancellation", label: "İptal Talebi", icon: XCircle },
     { href: "/dashboard/requests/cancellation/my", label: "İptal Taleplerim", icon: FileText },

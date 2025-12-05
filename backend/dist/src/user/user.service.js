@@ -20,7 +20,15 @@ let UserService = class UserService {
     async findOne(id) {
         return this.prisma.user.findUnique({
             where: { id },
-            include: { taliProfile: true },
+            include: {
+                taliProfile: {
+                    include: {
+                        badges: {
+                            include: { badge: true }
+                        }
+                    }
+                }
+            },
         });
     }
     async findAll() {

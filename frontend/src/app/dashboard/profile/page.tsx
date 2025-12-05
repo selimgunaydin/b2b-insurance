@@ -95,6 +95,42 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
 
+        {/* Badges Summary */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Award className="h-5 w-5" />
+                Rozetlerim
+              </div>
+              <Button variant="ghost" size="sm" asChild>
+                <a href="/dashboard/badges">Tümünü Gör</a>
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Toplam Rozet</p>
+                <p className="text-2xl font-bold">{tali.badges?.length || 0}</p>
+              </div>
+              {tali.badges && tali.badges.length > 0 && (
+                <div className="text-right">
+                  <p className="text-sm font-medium text-muted-foreground">Son Kazanılan</p>
+                  <div className="flex items-center justify-end gap-2 mt-1">
+                    {tali.badges[0].badge.iconUrl ? (
+                      <img src={tali.badges[0].badge.iconUrl} alt="" className="w-6 h-6" />
+                    ) : (
+                      <Award className="h-5 w-5 text-yellow-500" />
+                    )}
+                    <span className="font-medium">{tali.badges[0].badge.name}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Membership & Status */}
         <Card>
           <CardHeader>

@@ -8,7 +8,15 @@ export class UserService {
   async findOne(id: string) {
     return this.prisma.user.findUnique({
       where: { id },
-      include: { taliProfile: true },
+      include: {
+        taliProfile: {
+          include: {
+            badges: {
+              include: { badge: true }
+            }
+          }
+        }
+      },
     });
   }
 
