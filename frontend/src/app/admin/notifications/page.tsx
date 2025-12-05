@@ -33,12 +33,28 @@ export default function AdminNotificationsPage() {
   };
 
   useEffect(() => {
-    fetchNotifications();
+    const init = async () => {
+      await fetchNotifications();
+    };
+    init();
   }, []);
+
+  // Auto-mark as read when notifications are loaded
+  useEffect(() => {
+    const unreadIds = notifications.filter(n => !n.isRead).map(n => n.id);
+    if (unreadIds.length > 0) {
+      // Better UX: Mark all as read silently after a short delay to ensure user sees them as "new" for a moment
+      const timer = setTimeout(() => {
+        markAllAsRead();
+      }, 1000); // 1 second delay
+      
+      return () => clearTimeout(timer);
+    }
+  }, [notifications]);
 
   const markAsRead = async (id: string) => {
     try {
-      await api.post(`/notification/read/${id}`);
+      await api.put(`/notification/${id}/read`);
       setNotifications(notifications.map(n => 
         n.id === id ? { ...n, isRead: true } : n
       ));
@@ -49,7 +65,7 @@ export default function AdminNotificationsPage() {
 
   const markAllAsRead = async () => {
     try {
-      await api.post("/notification/read-all");
+      await api.put("/notification/read-all");
       setNotifications(notifications.map(n => ({ ...n, isRead: true })));
     } catch (error) {
       console.error("Failed to mark all as read:", error);

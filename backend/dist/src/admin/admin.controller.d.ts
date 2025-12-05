@@ -25,25 +25,26 @@ export declare class AdminController {
                     allowedInsuranceTypes: string[];
                 } | null;
             } & {
-                id: string;
-                email: string;
-                password: string;
                 role: import("@prisma/client").$Enums.Role;
                 isApproved: boolean;
+                id: string;
                 createdAt: Date;
+                email: string;
+                password: string;
                 updatedAt: Date;
             };
         } & {
             id: string;
-            createdAt: Date;
             userId: string;
             action: string;
             details: import("@prisma/client/runtime/library").JsonValue | null;
             ipAddress: string | null;
+            createdAt: Date;
         })[];
         totalRevenue: number | import("@prisma/client/runtime/library").Decimal;
         totalPolicies: number;
         monthlyRevenue: Record<string, number>;
+        onlineUsers: number;
     }>;
     getGeneralStats(): Promise<{
         totalTalis: number;
@@ -67,6 +68,10 @@ export declare class AdminController {
         points: number;
         membershipType: any;
     }[]>;
+    getBroadcastStats(): Promise<{
+        activeUsers: number;
+        onlineUsers: number;
+    }>;
     getTaliStats(id: string): Promise<{
         tali: any;
         totalPolicies: number;

@@ -1,16 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import { LayoutDashboard, FileText, Users, Settings, LogOut, ShieldAlert, ChevronLeft, ChevronRight, XCircle, Shield, UserCog, BarChart3, Building2, Target,
-  ShoppingBag, Globe, Menu, X, Percent, Crown, Wallet } from "lucide-react";
+import { SidebarNav } from "./sidebar-nav";
+import { 
+  LayoutDashboard, FileText, Users, Settings, LogOut, ShieldAlert, 
+  ChevronLeft, ChevronRight, XCircle, Shield, UserCog, BarChart3, 
+  Building2, Target, ShoppingBag, Globe, Menu, X, Percent, Crown, 
+  Wallet 
+} from "lucide-react";
 
 export function AdminSidebar() {
   const router = useRouter();
-  const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
@@ -19,33 +22,58 @@ export function AdminSidebar() {
     router.push("/auth/login");
   };
 
-  const links = [
-    { href: "/admin", label: "Panel", icon: LayoutDashboard },
-    { href: "/admin/requests", label: "Talepler", icon: FileText },
-    { href: "/admin/policies", label: "Poliçeler", icon: Shield },
-    { href: "/admin/customers", label: "Müşteriler", icon: Users },
-    { href: "/admin/cancellations", label: "İptal Talepleri", icon: XCircle },
-    { href: "/admin/users", label: "Kullanıcılar", icon: UserCog },
-    { href: "/admin/market", label: "Market", icon: ShoppingBag },
-    { href: "/admin/goals", label: "Hedefler", icon: Target },
-    { href: "/admin/financials", label: "Finansal", icon: Wallet },
-    { href: "/admin/statistics", label: "İstatistikler", icon: BarChart3 },
-    { href: "/admin/companies", label: "Şirketler", icon: Building2 },
-    { href: "/admin/commissions", label: "Komisyonlar", icon: Percent },
-    { href: "/admin/premium", label: "Premium", icon: Crown },
-    { href: "/admin/notifications", label: "Bildirimler", icon: ShieldAlert },
-    { href: "/admin/website", label: "CMS", icon: Globe },
-    { href: "/admin/settings", label: "Ayarlar", icon: Settings },
-  ];
-
   const { data: unreadCount = 0 } = useQuery({
     queryKey: ["unread-count"],
     queryFn: async () => {
       const res = await api.get("/notification/unread-count");
       return res.data as number;
     },
-    refetchInterval: 30000, // Check every 30 seconds
+    refetchInterval: 30000,
   });
+
+  const links = [
+    {
+      groupLabel: "Genel Bakış",
+      items: [
+        { title: "Panel", href: "/admin", icon: LayoutDashboard },
+        { title: "İstatistikler", href: "/admin/statistics", icon: BarChart3 },
+      ]
+    },
+    {
+      groupLabel: "Operasyon",
+      items: [
+        { title: "Talepler", href: "/admin/requests", icon: FileText },
+        { title: "Poliçeler", href: "/admin/policies", icon: Shield },
+        { title: "İptal Talepleri", href: "/admin/cancellations", icon: XCircle },
+      ]
+    },
+    {
+      groupLabel: "Ağ Yönetimi",
+      items: [
+        { title: "Müşteriler", href: "/admin/customers", icon: Users },
+        { title: "Kullanıcılar", href: "/admin/users", icon: UserCog },
+        { title: "Şirketler", href: "/admin/companies", icon: Building2 },
+      ]
+    },
+    {
+      groupLabel: "Finans",
+      items: [
+        { title: "Finansal", href: "/admin/financials", icon: Wallet },
+        { title: "Komisyonlar", href: "/admin/commissions", icon: Percent },
+        { title: "Premium", href: "/admin/premium", icon: Crown },
+      ]
+    },
+    {
+      groupLabel: "Sistem",
+      items: [
+        { title: "Market", href: "/admin/market", icon: ShoppingBag },
+        { title: "Hedefler", href: "/admin/goals", icon: Target },
+        { title: "CMS", href: "/admin/website", icon: Globe },
+        { title: "Bildirimler", href: "/admin/notifications", icon: ShieldAlert, label: unreadCount > 0 ? (unreadCount > 99 ? "99+" : String(unreadCount)) : undefined },
+        { title: "Ayarlar", href: "/admin/settings", icon: Settings },
+      ]
+    }
+  ];
 
   return (
     <>
@@ -81,7 +109,7 @@ export function AdminSidebar() {
         `}
       >
         {/* Desktop Header */}
-        <div className="hidden lg:flex p-4 items-center justify-between">
+        <div className="hidden lg:flex p-4 items-center justify-between h-16">
           <div className="flex items-center gap-2 overflow-hidden">
             <ShieldAlert className="h-8 w-8 text-red-500 shrink-0" />
             {!isCollapsed && <h1 className="text-xl font-bold truncate">Admin</h1>}
@@ -105,36 +133,15 @@ export function AdminSidebar() {
           </button>
         </div>
 
-        <div className="px-3 py-2 flex-1 overflow-y-auto">
-          <nav className="space-y-2">
-            {links.map((link) => {
-              const Icon = link.icon;
-              const isActive = pathname === link.href;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setIsMobileOpen(false)}
-                  className={`
-                    flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors relative
-                    ${isActive ? "bg-slate-800 text-white" : "text-slate-100 hover:bg-slate-800/50"}
-                    ${isCollapsed ? "justify-center" : ""}
-                  `}
-                >
-                  <Icon size={20} className="shrink-0" />
-                  {!isCollapsed && <span className="text-sm font-medium">{link.label}</span>}
-                  {link.href === "/admin/notifications" && unreadCount > 0 && (
-                    <span className={`absolute ${isCollapsed ? "top-1 right-1" : "right-3"} bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center`}>
-                      {unreadCount > 99 ? "99+" : unreadCount}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
+        <div className="flex-1 overflow-y-auto overflow-x-hidden">
+          <SidebarNav 
+             isCollapsed={isCollapsed} 
+             links={links} 
+             onLinkClick={() => setIsMobileOpen(false)}
+          />
         </div>
 
-        <div className="px-3 py-2 border-t border-slate-800">
+        <div className="p-3 border-t border-slate-800">
           <button
             onClick={() => {
               handleLogout();

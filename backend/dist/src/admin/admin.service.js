@@ -13,12 +13,16 @@ exports.AdminService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const client_1 = require("@prisma/client");
+const notification_gateway_1 = require("../notification/notification.gateway");
 let AdminService = class AdminService {
     prisma;
-    constructor(prisma) {
+    notificationGateway;
+    constructor(prisma, notificationGateway) {
         this.prisma = prisma;
+        this.notificationGateway = notificationGateway;
     }
     async getDashboardStats() {
+        const onlineUsers = this.notificationGateway.getOnlineUsersCount();
         const pendingUsers = await this.prisma.user.count({
             where: {
                 role: client_1.Role.TALI,
@@ -76,6 +80,7 @@ let AdminService = class AdminService {
             totalRevenue,
             totalPolicies,
             monthlyRevenue,
+            onlineUsers,
         };
     }
     async getGeneralTaliStats() {
@@ -280,10 +285,24 @@ let AdminService = class AdminService {
             membershipType: t.membershipType,
         }));
     }
+    async getBroadcastStats() {
+        const activeUsers = await this.prisma.user.count({
+            where: {
+                role: client_1.Role.TALI,
+                isApproved: true,
+            },
+        });
+        const onlineUsers = this.notificationGateway.getOnlineUsersCount();
+        return {
+            activeUsers,
+            onlineUsers,
+        };
+    }
 };
 exports.AdminService = AdminService;
 exports.AdminService = AdminService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notification_gateway_1.NotificationGateway])
 ], AdminService);
 //# sourceMappingURL=admin.service.js.map

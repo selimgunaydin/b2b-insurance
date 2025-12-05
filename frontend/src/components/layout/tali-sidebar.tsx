@@ -1,15 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import { LayoutDashboard, FileText, User, LogOut, PlusCircle, Wallet, Target, Settings, MessageSquare, Home, Users, Shield, ShoppingBag, XCircle, Bell, X, Menu, ChevronRight, ChevronLeft, Crown, History, Award, Trophy } from "lucide-react";
+import { SidebarNav } from "./sidebar-nav";
+import { 
+  LayoutDashboard, FileText, User, LogOut, PlusCircle, Wallet, Target, 
+  Settings, MessageSquare, Home, Users, Shield, ShoppingBag, XCircle, 
+  Bell, X, Menu, ChevronRight, ChevronLeft, Crown, History, Award, Trophy 
+} from "lucide-react";
 
 export function TaliSidebar() {
   const router = useRouter();
-  const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
@@ -18,33 +21,60 @@ export function TaliSidebar() {
     router.push("/auth/login");
   };
 
-  const links = [
-    { href: "/dashboard", label: "Panel", icon: Home },
-    { href: "/dashboard/requests/new", label: "Yeni Teklif", icon: PlusCircle },
-    { href: "/dashboard/requests", label: "Taleplerim", icon: FileText },
-    { href: "/dashboard/customers", label: "Müşterilerim", icon: Users },
-    { href: "/dashboard/policies", label: "Poliçelerim", icon: Shield },
-    { href: "/dashboard/market", label: "Market", icon: ShoppingBag },
-    { href: "/dashboard/goals", label: "Hedeflerim", icon: Target },
-    { href: "/dashboard/earnings", label: "Kazançlarım", icon: Wallet },
-    { href: "/dashboard/transactions", label: "Puan Geçmişi", icon: History },
-    { href: "/dashboard/badges", label: "Rozetlerim", icon: Award },
-    { href: "/dashboard/leaderboard", label: "Liderlik", icon: Trophy },
-    { href: "/dashboard/premium", label: "Premium", icon: Crown },
-    { href: "/dashboard/requests/cancellation", label: "İptal Talebi", icon: XCircle },
-    { href: "/dashboard/requests/cancellation/my", label: "İptal Taleplerim", icon: FileText },
-    { href: "/dashboard/notifications", label: "Bildirimler", icon: Bell },
-    { href: "/dashboard/profile", label: "Profilim", icon: User },
-  ];
-
   const { data: unreadCount = 0 } = useQuery({
     queryKey: ["unread-count"],
     queryFn: async () => {
       const res = await api.get("/notification/unread-count");
       return res.data as number;
     },
-    refetchInterval: 30000, // Check every 30 seconds
+    refetchInterval: 30000,
   });
+
+  const links = [
+    {
+      groupLabel: "Genel",
+      items: [
+        { title: "Panel", href: "/dashboard", icon: Home },
+        { title: "Hedeflerim", href: "/dashboard/goals", icon: Target },
+      ]
+    },
+    {
+      groupLabel: "Satış",
+      items: [
+        { title: "Yeni Teklif", href: "/dashboard/requests/new", icon: PlusCircle },
+        { title: "Market", href: "/dashboard/market", icon: ShoppingBag },
+      ]
+    },
+    {
+      groupLabel: "Portföy",
+      items: [
+        { title: "Taleplerim", href: "/dashboard/requests", icon: FileText },
+        { title: "Poliçelerim", href: "/dashboard/policies", icon: Shield },
+        { title: "Müşterilerim", href: "/dashboard/customers", icon: Users },
+        { title: "İptal İşlemleri", icon: XCircle, items: [
+             { title: "Yeni İptal Talebi", href: "/dashboard/requests/cancellation" },
+             { title: "İptal Taleplerim", href: "/dashboard/requests/cancellation/my" }
+        ]},
+      ]
+    },
+    {
+      groupLabel: "Performans",
+      items: [
+        { title: "Kazançlarım", href: "/dashboard/earnings", icon: Wallet },
+        { title: "Puan Geçmişi", href: "/dashboard/transactions", icon: History },
+        { title: "Liderlik", href: "/dashboard/leaderboard", icon: Trophy },
+        { title: "Rozetlerim", href: "/dashboard/badges", icon: Award },
+        { title: "Premium", href: "/dashboard/premium", icon: Crown },
+      ]
+    },
+    {
+      groupLabel: "Hesap",
+      items: [
+        { title: "Bildirimler", href: "/dashboard/notifications", icon: Bell, label: unreadCount > 0 ? (unreadCount > 99 ? "99+" : String(unreadCount)) : undefined },
+        { title: "Profilim", href: "/dashboard/profile", icon: User },
+      ]
+    }
+  ];
 
   return (
     <>
@@ -77,7 +107,7 @@ export function TaliSidebar() {
         `}
       >
         {/* Desktop Header */}
-        <div className="hidden lg:flex p-4 items-center justify-between">
+        <div className="hidden lg:flex p-4 items-center justify-between h-16">
           {!isCollapsed && <h1 className="text-xl font-bold truncate">B2B Sigorta</h1>}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
@@ -98,36 +128,15 @@ export function TaliSidebar() {
           </button>
         </div>
 
-        <div className="px-3 py-2 flex-1 overflow-y-auto">
-          <nav className="space-y-2">
-            {links.map((link) => {
-              const Icon = link.icon;
-              const isActive = pathname === link.href;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setIsMobileOpen(false)}
-                  className={`
-                    flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors relative
-                    ${isActive ? "bg-indigo-800 text-white" : "text-indigo-100 hover:bg-indigo-900/50"}
-                    ${isCollapsed ? "justify-center" : ""}
-                  `}
-                >
-                  <Icon size={20} className="shrink-0" />
-                  {!isCollapsed && <span className="text-sm font-medium">{link.label}</span>}
-                  {link.href === "/dashboard/notifications" && unreadCount > 0 && (
-                    <span className={`absolute ${isCollapsed ? "top-1 right-1" : "right-3"} bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center`}>
-                      {unreadCount > 99 ? "99+" : unreadCount}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
+        <div className="flex-1 overflow-y-auto overflow-x-hidden">
+          <SidebarNav 
+             isCollapsed={isCollapsed} 
+             links={links} 
+             onLinkClick={() => setIsMobileOpen(false)}
+          />
         </div>
 
-        <div className="px-3 py-2 border-t border-indigo-800">
+        <div className="p-3 border-t border-indigo-800">
           <button
             onClick={() => {
               handleLogout();

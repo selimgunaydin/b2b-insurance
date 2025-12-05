@@ -33,8 +33,26 @@ export default function NotificationsPage() {
   };
 
   useEffect(() => {
-    fetchNotifications();
+    const init = async () => {
+      await fetchNotifications();
+    };
+    init();
   }, []);
+
+  // Auto-mark as read when notifications are loaded
+  useEffect(() => {
+    const unreadIds = notifications.filter(n => !n.isRead).map(n => n.id);
+    if (unreadIds.length > 0) {
+      // Mark all visible unread notifications as read
+      // We can use the existing markAllAsRead or loop through them
+      // Better UX: Mark all as read silently after a short delay to ensure user sees them as "new" for a moment
+      const timer = setTimeout(() => {
+        markAllAsRead();
+      }, 1000); // 1 second delay
+      
+      return () => clearTimeout(timer);
+    }
+  }, [notifications]);
 
   const markAsRead = async (id: string) => {
     try {

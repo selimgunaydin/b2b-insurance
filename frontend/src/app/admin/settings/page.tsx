@@ -45,6 +45,7 @@ export default function AdminSettingsPage() {
   const [broadcastTitle, setBroadcastTitle] = useState("");
   const [broadcastMessage, setBroadcastMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [broadcastStats, setBroadcastStats] = useState<{ activeUsers: number; onlineUsers: number } | null>(null);
 
   const fetchSettings = useCallback(async () => {
     try {
@@ -62,9 +63,27 @@ export default function AdminSettingsPage() {
     }
   }, [toast]);
 
+  const fetchBroadcastStats = useCallback(async () => {
+    try {
+      const res = await api.get("/admin/stats/broadcast");
+      setBroadcastStats(res.data);
+    } catch (error) {
+      console.error("Failed to fetch broadcast stats", error);
+    }
+  }, []);
+
   useEffect(() => {
     fetchSettings();
   }, [fetchSettings]);
+
+  useEffect(() => {
+    if (activeTab === "broadcast") {
+      fetchBroadcastStats();
+      // Optional: Set up an interval to refresh online users count
+      const interval = setInterval(fetchBroadcastStats, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [activeTab, fetchBroadcastStats]);
 
   const handleUpdate = async (key: string, value: string) => {
     setSavingKey(key);
@@ -347,12 +366,16 @@ export default function AdminSettingsPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-4 bg-green-50 rounded-lg text-center">
                     <CheckCircle2 className="h-6 w-6 text-green-600 mx-auto mb-2" />
-                    <p className="text-2xl font-bold text-green-700">-</p>
+                    <p className="text-2xl font-bold text-green-700">
+                      {broadcastStats ? broadcastStats.activeUsers : "-"}
+                    </p>
                     <p className="text-xs text-green-600">Aktif Kullanıcı</p>
                   </div>
                   <div className="p-4 bg-blue-50 rounded-lg text-center">
                     <Zap className="h-6 w-6 text-blue-600 mx-auto mb-2" />
-                    <p className="text-2xl font-bold text-blue-700">-</p>
+                    <p className="text-2xl font-bold text-blue-700">
+                      {broadcastStats ? broadcastStats.onlineUsers : "-"}
+                    </p>
                     <p className="text-xs text-blue-600">Çevrimiçi</p>
                   </div>
                 </div>

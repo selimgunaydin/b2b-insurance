@@ -1,12 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RequestStatus, Role } from '@prisma/client';
+import { NotificationGateway } from '../notification/notification.gateway';
 
 @Injectable()
 export class AdminService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationGateway: NotificationGateway,
+  ) {}
 
   async getDashboardStats() {
+    const onlineUsers = this.notificationGateway.getOnlineUsersCount();
+
     const pendingUsers = await this.prisma.user.count({
       where: {
         role: Role.TALI,
@@ -83,6 +89,7 @@ export class AdminService {
       totalRevenue,
       totalPolicies,
       monthlyRevenue,
+      onlineUsers,
     };
   }
 
@@ -329,5 +336,21 @@ export class AdminService {
       points: Number(t.points),
       membershipType: t.membershipType,
     }));
+  }
+
+  async getBroadcastStats() {
+    const activeUsers = await this.prisma.user.count({
+      where: {
+        role: Role.TALI,
+        isApproved: true,
+      },
+    });
+
+    const onlineUsers = this.notificationGateway.getOnlineUsersCount();
+
+    return {
+      activeUsers,
+      onlineUsers,
+    };
   }
 }

@@ -307,24 +307,82 @@ export default function AdminWebsitePage() {
                       </div>
 
                       {item.type === "IMAGE_URL" ? (
-                        <div className="space-y-2">
-                          <Input
-                            placeholder="Görsel URL'si girin veya yükleyin"
-                            value={editedValues[item.key] || ""}
-                            onChange={(e) => handleValueChange(item.key, e.target.value)}
-                          />
+                        <div className="space-y-4">
                           {editedValues[item.key] && (
-                            <div className="relative w-32 h-32 border rounded overflow-hidden">
+                            <div className="relative w-full h-48 border rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center group">
                               <img
                                 src={editedValues[item.key]}
                                 alt={item.key}
-                                className="object-contain w-full h-full"
+                                className="object-contain max-w-full max-h-full"
                                 onError={(e) => {
                                   (e.target as HTMLImageElement).style.display = "none";
                                 }}
                               />
+                              <button
+                                onClick={() => handleValueChange(item.key, "")}
+                                className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                title="Görseli kaldır"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
                             </div>
                           )}
+                          
+                          <div className="flex items-center gap-2">
+                             <Input
+                              type="text"
+                              placeholder="Görsel URL'si (veya dosya yükleyin)"
+                              value={editedValues[item.key] || ""}
+                              onChange={(e) => handleValueChange(item.key, e.target.value)}
+                              className="flex-1"
+                            />
+                            <div className="relative">
+                              <input
+                                type="file"
+                                id={`file-upload-${item.key}`}
+                                className="hidden"
+                                accept="image/*"
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0];
+                                  if (!file) return;
+
+                                  const formData = new FormData();
+                                  formData.append("file", file);
+
+                                  const loadingToast = toast({
+                                    title: "Yükleniyor...",
+                                    description: "Görsel sunucuya yükleniyor.",
+                                  });
+
+                                  try {
+                                    const res = await api.post("/upload", formData, {
+                                      headers: { "Content-Type": "multipart/form-data" },
+                                    });
+                                    handleValueChange(item.key, res.data.url);
+                                    toast({
+                                      title: "Başarılı",
+                                      description: "Görsel yüklendi.",
+                                    });
+                                  } catch (error) {
+                                    console.error("Upload failed", error);
+                                    toast({
+                                      title: "Hata",
+                                      description: "Görsel yüklenirken bir hata oluştu.",
+                                      variant: "destructive",
+                                    });
+                                  }
+                                }}
+                              />
+                              <Button
+                                variant="outline"
+                                onClick={() => document.getElementById(`file-upload-${item.key}`)?.click()}
+                                type="button"
+                              >
+                                <Image className="mr-2 h-4 w-4" />
+                                Yükle
+                              </Button>
+                            </div>
+                          </div>
                         </div>
                       ) : item.type === "HTML" ? (
                         <Textarea

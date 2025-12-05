@@ -42,6 +42,12 @@ export class AdminController {
     return this.adminService.getLiabilitiesBreakdown();
   }
 
+  @Get('stats/broadcast')
+  @Roles(Role.ADMIN)
+  async getBroadcastStats() {
+    return this.adminService.getBroadcastStats();
+  }
+
   @Get('stats/tali/:id')
   @Roles(Role.ADMIN)
   async getTaliStats(@Param('id') id: string) {

@@ -36,6 +36,9 @@ let AdminController = class AdminController {
     async getLiabilitiesBreakdown() {
         return this.adminService.getLiabilitiesBreakdown();
     }
+    async getBroadcastStats() {
+        return this.adminService.getBroadcastStats();
+    }
     async getTaliStats(id) {
         return this.adminService.getTaliStats(id);
     }
@@ -75,6 +78,13 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "getLiabilitiesBreakdown", null);
+__decorate([
+    (0, common_1.Get)('stats/broadcast'),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "getBroadcastStats", null);
 __decorate([
     (0, common_1.Get)('stats/tali/:id'),
     (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),

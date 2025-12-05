@@ -1,7 +1,9 @@
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationGateway } from '../notification/notification.gateway';
 export declare class AdminService {
     private prisma;
-    constructor(prisma: PrismaService);
+    private notificationGateway;
+    constructor(prisma: PrismaService, notificationGateway: NotificationGateway);
     getDashboardStats(): Promise<{
         pendingUsers: number;
         pendingOffers: number;
@@ -25,25 +27,26 @@ export declare class AdminService {
                     allowedInsuranceTypes: string[];
                 } | null;
             } & {
-                id: string;
-                email: string;
-                password: string;
                 role: import("@prisma/client").$Enums.Role;
                 isApproved: boolean;
+                id: string;
                 createdAt: Date;
+                email: string;
+                password: string;
                 updatedAt: Date;
             };
         } & {
             id: string;
-            createdAt: Date;
             userId: string;
             action: string;
             details: import("@prisma/client/runtime/library").JsonValue | null;
             ipAddress: string | null;
+            createdAt: Date;
         })[];
         totalRevenue: number | import("@prisma/client/runtime/library").Decimal;
         totalPolicies: number;
         monthlyRevenue: Record<string, number>;
+        onlineUsers: number;
     }>;
     getGeneralTaliStats(): Promise<{
         totalTalis: number;
@@ -103,4 +106,8 @@ export declare class AdminService {
         points: number;
         membershipType: import("@prisma/client").$Enums.MembershipType;
     }[]>;
+    getBroadcastStats(): Promise<{
+        activeUsers: number;
+        onlineUsers: number;
+    }>;
 }
