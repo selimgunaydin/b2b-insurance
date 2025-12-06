@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { BadgeType, Prisma } from '@prisma/client';
+import { BadgeType, Prisma, TransactionType } from '@prisma/client';
 import { NotificationService } from '../notification/notification.service';
 
 interface BadgeCriteria {
@@ -161,7 +161,7 @@ export class BadgeService {
         data: {
           userId: taliProfile.userId,
           points: badge.points,
-          type: 'BADGE_REWARD',
+          type: TransactionType.BADGE_REWARD,
           status: 'SUCCESS',
           description: `Rozet: ${badge.name}`,
         },

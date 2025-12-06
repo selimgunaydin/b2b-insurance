@@ -116,7 +116,7 @@ let BadgeService = BadgeService_1 = class BadgeService {
                 data: {
                     userId: taliProfile.userId,
                     points: badge.points,
-                    type: 'BADGE_REWARD',
+                    type: client_1.TransactionType.BADGE_REWARD,
                     status: 'SUCCESS',
                     description: `Rozet: ${badge.name}`,
                 },
