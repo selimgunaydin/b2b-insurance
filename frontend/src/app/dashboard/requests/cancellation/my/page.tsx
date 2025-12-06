@@ -200,7 +200,7 @@ export default function MyCancellationsPage() {
                         variant="outline" 
                         size="sm"
                         onClick={() => {
-                          const phone = "905XXXXXXXXX"; // Admin phone number
+                          const phone = "905312343329"; // Admin phone number
                           const message = encodeURIComponent(`Merhaba, ${cancellation.policy?.policy?.policyNumber || cancellation.policyId} numaralı poliçem için iptal talebim hakkında bilgi almak istiyorum.`);
                           window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
                         }}
