@@ -14,6 +14,7 @@ import { PaymentService } from '../payment/payment.service';
 import { GoalService } from '../goal/goal.service';
 import { WhatsAppService } from '../whatsapp/whatsapp.service';
 import { TrustScoreService } from '../user/trust-score.service';
+import { BadgeService } from '../badge/badge.service';
 
 @Injectable()
 export class InsuranceService {
@@ -26,7 +27,8 @@ export class InsuranceService {
     private whatsappService: WhatsAppService,
     private paymentService: PaymentService,
     private trustScoreService: TrustScoreService,
-  ) {}
+    private badgeService: BadgeService,
+  ) { }
 
   async getStats(userId: string) {
     const taliProfile = await this.prisma.taliProfile.findUnique({
@@ -161,25 +163,25 @@ export class InsuranceService {
     const trustScoreEnabledSetting = await this.prisma.systemSetting.findUnique({
       where: { key: 'trust_score_enabled' },
     });
-    
+
     if (trustScoreEnabledSetting && trustScoreEnabledSetting.value === 'true') {
       // Check general min trust score
       const minAllSetting = await this.prisma.systemSetting.findUnique({
         where: { key: 'trust_score_min_all' },
       });
       const minAll = minAllSetting ? parseInt(minAllSetting.value) : 50;
-      
+
       if (taliProfile.trustScore < minAll) {
         throw new BadRequestException(
           `Güven puanınız (${taliProfile.trustScore}) tüm sigorta işlemleri için gereken minimum değerin (${minAll}) altında.`,
         );
       }
-      
+
       // Check type-specific min trust score
       const typeMinSetting = await this.prisma.systemSetting.findUnique({
         where: { key: `trust_score_min_${dto.type}` },
       });
-      
+
       if (typeMinSetting) {
         const typeMin = parseInt(typeMinSetting.value);
         if (taliProfile.trustScore < typeMin) {
@@ -372,8 +374,8 @@ export class InsuranceService {
         policyUrl: policyPdfUrl,
         premium: request.offers
           ? (request.offers as any[]).find(
-              (o) => o.company === request.adminOfferCompany,
-            )?.price || 0
+            (o) => o.company === request.adminOfferCompany,
+          )?.price || 0
           : 0, // Best effort premium
         company: request.adminOfferCompany || 'Unknown',
         policyNumber: `POL-${Date.now()}`, // Generate a temp policy number if new
@@ -393,6 +395,13 @@ export class InsuranceService {
       request.tali.userId,
       policy.policyNumber,
     );
+
+    // Check and award badges
+    try {
+      await this.badgeService.checkAndAwardBadges(request.taliId);
+    } catch (e) {
+      console.error('Badge check failed', e);
+    }
 
     return request;
   }
@@ -617,9 +626,12 @@ export class InsuranceService {
             request.taliId,
             'POLICY_COMPLETED',
           );
+
+          // Check and award badges
+          await this.badgeService.checkAndAwardBadges(request.taliId);
         }
       } catch (e) {
-        console.error('Goal progress check failed', e);
+        console.error('Goal/Badge progress check failed', e);
       }
 
       // Send WhatsApp notification to customer
@@ -1037,5 +1049,46 @@ export class InsuranceService {
     });
 
     return updated;
+  }
+
+  async cancelPolicyDirectly(policyId: string, adminUserId: string) {
+    const policy = await this.prisma.policy.findUnique({
+      where: { id: policyId },
+      include: {
+        insuranceRequest: {
+          include: { tali: true },
+        },
+      },
+    });
+
+    if (!policy) throw new NotFoundException('Policy not found');
+
+    // Update policy status
+    const updatedPolicy = await this.prisma.policy.update({
+      where: { id: policyId },
+      data: { status: 'CANCELLED' },
+    });
+
+    // Update insurance request status
+    await this.prisma.insuranceRequest.update({
+      where: { id: policy.insuranceRequestId },
+      data: { status: 'CANCELLED' },
+    });
+
+    // Notify tali
+    await this.notificationService.createSystemNotification(
+      policy.insuranceRequest.tali.userId,
+      'Poliçe İptal Edildi',
+      `${policy.policyNumber} numaralı poliçeniz admin tarafından iptal edildi.`,
+      NotificationType.POLICY,
+    );
+
+    // Audit log
+    await this.auditService.log(adminUserId, 'ADMIN_CANCEL_POLICY', {
+      policyId,
+      policyNumber: policy.policyNumber,
+    });
+
+    return updatedPolicy;
   }
 }

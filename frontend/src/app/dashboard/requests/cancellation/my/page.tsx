@@ -5,7 +5,7 @@ import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, FileX, Clock, CheckCircle, XCircle, Plus, Phone, FileText, Calendar, MessageSquare } from "lucide-react";
+import { Loader2, FileX, Clock, CheckCircle, XCircle, Plus, Phone, FileText, Calendar, MessageSquare, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
@@ -194,15 +194,32 @@ export default function MyCancellationsPage() {
                       </div>
                     )}
                     
-                    {/* Chat Button - Only show if there's an admin response or status is not PENDING */}
-                    {(cancellation.adminResponse || cancellation.status !== "PENDING") && (
-                      <Link href={`/dashboard/requests/${cancellation.policyId}`}>
-                        <Button variant="outline" size="sm">
-                          <MessageSquare className="mr-2 h-4 w-4" />
-                          Sohbet Başlat
-                        </Button>
-                      </Link>
-                    )}
+                    <div className="flex items-center gap-2 ml-auto">
+                      {/* WhatsApp Button */}
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          const phone = "905XXXXXXXXX"; // Admin phone number
+                          const message = encodeURIComponent(`Merhaba, ${cancellation.policy?.policy?.policyNumber || cancellation.policyId} numaralı poliçem için iptal talebim hakkında bilgi almak istiyorum.`);
+                          window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+                        }}
+                        className="text-green-600 border-green-600 hover:bg-green-50"
+                      >
+                        <MessageCircle className="mr-2 h-4 w-4" />
+                        WhatsApp
+                      </Button>
+                      
+                      {/* Chat Button - Only show if there's an admin response or status is not PENDING */}
+                      {(cancellation.adminResponse || cancellation.status !== "PENDING") && (
+                        <Link href={`/dashboard/requests/${cancellation.policyId}`}>
+                          <Button variant="outline" size="sm">
+                            <MessageSquare className="mr-2 h-4 w-4" />
+                            Sohbet Başlat
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>

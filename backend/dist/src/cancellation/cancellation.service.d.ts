@@ -38,9 +38,9 @@ export declare class CancellationService {
                 startDate: Date;
                 endDate: Date;
                 policyUrl: string | null;
-                premium: import("@prisma/client/runtime/library").Decimal;
                 insuranceRequestId: string;
                 policyNumber: string;
+                premium: import("@prisma/client/runtime/library").Decimal;
                 commissionPoints: import("@prisma/client/runtime/library").Decimal;
             } | null;
             tali: {
@@ -108,9 +108,9 @@ export declare class CancellationService {
                 startDate: Date;
                 endDate: Date;
                 policyUrl: string | null;
-                premium: import("@prisma/client/runtime/library").Decimal;
                 insuranceRequestId: string;
                 policyNumber: string;
+                premium: import("@prisma/client/runtime/library").Decimal;
                 commissionPoints: import("@prisma/client/runtime/library").Decimal;
             } | null;
         } & {
@@ -152,9 +152,9 @@ export declare class CancellationService {
                 startDate: Date;
                 endDate: Date;
                 policyUrl: string | null;
-                premium: import("@prisma/client/runtime/library").Decimal;
                 insuranceRequestId: string;
                 policyNumber: string;
+                premium: import("@prisma/client/runtime/library").Decimal;
                 commissionPoints: import("@prisma/client/runtime/library").Decimal;
             } | null;
             tali: {

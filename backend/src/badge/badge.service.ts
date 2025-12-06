@@ -16,7 +16,7 @@ export class BadgeService {
   constructor(
     private prisma: PrismaService,
     private notificationService: NotificationService,
-  ) {}
+  ) { }
 
   // Get all badges
   async getAllBadges() {
@@ -155,6 +155,17 @@ export class BadgeService {
           },
         },
       });
+
+      // Create transaction record for badge reward
+      await this.prisma.transactions.create({
+        data: {
+          userId: taliProfile.userId,
+          points: badge.points,
+          type: 'BADGE_REWARD',
+          status: 'SUCCESS',
+          description: `Rozet: ${badge.name}`,
+        },
+      });
     }
 
     // Send notification
@@ -205,8 +216,8 @@ export class BadgeService {
         case 'POLICY_COUNT':
           const policyCount = criteria.insuranceType
             ? taliProfile.insuranceRequests.filter(
-                (r) => r.type === criteria.insuranceType,
-              ).length
+              (r) => r.type === criteria.insuranceType,
+            ).length
             : taliProfile.insuranceRequests.length;
           qualified = policyCount >= criteria.threshold;
           break;
@@ -290,7 +301,7 @@ export class BadgeService {
 
     return sortedTalis.map((tali, index) => {
       const isCurrentUser = tali.user.id === currentUserId;
-      
+
       return {
         rank: index + 1,
         id: tali.id,

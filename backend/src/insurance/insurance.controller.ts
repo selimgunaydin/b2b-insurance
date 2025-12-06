@@ -26,7 +26,7 @@ export class InsuranceController {
   constructor(
     private readonly insuranceService: InsuranceService,
     private readonly ocrService: OcrService,
-  ) {}
+  ) { }
 
   @Post()
   @Roles(Role.TALI)
@@ -82,6 +82,12 @@ export class InsuranceController {
   @Roles(Role.ADMIN)
   async getPolicyById(@Param('id') id: string) {
     return this.insuranceService.getPolicyById(id);
+  }
+
+  @Put('policy/:id/cancel')
+  @Roles(Role.ADMIN)
+  async cancelPolicy(@Param('id') id: string, @Request() req: any) {
+    return this.insuranceService.cancelPolicyDirectly(id, req.user.id);
   }
 
   @Get(':id')

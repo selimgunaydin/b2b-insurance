@@ -45,6 +45,7 @@ enum TransactionType {
   REFUND
   GOAL_REWARD
   MARKET_PURCHASE
+  BADGE_REWARD
 }
 
 enum TransactionStatus {

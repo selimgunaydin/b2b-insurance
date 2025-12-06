@@ -21,6 +21,7 @@ const payment_service_1 = require("../payment/payment.service");
 const goal_service_1 = require("../goal/goal.service");
 const whatsapp_service_1 = require("../whatsapp/whatsapp.service");
 const trust_score_service_1 = require("../user/trust-score.service");
+const badge_service_1 = require("../badge/badge.service");
 let InsuranceService = class InsuranceService {
     prisma;
     auditService;
@@ -30,7 +31,8 @@ let InsuranceService = class InsuranceService {
     whatsappService;
     paymentService;
     trustScoreService;
-    constructor(prisma, auditService, supabaseService, notificationService, goalService, whatsappService, paymentService, trustScoreService) {
+    badgeService;
+    constructor(prisma, auditService, supabaseService, notificationService, goalService, whatsappService, paymentService, trustScoreService, badgeService) {
         this.prisma = prisma;
         this.auditService = auditService;
         this.supabaseService = supabaseService;
@@ -39,6 +41,7 @@ let InsuranceService = class InsuranceService {
         this.whatsappService = whatsappService;
         this.paymentService = paymentService;
         this.trustScoreService = trustScoreService;
+        this.badgeService = badgeService;
     }
     async getStats(userId) {
         const taliProfile = await this.prisma.taliProfile.findUnique({
@@ -317,6 +320,12 @@ let InsuranceService = class InsuranceService {
             filename,
         });
         await this.notificationService.notifyPolicyCreated(request.tali.userId, policy.policyNumber);
+        try {
+            await this.badgeService.checkAndAwardBadges(request.taliId);
+        }
+        catch (e) {
+            console.error('Badge check failed', e);
+        }
         return request;
     }
     async approveOffer(id, userId, selectedOffer) {
@@ -474,10 +483,11 @@ let InsuranceService = class InsuranceService {
                 if (request && result.policy) {
                     await this.goalService.checkProgress(request.taliId, request.type, Number(result.policy.premium));
                     await this.trustScoreService.updateTrustScore(request.taliId, 'POLICY_COMPLETED');
+                    await this.badgeService.checkAndAwardBadges(request.taliId);
                 }
             }
             catch (e) {
-                console.error('Goal progress check failed', e);
+                console.error('Goal/Badge progress check failed', e);
             }
             try {
                 if (request && result.policy) {
@@ -790,6 +800,32 @@ let InsuranceService = class InsuranceService {
         });
         return updated;
     }
+    async cancelPolicyDirectly(policyId, adminUserId) {
+        const policy = await this.prisma.policy.findUnique({
+            where: { id: policyId },
+            include: {
+                insuranceRequest: {
+                    include: { tali: true },
+                },
+            },
+        });
+        if (!policy)
+            throw new common_1.NotFoundException('Policy not found');
+        const updatedPolicy = await this.prisma.policy.update({
+            where: { id: policyId },
+            data: { status: 'CANCELLED' },
+        });
+        await this.prisma.insuranceRequest.update({
+            where: { id: policy.insuranceRequestId },
+            data: { status: 'CANCELLED' },
+        });
+        await this.notificationService.createSystemNotification(policy.insuranceRequest.tali.userId, 'Poliçe İptal Edildi', `${policy.policyNumber} numaralı poliçeniz admin tarafından iptal edildi.`, client_2.NotificationType.POLICY);
+        await this.auditService.log(adminUserId, 'ADMIN_CANCEL_POLICY', {
+            policyId,
+            policyNumber: policy.policyNumber,
+        });
+        return updatedPolicy;
+    }
 };
 exports.InsuranceService = InsuranceService;
 exports.InsuranceService = InsuranceService = __decorate([
@@ -801,6 +837,7 @@ exports.InsuranceService = InsuranceService = __decorate([
         goal_service_1.GoalService,
         whatsapp_service_1.WhatsAppService,
         payment_service_1.PaymentService,
-        trust_score_service_1.TrustScoreService])
+        trust_score_service_1.TrustScoreService,
+        badge_service_1.BadgeService])
 ], InsuranceService);
 //# sourceMappingURL=insurance.service.js.map

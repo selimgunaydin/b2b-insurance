@@ -11,9 +11,10 @@ import { tr } from "date-fns/locale";
 interface Transaction {
   id: string;
   points: string;
-  type: "DEPOSIT" | "PAYMENT" | "COMMISSION" | "REFUND" | "MARKET_PURCHASE";
+  type: "DEPOSIT" | "PAYMENT" | "COMMISSION" | "REFUND" | "MARKET_PURCHASE" | "GOAL_REWARD" | "BADGE_REWARD";
   status: "SUCCESS" | "PENDING";
   createdAt: string;
+  description?: string;
 }
 
 export default function TransactionsPage() {
@@ -40,19 +41,21 @@ export default function TransactionsPage() {
       case "COMMISSION": return "Puan Kazancı";
       case "REFUND": return "İade";
       case "MARKET_PURCHASE": return "Market Alışverişi";
+      case "GOAL_REWARD": return "Hedef Ödülü";
+      case "BADGE_REWARD": return "Rozet Ödülü";
       default: return type;
     }
   };
 
   const getTransactionIcon = (type: string) => {
-    if (["DEPOSIT", "COMMISSION", "REFUND"].includes(type)) {
+    if (["DEPOSIT", "COMMISSION", "REFUND", "GOAL_REWARD", "BADGE_REWARD"].includes(type)) {
       return <ArrowDownLeft className="h-4 w-4 text-green-500" />;
     }
     return <ArrowUpRight className="h-4 w-4 text-red-500" />;
   };
 
   const getAmountColor = (type: string) => {
-    if (["DEPOSIT", "COMMISSION", "REFUND"].includes(type)) {
+    if (["DEPOSIT", "COMMISSION", "REFUND", "GOAL_REWARD", "BADGE_REWARD"].includes(type)) {
       return "text-green-600";
     }
     return "text-red-600";
@@ -105,7 +108,7 @@ export default function TransactionsPage() {
                       )}
                     </TableCell>
                     <TableCell className={`text-right font-bold ${getAmountColor(tx.type)}`}>
-                      {["DEPOSIT", "COMMISSION", "REFUND"].includes(tx.type) ? "+" : "-"}
+                      {["DEPOSIT", "COMMISSION", "REFUND", "GOAL_REWARD", "BADGE_REWARD"].includes(tx.type) ? "+" : "-"}
                       {Number(tx.points).toFixed(2)} Puan
                     </TableCell>
                   </TableRow>

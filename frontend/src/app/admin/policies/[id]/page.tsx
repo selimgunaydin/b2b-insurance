@@ -6,7 +6,7 @@ import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ArrowLeft, Download, Calendar, Building2, CreditCard, User, FileText, Edit } from "lucide-react";
+import { Loader2, ArrowLeft, Download, Calendar, Building2, CreditCard, User, FileText, Edit, XCircle } from "lucide-react";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import Link from "next/link";
@@ -51,6 +51,19 @@ export default function AdminPolicyDetailPage() {
     },
   });
 
+  const cancelMutation = useMutation({
+    mutationFn: async () => {
+      return api.put(`/insurance/policy/${params.id}/cancel`);
+    },
+    onSuccess: () => {
+      toast({ title: "Başarılı", description: "Poliçe iptal edildi." });
+      queryClient.invalidateQueries({ queryKey: ["admin-policy", params.id] });
+    },
+    onError: () => {
+      toast({ title: "Hata", description: "İptal başarısız.", variant: "destructive" });
+    },
+  });
+
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -83,6 +96,21 @@ export default function AdminPolicyDetailPage() {
           </p>
         </div>
         <div className="ml-auto flex gap-2">
+          {policy.status === 'ACTIVE' && (
+            <Button 
+              variant="destructive" 
+              onClick={() => {
+                if (confirm("Bu poliçeyi iptal etmek istediğinize emin misiniz?")) {
+                  cancelMutation.mutate();
+                }
+              }}
+              disabled={cancelMutation.isPending}
+            >
+              {cancelMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <XCircle className="mr-2 h-4 w-4" />
+              İptal Et
+            </Button>
+          )}
           <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
             <DialogTrigger asChild>
               <Button variant="outline">

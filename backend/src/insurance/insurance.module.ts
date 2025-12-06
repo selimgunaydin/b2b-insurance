@@ -11,6 +11,7 @@ import { WhatsAppModule } from '../whatsapp/whatsapp.module';
 import { PaymentModule } from '../payment/payment.module';
 import { UserModule } from '../user/user.module';
 import { OcrModule } from '../ocr/ocr.module';
+import { BadgeModule } from '../badge/badge.module';
 
 @Module({
   imports: [
@@ -23,8 +24,9 @@ import { OcrModule } from '../ocr/ocr.module';
     PaymentModule,
     UserModule,
     OcrModule,
+    BadgeModule,
   ],
   controllers: [InsuranceController],
   providers: [InsuranceService],
 })
-export class InsuranceModule {}
+export class InsuranceModule { }

@@ -112,6 +112,15 @@ let BadgeService = BadgeService_1 = class BadgeService {
                     },
                 },
             });
+            await this.prisma.transactions.create({
+                data: {
+                    userId: taliProfile.userId,
+                    points: badge.points,
+                    type: 'BADGE_REWARD',
+                    status: 'SUCCESS',
+                    description: `Rozet: ${badge.name}`,
+                },
+            });
         }
         await this.notificationService.createSystemNotification(taliProfile.userId, 'Yeni Rozet Kazandınız! 🏆', `Tebrikler! "${badge.name}" rozetini kazandınız.${badge.points > 0 ? ` +${badge.points} puan eklendi.` : ''}`);
         this.logger.log(`Badge "${badge.name}" awarded to tali ${taliId}`);
