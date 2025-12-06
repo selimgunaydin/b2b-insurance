@@ -12,15 +12,15 @@ export declare class UserController {
                     points: number;
                     type: import("@prisma/client").$Enums.BadgeType;
                     description: string;
+                    isActive: boolean;
                     iconUrl: string | null;
                     criteria: import("@prisma/client/runtime/library").JsonValue;
-                    isActive: boolean;
                 };
             } & {
                 id: string;
                 taliId: string;
-                badgeId: string;
                 earnedAt: Date;
+                badgeId: string;
             })[];
         } & {
             id: string;

@@ -81,7 +81,7 @@ export function TaliSidebar() {
         { title: "Puan Geçmişi", href: "/dashboard/transactions", icon: History },
         { title: "Liderlik", href: "/dashboard/leaderboard", icon: Trophy },
         { title: "Rozetlerim", href: "/dashboard/badges", icon: Award },
-        { title: "Premium", href: "/dashboard/premium", icon: Crown },
+        // { title: "Premium", href: "/dashboard/premium", icon: Crown },
       ]
     },
     {
