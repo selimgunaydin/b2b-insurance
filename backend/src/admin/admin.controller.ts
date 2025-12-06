@@ -6,6 +6,7 @@ import {
   Body,
   UseGuards,
   Param,
+  Query,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -72,5 +73,46 @@ export class AdminController {
   @Roles(Role.ADMIN)
   async upgradeToPremium(@Param('id') id: string) {
     return this.adminService.upgradeToPremium(id);
+  }
+
+  // ===== NEW ANALYTICS ENDPOINTS =====
+
+  @Get('analytics')
+  @Roles(Role.ADMIN)
+  async getConsolidatedAnalytics(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    const start = startDate ? new Date(startDate) : undefined;
+    const end = endDate ? new Date(endDate) : undefined;
+    return this.adminService.getConsolidatedAnalytics(start, end);
+  }
+
+  @Get('analytics/revenue')
+  @Roles(Role.ADMIN)
+  async getRevenueByType(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    const start = startDate ? new Date(startDate) : undefined;
+    const end = endDate ? new Date(endDate) : undefined;
+    return this.adminService.getRevenueByInsuranceType(start, end);
+  }
+
+  @Get('analytics/cancellations')
+  @Roles(Role.ADMIN)
+  async getCancellationStats(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    const start = startDate ? new Date(startDate) : undefined;
+    const end = endDate ? new Date(endDate) : undefined;
+    return this.adminService.getPolicyCancellationRatio(start, end);
+  }
+
+  @Put('profit-settings')
+  @Roles(Role.ADMIN)
+  async updateProfitRates(@Body() body: { rates: Record<string, number> }) {
+    return this.adminService.updateProfitRates(body.rates);
   }
 }

@@ -8,49 +8,61 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LoggerService = void 0;
 const common_1 = require("@nestjs/common");
+const nest_winston_1 = require("nest-winston");
+const winston_1 = require("winston");
 const notification_gateway_1 = require("../notification/notification.gateway");
-let LoggerService = class LoggerService extends common_1.Logger {
+let LoggerService = class LoggerService {
+    winstonLogger;
     notificationGateway;
-    constructor(notificationGateway) {
-        super();
+    constructor(winstonLogger, notificationGateway) {
+        this.winstonLogger = winstonLogger;
         this.notificationGateway = notificationGateway;
     }
     log(message, context) {
-        super.log(message, context);
-        this.broadcastLog('log', message, context);
+        this.winstonLogger.info(message, { context: context || 'System' });
+        this.broadcastLog('log', String(message), context);
     }
     error(message, trace, context) {
-        super.error(message, trace, context);
-        this.broadcastLog('error', message, context);
+        this.winstonLogger.error(message, { context: context || 'System', trace });
+        this.broadcastLog('error', String(message), context);
     }
     warn(message, context) {
-        super.warn(message, context);
-        this.broadcastLog('warn', message, context);
+        this.winstonLogger.warn(message, { context: context || 'System' });
+        this.broadcastLog('warn', String(message), context);
     }
     debug(message, context) {
-        super.debug(message, context);
-        this.broadcastLog('debug', message, context);
+        this.winstonLogger.debug(message, { context: context || 'System' });
+        this.broadcastLog('debug', String(message), context);
     }
     verbose(message, context) {
-        super.verbose(message, context);
-        this.broadcastLog('verbose', message, context);
+        this.winstonLogger.verbose(message, { context: context || 'System' });
+        this.broadcastLog('verbose', String(message), context);
     }
     broadcastLog(level, message, context) {
         const logContext = context || 'System';
-        this.notificationGateway.server.to('admin').emit('system_log', {
-            timestamp: new Date().toISOString(),
-            level,
-            message,
-            context: logContext,
-        });
+        try {
+            this.notificationGateway.server?.to('admin').emit('system_log', {
+                timestamp: new Date().toISOString(),
+                level,
+                message,
+                context: logContext,
+            });
+        }
+        catch (e) {
+        }
     }
 };
 exports.LoggerService = LoggerService;
 exports.LoggerService = LoggerService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [notification_gateway_1.NotificationGateway])
+    __param(0, (0, common_1.Inject)(nest_winston_1.WINSTON_MODULE_PROVIDER)),
+    __metadata("design:paramtypes", [winston_1.Logger,
+        notification_gateway_1.NotificationGateway])
 ], LoggerService);
 //# sourceMappingURL=logger.service.js.map

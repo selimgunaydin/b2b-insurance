@@ -15,6 +15,7 @@ export class SettingsService implements OnModuleInit {
 
   async initializeDefaultSettings() {
     const defaults = [
+      // === GENERAL SETTINGS ===
       {
         key: 'site_title',
         value: 'B2B Sigorta Paneli',
@@ -30,56 +31,107 @@ export class SettingsService implements OnModuleInit {
         description: 'Bakım modu aktif mi?',
       },
       {
-        key: 'allow_new_registration',
-        value: 'true',
-        type: 'BOOLEAN',
-        category: 'GENERAL',
-        description: 'Yeni üye alımı açık mı?',
-      },
-      {
         key: 'premium_system_active',
         value: 'false',
         type: 'BOOLEAN',
         category: 'GENERAL',
         description: 'Premium sistemi aktif mi?',
       },
-      // Insurance Type Global Toggles
+      // === SECURITY SETTINGS ===
+      {
+        key: 'allow_new_registration',
+        value: 'true',
+        type: 'BOOLEAN',
+        category: 'SECURITY',
+        description: 'Yeni üye alımı açık mı?',
+      },
+      // === INSURANCE TYPE SETTINGS ===
       {
         key: 'insurance_type_TRAFIK_enabled',
         value: 'true',
         type: 'BOOLEAN',
-        category: 'GENERAL',
+        category: 'INSURANCE_TYPES',
         description: 'Trafik Sigortası Aktif mi?',
       },
       {
         key: 'insurance_type_KASKO_enabled',
         value: 'true',
         type: 'BOOLEAN',
-        category: 'GENERAL',
+        category: 'INSURANCE_TYPES',
         description: 'Kasko Sigortası Aktif mi?',
       },
       {
         key: 'insurance_type_SAGLIK_enabled',
         value: 'true',
         type: 'BOOLEAN',
-        category: 'GENERAL',
+        category: 'INSURANCE_TYPES',
         description: 'Sağlık Sigortası Aktif mi?',
       },
       {
         key: 'insurance_type_DASK_enabled',
         value: 'true',
         type: 'BOOLEAN',
-        category: 'GENERAL',
+        category: 'INSURANCE_TYPES',
         description: 'DASK Sigortası Aktif mi?',
       },
       {
         key: 'insurance_type_KONUT_enabled',
         value: 'true',
         type: 'BOOLEAN',
-        category: 'GENERAL',
+        category: 'INSURANCE_TYPES',
         description: 'Konut Sigortası Aktif mi?',
       },
-      // Standard Commission Rates
+      // === TRUST SCORE RESTRICTIONS ===
+      {
+        key: 'trust_score_enabled',
+        value: 'false',
+        type: 'BOOLEAN',
+        category: 'TRUST_RESTRICTIONS',
+        description: 'Güven puanı kısıtlamaları aktif mi?',
+      },
+      {
+        key: 'trust_score_min_all',
+        value: '50',
+        type: 'NUMBER',
+        category: 'TRUST_RESTRICTIONS',
+        description: 'Tüm poliçeler için minimum güven puanı',
+      },
+      {
+        key: 'trust_score_min_SAGLIK',
+        value: '80',
+        type: 'NUMBER',
+        category: 'TRUST_RESTRICTIONS',
+        description: 'Sağlık sigortası için minimum güven puanı',
+      },
+      {
+        key: 'trust_score_min_KASKO',
+        value: '70',
+        type: 'NUMBER',
+        category: 'TRUST_RESTRICTIONS',
+        description: 'Kasko sigortası için minimum güven puanı',
+      },
+      {
+        key: 'trust_score_min_KONUT',
+        value: '60',
+        type: 'NUMBER',
+        category: 'TRUST_RESTRICTIONS',
+        description: 'Konut sigortası için minimum güven puanı',
+      },
+      {
+        key: 'trust_score_min_TRAFIK',
+        value: '40',
+        type: 'NUMBER',
+        category: 'TRUST_RESTRICTIONS',
+        description: 'Trafik sigortası için minimum güven puanı',
+      },
+      {
+        key: 'trust_score_min_DASK',
+        value: '50',
+        type: 'NUMBER',
+        category: 'TRUST_RESTRICTIONS',
+        description: 'DASK sigortası için minimum güven puanı',
+      },
+      // === COMMISSION SETTINGS ===
       {
         key: 'commission_STANDARD_TRAFIK',
         value: '5',
@@ -151,6 +203,7 @@ export class SettingsService implements OnModuleInit {
         category: 'COMMISSION',
         description: 'Premium - Konut Komisyonu (%)',
       },
+      // === NOTIFICATION SETTINGS ===
       {
         key: 'email_notifications',
         value: 'true',
@@ -158,7 +211,6 @@ export class SettingsService implements OnModuleInit {
         category: 'NOTIFICATIONS',
         description: 'E-posta bildirimleri açık mı?',
       },
-      // WhatsApp Settings
       {
         key: 'whatsapp_enabled',
         value: 'false',
@@ -213,5 +265,77 @@ export class SettingsService implements OnModuleInit {
     });
 
     return setting;
+  }
+
+  async getTrustRestrictionsForUser(userId: string) {
+    const insuranceTypes = ['TRAFIK', 'KASKO', 'SAGLIK', 'DASK', 'KONUT'];
+    
+    // Get user's trust score
+    const taliProfile = await this.prisma.taliProfile.findUnique({
+      where: { userId },
+    });
+    
+    if (!taliProfile) {
+      return {
+        trustScoreEnabled: false,
+        userTrustScore: 0,
+        restrictions: insuranceTypes.map(type => ({
+          type,
+          allowed: true,
+          reason: null,
+          minRequired: 0,
+        })),
+      };
+    }
+
+    // Check if trust score system is enabled
+    const trustEnabledSetting = await this.prisma.systemSetting.findUnique({
+      where: { key: 'trust_score_enabled' },
+    });
+    const trustEnabled = trustEnabledSetting?.value === 'true';
+
+    if (!trustEnabled) {
+      return {
+        trustScoreEnabled: false,
+        userTrustScore: taliProfile.trustScore,
+        restrictions: insuranceTypes.map(type => ({
+          type,
+          allowed: true,
+          reason: null,
+          minRequired: 0,
+        })),
+      };
+    }
+
+    // Get general minimum
+    const minAllSetting = await this.prisma.systemSetting.findUnique({
+      where: { key: 'trust_score_min_all' },
+    });
+    const minAll = minAllSetting ? parseInt(minAllSetting.value) : 50;
+
+    const restrictions = [];
+    
+    for (const type of insuranceTypes) {
+      // Check type-specific minimum
+      const typeMinSetting = await this.prisma.systemSetting.findUnique({
+        where: { key: `trust_score_min_${type}` },
+      });
+      const typeMin = typeMinSetting ? parseInt(typeMinSetting.value) : minAll;
+      const effectiveMin = Math.max(minAll, typeMin);
+      
+      const allowed = taliProfile.trustScore >= effectiveMin;
+      restrictions.push({
+        type,
+        allowed,
+        reason: allowed ? null : `Güven puanınız (${taliProfile.trustScore}) bu sigorta türü için gereken minimum değerin (${effectiveMin}) altında.`,
+        minRequired: effectiveMin,
+      });
+    }
+
+    return {
+      trustScoreEnabled: true,
+      userTrustScore: taliProfile.trustScore,
+      restrictions,
+    };
   }
 }

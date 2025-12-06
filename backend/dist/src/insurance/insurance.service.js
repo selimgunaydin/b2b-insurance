@@ -145,12 +145,33 @@ let InsuranceService = class InsuranceService {
             where: { key: `insurance_type_${dto.type}_enabled` },
         });
         if (globalSetting && globalSetting.value === 'false') {
-            throw new Error(`Bu sigorta türü (${dto.type}) şu anda sistem genelinde pasiftir.`);
+            throw new common_1.BadRequestException(`Bu sigorta türü (${dto.type}) şu anda sistem genelinde pasiftir.`);
+        }
+        const trustScoreEnabledSetting = await this.prisma.systemSetting.findUnique({
+            where: { key: 'trust_score_enabled' },
+        });
+        if (trustScoreEnabledSetting && trustScoreEnabledSetting.value === 'true') {
+            const minAllSetting = await this.prisma.systemSetting.findUnique({
+                where: { key: 'trust_score_min_all' },
+            });
+            const minAll = minAllSetting ? parseInt(minAllSetting.value) : 50;
+            if (taliProfile.trustScore < minAll) {
+                throw new common_1.BadRequestException(`Güven puanınız (${taliProfile.trustScore}) tüm sigorta işlemleri için gereken minimum değerin (${minAll}) altında.`);
+            }
+            const typeMinSetting = await this.prisma.systemSetting.findUnique({
+                where: { key: `trust_score_min_${dto.type}` },
+            });
+            if (typeMinSetting) {
+                const typeMin = parseInt(typeMinSetting.value);
+                if (taliProfile.trustScore < typeMin) {
+                    throw new common_1.BadRequestException(`Güven puanınız (${taliProfile.trustScore}) ${dto.type} sigortası için gereken minimum değerin (${typeMin}) altında.`);
+                }
+            }
         }
         if (taliProfile.allowedInsuranceTypes &&
             taliProfile.allowedInsuranceTypes.length > 0) {
             if (!taliProfile.allowedInsuranceTypes.includes(dto.type)) {
-                throw new Error(`Bu sigorta türünü (${dto.type}) oluşturma yetkiniz bulunmamaktadır.`);
+                throw new common_1.BadRequestException(`Bu sigorta türünü (${dto.type}) oluşturma yetkiniz bulunmamaktadır.`);
             }
         }
         let customerId = dto.customerId;

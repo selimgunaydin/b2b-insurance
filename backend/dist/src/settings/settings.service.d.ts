@@ -25,4 +25,14 @@ export declare class SettingsService implements OnModuleInit {
         category: string;
         description: string | null;
     }>;
+    getTrustRestrictionsForUser(userId: string): Promise<{
+        trustScoreEnabled: boolean;
+        userTrustScore: number;
+        restrictions: {
+            type: string;
+            allowed: boolean;
+            reason: string | null;
+            minRequired: number;
+        }[];
+    }>;
 }

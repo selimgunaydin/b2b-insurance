@@ -141,6 +141,14 @@ export class NotificationService {
       createdAt: notification.createdAt.toISOString(),
     });
 
+    // Send updated unread count to eliminate polling
+    const unreadCount = await this.prisma.notification.count({
+      where: { userId, isRead: false },
+    });
+    this.notificationGateway.sendToUser(userId, 'unread_count', {
+      count: unreadCount,
+    });
+
     return notification;
   }
 

@@ -54,16 +54,17 @@ const roles_guard_1 = require("../auth/roles.guard");
 const roles_decorator_1 = require("../auth/roles.decorator");
 const client_1 = require("@prisma/client");
 let LoggerController = class LoggerController {
-    async downloadLog(date, res) {
-        if (!date) {
-            throw new common_1.BadRequestException('Date parameter is required (YYYY-MM-DD)');
+    async downloadLog(startDate, endDate, res) {
+        if (!startDate) {
+            throw new common_1.BadRequestException('startDate parameter is required (YYYY-MM-DD)');
         }
+        const effectiveEndDate = endDate || startDate;
         const logFilePath = path.join(process.cwd(), 'logs', 'combined.log');
         if (!fs.existsSync(logFilePath)) {
             throw new common_1.BadRequestException('Log file not found');
         }
         res.setHeader('Content-Type', 'text/plain');
-        res.setHeader('Content-Disposition', `attachment; filename="logs-${date}.log"`);
+        res.setHeader('Content-Disposition', `attachment; filename="logs-${startDate}-to-${effectiveEndDate}.log"`);
         const fileStream = fs.createReadStream(logFilePath);
         const readline = require('readline');
         const rl = readline.createInterface({
@@ -71,26 +72,62 @@ let LoggerController = class LoggerController {
             crlfDelay: Infinity,
         });
         for await (const line of rl) {
-            if (line.includes(date)) {
-                res.write(line + '\n');
+            try {
+                const logEntry = JSON.parse(line);
+                if (logEntry.timestamp) {
+                    const logDate = logEntry.timestamp.slice(0, 10);
+                    if (logDate >= startDate && logDate <= effectiveEndDate) {
+                        res.write(line + '\n');
+                    }
+                }
+            }
+            catch {
+                if (line.includes(startDate) || line.includes(effectiveEndDate)) {
+                    res.write(line + '\n');
+                }
             }
         }
         res.end();
     }
     async listLogs() {
         const logFilePath = path.join(process.cwd(), 'logs', 'combined.log');
-        if (!fs.existsSync(logFilePath))
-            return [];
+        if (!fs.existsSync(logFilePath)) {
+            return [{
+                    timestamp: new Date().toISOString(),
+                    level: 'info',
+                    message: 'Log dosyası henüz oluşturulmadı. Sistem logları burada görüntülenecek.',
+                    context: 'System'
+                }];
+        }
         const content = fs.readFileSync(logFilePath, 'utf-8');
+        if (!content.trim()) {
+            return [{
+                    timestamp: new Date().toISOString(),
+                    level: 'info',
+                    message: 'Log dosyası boş. Loglar burada görüntülenecek.',
+                    context: 'System'
+                }];
+        }
         const lines = content.trim().split('\n');
         return lines
             .slice(-100)
             .map((line) => {
             try {
-                return JSON.parse(line);
+                const parsed = JSON.parse(line);
+                return {
+                    timestamp: parsed.timestamp || new Date().toISOString(),
+                    level: parsed.level || 'info',
+                    message: parsed.message || line,
+                    context: parsed.context || 'System'
+                };
             }
             catch {
-                return { message: line };
+                return {
+                    timestamp: new Date().toISOString(),
+                    level: 'info',
+                    message: line,
+                    context: 'System'
+                };
             }
         })
             .reverse();
@@ -100,10 +137,11 @@ exports.LoggerController = LoggerController;
 __decorate([
     (0, common_1.Get)('download'),
     (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
-    __param(0, (0, common_1.Query)('date')),
-    __param(1, (0, common_1.Res)()),
+    __param(0, (0, common_1.Query)('startDate')),
+    __param(1, (0, common_1.Query)('endDate')),
+    __param(2, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [String, String, Object]),
     __metadata("design:returntype", Promise)
 ], LoggerController.prototype, "downloadLog", null);
 __decorate([

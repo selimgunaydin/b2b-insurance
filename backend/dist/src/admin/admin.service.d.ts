@@ -110,4 +110,54 @@ export declare class AdminService {
         activeUsers: number;
         onlineUsers: number;
     }>;
+    getRevenueByInsuranceType(startDate?: Date, endDate?: Date): Promise<Record<string, {
+        count: number;
+        revenue: number;
+    }>>;
+    getPolicyCancellationRatio(startDate?: Date, endDate?: Date): Promise<{
+        totalPolicies: number;
+        cancelledPolicies: number;
+        cancellationRequests: number;
+        approvedCancellations: number;
+        rejectedCancellations: number;
+        cancellationRate: number;
+    }>;
+    getConsolidatedAnalytics(startDate?: Date, endDate?: Date): Promise<{
+        overview: {
+            totalTalis: number;
+            totalPolicies: number;
+            totalRevenue: number;
+            totalGrossProfit: number;
+            totalCommissionsPaid: number;
+            totalNetProfit: number;
+            lostRevenue: number;
+            cancelledPolicies: number;
+        };
+        revenueByType: Record<string, {
+            count: number;
+            revenue: number;
+            grossProfit: number;
+            commissionsPaid: number;
+            netProfit: number;
+        }>;
+        cancellationStats: {
+            totalPolicies: number;
+            cancelledPolicies: number;
+            cancellationRequests: number;
+            approvedCancellations: number;
+            rejectedCancellations: number;
+            cancellationRate: number;
+        };
+        profitRates: Record<string, number>;
+        commissionRates: Record<string, number>;
+        profitsByType: Record<string, number>;
+        liabilities: {
+            totalPointsDistributed: number | import("@prisma/client/runtime/library").Decimal;
+            totalLiabilities: number | import("@prisma/client/runtime/library").Decimal;
+        };
+        monthlyPoints: Record<string, number>;
+    }>;
+    updateProfitRates(rates: Record<string, number>): Promise<{
+        success: boolean;
+    }>;
 }

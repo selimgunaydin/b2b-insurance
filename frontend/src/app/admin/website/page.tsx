@@ -8,8 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Save, Globe, Image, Type, Plus, Trash2, RefreshCw, Code } from "lucide-react";
+import { Loader2, Save, Globe, Image, Type, Plus, Trash2, RefreshCw, Code, ChevronDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 interface WebsiteContent {
   id: string;
@@ -84,6 +89,42 @@ const KEY_LABELS: Record<string, string> = {
   seo_keywords: "Anahtar Kelimeler",
   references_title: "Sayfa Başlığı",
   references_subtitle: "Alt Başlık",
+};
+
+// Section grouping for organizing content items in each category
+const CATEGORY_SECTIONS: Record<string, { label: string; keys: string[] }[]> = {
+  GENERAL: [
+    { label: "🏢 Site Kimliği", keys: ["site_logo", "site_name", "site_tagline"] },
+    { label: "📝 Footer", keys: ["footer_text"] },
+  ],
+  HOME: [
+    { label: "🏠 Hero Bölümü", keys: ["hero_title", "hero_subtitle", "hero_cta_primary", "hero_cta_secondary", "hero_background"] },
+    { label: "⭐ Özellikler Başlık", keys: ["features_title", "features_subtitle"] },
+    { label: "📌 Özellik 1", keys: ["feature_1_title", "feature_1_description"] },
+    { label: "📌 Özellik 2", keys: ["feature_2_title", "feature_2_description"] },
+    { label: "📌 Özellik 3", keys: ["feature_3_title", "feature_3_description"] },
+    { label: "📌 Özellik 4", keys: ["feature_4_title", "feature_4_description"] },
+    { label: "📣 Call to Action", keys: ["cta_title", "cta_subtitle", "cta_button"] },
+  ],
+  ABOUT: [
+    { label: "📄 Genel Bilgiler", keys: ["about_title", "about_text", "about_image"] },
+    { label: "🎯 Vizyon & Misyon", keys: ["about_vision", "about_mission"] },
+  ],
+  CONTACT: [
+    { label: "📞 Sayfa Başlıkları", keys: ["contact_title", "contact_subtitle"] },
+    { label: "📱 İletişim Bilgileri", keys: ["contact_phone", "contact_email"] },
+    { label: "📍 Adres & Harita", keys: ["contact_address", "contact_map_embed"] },
+    { label: "🕐 Çalışma Saatleri", keys: ["contact_working_hours"] },
+  ],
+  SOCIAL: [
+    { label: "🌐 Sosyal Medya Linkleri", keys: ["social_facebook", "social_twitter", "social_instagram", "social_linkedin", "social_whatsapp"] },
+  ],
+  SEO: [
+    { label: "🔍 Arama Motoru Ayarları", keys: ["seo_title", "seo_description", "seo_keywords"] },
+  ],
+  REFERENCES: [
+    { label: "📋 Sayfa Ayarları", keys: ["references_title", "references_subtitle"] },
+  ],
 };
 
 export default function AdminWebsitePage() {

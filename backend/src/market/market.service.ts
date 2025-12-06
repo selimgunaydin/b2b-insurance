@@ -22,6 +22,35 @@ export class MarketService {
     });
   }
 
+  // === CATEGORY METHODS ===
+  async getAllCategories(activeOnly = false) {
+    return this.prisma.marketCategory.findMany({
+      where: activeOnly ? { isActive: true } : {},
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  async createCategory(data: { name: string; description?: string }) {
+    return this.prisma.marketCategory.create({
+      data,
+    });
+  }
+
+  async updateCategory(id: string, data: { name?: string; description?: string; isActive?: boolean }) {
+    return this.prisma.marketCategory.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async deleteCategory(id: string) {
+    return this.prisma.marketCategory.delete({
+      where: { id },
+    });
+  }
+
+  // === PRODUCT METHODS ===
+
   async createProduct(data: {
     name: string;
     description?: string;

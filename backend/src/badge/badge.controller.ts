@@ -29,9 +29,15 @@ export class BadgeController {
   }
 
   @Get('leaderboard')
-  @ApiOperation({ summary: 'Get leaderboard' })
-  async getLeaderboard(@Query('limit') limit?: string) {
-    return this.badgeService.getLeaderboard(limit ? parseInt(limit) : 10);
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Get leaderboard with name masking for non-current user' })
+  async getLeaderboard(
+    @Query('limit') limit?: string,
+    @Request() req?: any,
+  ) {
+    const currentUserId = req?.user?.id;
+    return this.badgeService.getLeaderboard(limit ? parseInt(limit) : 10, currentUserId);
   }
 
   @Get('my')

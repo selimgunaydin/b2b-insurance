@@ -31,6 +31,35 @@ export class MarketController {
     return this.marketService.getAllProducts(isActive);
   }
 
+  // === CATEGORY ENDPOINTS ===
+  @Get('categories')
+  async getAllCategories(@Query('activeOnly') activeOnly?: string) {
+    return this.marketService.getAllCategories(activeOnly === 'true');
+  }
+
+  @Post('categories')
+  @Roles(Role.ADMIN)
+  async createCategory(@Body() data: { name: string; description?: string }) {
+    return this.marketService.createCategory(data);
+  }
+
+  @Put('categories/:id')
+  @Roles(Role.ADMIN)
+  async updateCategory(
+    @Param('id') id: string,
+    @Body() data: { name?: string; description?: string; isActive?: boolean },
+  ) {
+    return this.marketService.updateCategory(id, data);
+  }
+
+  @Delete('categories/:id')
+  @Roles(Role.ADMIN)
+  async deleteCategory(@Param('id') id: string) {
+    return this.marketService.deleteCategory(id);
+  }
+
+  // === PRODUCT ENDPOINTS ===
+
   @Post('products')
   @Roles(Role.ADMIN)
   async createProduct(

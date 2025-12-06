@@ -18,6 +18,45 @@ export declare class MarketService {
         pointCost: number;
         stock: number;
     }[]>;
+    getAllCategories(activeOnly?: boolean): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        name: string;
+        description: string | null;
+        isActive: boolean;
+    }[]>;
+    createCategory(data: {
+        name: string;
+        description?: string;
+    }): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        name: string;
+        description: string | null;
+        isActive: boolean;
+    }>;
+    updateCategory(id: string, data: {
+        name?: string;
+        description?: string;
+        isActive?: boolean;
+    }): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        name: string;
+        description: string | null;
+        isActive: boolean;
+    }>;
+    deleteCategory(id: string): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        name: string;
+        description: string | null;
+        isActive: boolean;
+    }>;
     createProduct(data: {
         name: string;
         description?: string;
@@ -69,9 +108,9 @@ export declare class MarketService {
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        taliId: string;
         details: import("@prisma/client/runtime/library").JsonValue | null;
         status: import("@prisma/client").$Enums.PurchaseStatus;
-        taliId: string;
         pointCost: number;
         fulfillmentData: import("@prisma/client/runtime/library").JsonValue | null;
         adminNote: string | null;
@@ -95,9 +134,9 @@ export declare class MarketService {
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        taliId: string;
         details: import("@prisma/client/runtime/library").JsonValue | null;
         status: import("@prisma/client").$Enums.PurchaseStatus;
-        taliId: string;
         pointCost: number;
         fulfillmentData: import("@prisma/client/runtime/library").JsonValue | null;
         adminNote: string | null;
@@ -146,9 +185,9 @@ export declare class MarketService {
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        taliId: string;
         details: import("@prisma/client/runtime/library").JsonValue | null;
         status: import("@prisma/client").$Enums.PurchaseStatus;
-        taliId: string;
         pointCost: number;
         fulfillmentData: import("@prisma/client/runtime/library").JsonValue | null;
         adminNote: string | null;
@@ -187,9 +226,9 @@ export declare class MarketService {
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        taliId: string;
         details: import("@prisma/client/runtime/library").JsonValue | null;
         status: import("@prisma/client").$Enums.PurchaseStatus;
-        taliId: string;
         pointCost: number;
         fulfillmentData: import("@prisma/client/runtime/library").JsonValue | null;
         adminNote: string | null;

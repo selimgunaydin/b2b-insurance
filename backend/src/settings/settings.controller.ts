@@ -44,6 +44,12 @@ export class SettingsController {
     );
   }
 
+  @Get('trust-restrictions')
+  @UseGuards(JwtAuthGuard)
+  async getTrustRestrictions(@Request() req: any) {
+    return this.settingsService.getTrustRestrictionsForUser(req.user.id);
+  }
+
   @Put(':key')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')

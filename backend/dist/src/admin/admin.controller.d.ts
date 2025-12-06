@@ -104,4 +104,56 @@ export declare class AdminController {
         hasContractApproval: boolean;
         allowedInsuranceTypes: string[];
     }>;
+    getConsolidatedAnalytics(startDate?: string, endDate?: string): Promise<{
+        overview: {
+            totalTalis: number;
+            totalPolicies: number;
+            totalRevenue: number;
+            totalGrossProfit: number;
+            totalCommissionsPaid: number;
+            totalNetProfit: number;
+            lostRevenue: number;
+            cancelledPolicies: number;
+        };
+        revenueByType: Record<string, {
+            count: number;
+            revenue: number;
+            grossProfit: number;
+            commissionsPaid: number;
+            netProfit: number;
+        }>;
+        cancellationStats: {
+            totalPolicies: number;
+            cancelledPolicies: number;
+            cancellationRequests: number;
+            approvedCancellations: number;
+            rejectedCancellations: number;
+            cancellationRate: number;
+        };
+        profitRates: Record<string, number>;
+        commissionRates: Record<string, number>;
+        profitsByType: Record<string, number>;
+        liabilities: {
+            totalPointsDistributed: number | import("@prisma/client/runtime/library").Decimal;
+            totalLiabilities: number | import("@prisma/client/runtime/library").Decimal;
+        };
+        monthlyPoints: Record<string, number>;
+    }>;
+    getRevenueByType(startDate?: string, endDate?: string): Promise<Record<string, {
+        count: number;
+        revenue: number;
+    }>>;
+    getCancellationStats(startDate?: string, endDate?: string): Promise<{
+        totalPolicies: number;
+        cancelledPolicies: number;
+        cancellationRequests: number;
+        approvedCancellations: number;
+        rejectedCancellations: number;
+        cancellationRate: number;
+    }>;
+    updateProfitRates(body: {
+        rates: Record<string, number>;
+    }): Promise<{
+        success: boolean;
+    }>;
 }

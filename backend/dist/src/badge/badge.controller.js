@@ -28,8 +28,9 @@ let BadgeController = class BadgeController {
     async getAllBadges() {
         return this.badgeService.getAllBadges();
     }
-    async getLeaderboard(limit) {
-        return this.badgeService.getLeaderboard(limit ? parseInt(limit) : 10);
+    async getLeaderboard(limit, req) {
+        const currentUserId = req?.user?.id;
+        return this.badgeService.getLeaderboard(limit ? parseInt(limit) : 10, currentUserId);
     }
     async getMyBadges(req) {
         return this.badgeService.getTaliBadges(req.user.id);
@@ -67,10 +68,13 @@ __decorate([
 ], BadgeController.prototype, "getAllBadges", null);
 __decorate([
     (0, common_1.Get)('leaderboard'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get leaderboard' }),
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get leaderboard with name masking for non-current user' }),
     __param(0, (0, common_1.Query)('limit')),
+    __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], BadgeController.prototype, "getLeaderboard", null);
 __decorate([

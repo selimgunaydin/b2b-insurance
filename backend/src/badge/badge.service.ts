@@ -237,12 +237,29 @@ export class BadgeService {
     return awardedBadges;
   }
 
-  // Get leaderboard
-  async getLeaderboard(limit: number = 10) {
+  // Get leaderboard - sorted by TOTAL EARNED points, not current balance
+  // Also masks names for non-current users
+  async getLeaderboard(limit: number = 10, currentUserId?: string) {
+    // First, get total earned points for each user from transactions
+    const earnedPointsPerUser = await this.prisma.transactions.groupBy({
+      by: ['userId'],
+      _sum: { points: true },
+      where: {
+        status: 'SUCCESS',
+        points: { gt: 0 }, // Only positive points (earned)
+      },
+    });
+
+    // Create a map of userId -> totalEarnedPoints
+    const earnedPointsMap = new Map<string, number>();
+    for (const entry of earnedPointsPerUser) {
+      earnedPointsMap.set(entry.userId, Number(entry._sum.points) || 0);
+    }
+
     const talis = await this.prisma.taliProfile.findMany({
       include: {
         user: {
-          select: { email: true },
+          select: { id: true, email: true },
         },
         badges: {
           include: { badge: true },
@@ -254,26 +271,45 @@ export class BadgeService {
           },
         },
       },
-      orderBy: [{ points: 'desc' }],
-      take: limit,
     });
 
-    return talis.map((tali, index) => ({
-      rank: index + 1,
-      id: tali.id,
-      fullName: tali.fullName,
-      email: tali.user.email,
-      points: Number(tali.points),
-      badgeCount: tali.badges.length,
-      badges: tali.badges.map((tb) => ({
-        id: tb.badge.id,
-        name: tb.badge.name,
-        iconUrl: tb.badge.iconUrl,
-      })),
-      policyCount: tali._count.insuranceRequests,
-      customerCount: tali._count.customers,
-      membershipType: tali.membershipType,
-    }));
+    // Sort by total earned points
+    const sortedTalis = talis
+      .map((tali) => ({
+        ...tali,
+        totalEarnedPoints: earnedPointsMap.get(tali.user.id) || 0,
+      }))
+      .sort((a, b) => b.totalEarnedPoints - a.totalEarnedPoints)
+      .slice(0, limit);
+
+    // Helper to mask name: "Selim Günaydin" -> "Se***"
+    const maskName = (name: string): string => {
+      if (!name || name.length < 2) return '***';
+      return name.substring(0, 2) + '***';
+    };
+
+    return sortedTalis.map((tali, index) => {
+      const isCurrentUser = tali.user.id === currentUserId;
+      
+      return {
+        rank: index + 1,
+        id: tali.id,
+        fullName: isCurrentUser ? tali.fullName : maskName(tali.fullName),
+        email: isCurrentUser ? tali.user.email : '***@***.com',
+        points: tali.totalEarnedPoints, // Show total earned, not current balance
+        currentPoints: Number(tali.points), // Also include current balance
+        badgeCount: tali.badges.length,
+        badges: tali.badges.map((tb) => ({
+          id: tb.badge.id,
+          name: tb.badge.name,
+          iconUrl: tb.badge.iconUrl,
+        })),
+        policyCount: tali._count.insuranceRequests,
+        customerCount: tali._count.customers,
+        membershipType: tali.membershipType,
+        isCurrentUser,
+      };
+    });
   }
 
   // Initialize default badges

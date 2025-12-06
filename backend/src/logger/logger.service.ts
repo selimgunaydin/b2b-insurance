@@ -1,50 +1,51 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Inject, LoggerService as NestLoggerService } from '@nestjs/common';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { Logger as WinstonLogger } from 'winston';
 import { NotificationGateway } from '../notification/notification.gateway';
 
 @Injectable()
-export class LoggerService extends Logger {
-  constructor(private readonly notificationGateway: NotificationGateway) {
-    super();
+export class LoggerService implements NestLoggerService {
+  constructor(
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly winstonLogger: WinstonLogger,
+    private readonly notificationGateway: NotificationGateway,
+  ) {}
+
+  log(message: any, context?: string) {
+    this.winstonLogger.info(message, { context: context || 'System' });
+    this.broadcastLog('log', String(message), context);
   }
 
-  log(message: string, context?: string) {
-    super.log(message, context);
-    this.broadcastLog('log', message, context);
+  error(message: any, trace?: string, context?: string) {
+    this.winstonLogger.error(message, { context: context || 'System', trace });
+    this.broadcastLog('error', String(message), context);
   }
 
-  error(message: string, trace?: string, context?: string) {
-    super.error(message, trace, context);
-    this.broadcastLog('error', message, context);
+  warn(message: any, context?: string) {
+    this.winstonLogger.warn(message, { context: context || 'System' });
+    this.broadcastLog('warn', String(message), context);
   }
 
-  warn(message: string, context?: string) {
-    super.warn(message, context);
-    this.broadcastLog('warn', message, context);
+  debug?(message: any, context?: string) {
+    this.winstonLogger.debug(message, { context: context || 'System' });
+    this.broadcastLog('debug', String(message), context);
   }
 
-  debug(message: string, context?: string) {
-    super.debug(message, context);
-    this.broadcastLog('debug', message, context);
-  }
-
-  verbose(message: string, context?: string) {
-    super.verbose(message, context);
-    this.broadcastLog('verbose', message, context);
+  verbose?(message: any, context?: string) {
+    this.winstonLogger.verbose(message, { context: context || 'System' });
+    this.broadcastLog('verbose', String(message), context);
   }
 
   private broadcastLog(level: string, message: string, context?: string) {
-    // Determine context if not provided
     const logContext = context || 'System';
-
-    // Broadcast to admins via socket
-    // We'll add a specific event for this in NotificationGateway or just emit directly here if gateway allows
-    // For now, let's assume we can emit accessing the server instance or similar,
-    // but better to add a method to NotificationGateway.
-    this.notificationGateway.server.to('admin').emit('system_log', {
-      timestamp: new Date().toISOString(),
-      level,
-      message,
-      context: logContext,
-    });
+    try {
+      this.notificationGateway.server?.to('admin').emit('system_log', {
+        timestamp: new Date().toISOString(),
+        level,
+        message,
+        context: logContext,
+      });
+    } catch (e) {
+      // Socket may not be ready
+    }
   }
 }

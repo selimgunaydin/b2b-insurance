@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Send, Loader2, User, Shield, Paperclip } from "lucide-react";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
+import { useSocketStore } from "@/lib/socket";
 
 interface Message {
     id: string;
@@ -35,15 +36,30 @@ export function ChatComponent({ requestId, currentUserRole }: ChatComponentProps
     const fileInputRef = useRef<HTMLInputElement>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
     const queryClient = useQueryClient();
+    const { socket } = useSocketStore();
 
+    // Fetch initial messages (no polling)
     const { data: messages, isLoading } = useQuery<Message[]>({
         queryKey: ["chat", requestId],
         queryFn: async () => {
             const res = await api.get(`/chat/${requestId}`);
             return res.data;
         },
-        refetchInterval: 10000, // Poll every 10 seconds
+        staleTime: Infinity, // Don't auto-refetch, rely on socket
     });
+
+    // Listen for new chat messages via socket
+    useEffect(() => {
+        if (socket) {
+            const handleChatMessage = () => {
+                queryClient.invalidateQueries({ queryKey: ["chat", requestId] });
+            };
+            socket.on("chat_message", handleChatMessage);
+            return () => {
+                socket.off("chat_message", handleChatMessage);
+            };
+        }
+    }, [socket, queryClient, requestId]);
 
     const sendMessageMutation = useMutation({
         mutationFn: async (data: { content: string; attachmentUrl?: string }) => {

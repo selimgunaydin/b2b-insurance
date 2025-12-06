@@ -28,6 +28,18 @@ let MarketController = class MarketController {
         const isActive = activeOnly === 'true';
         return this.marketService.getAllProducts(isActive);
     }
+    async getAllCategories(activeOnly) {
+        return this.marketService.getAllCategories(activeOnly === 'true');
+    }
+    async createCategory(data) {
+        return this.marketService.createCategory(data);
+    }
+    async updateCategory(id, data) {
+        return this.marketService.updateCategory(id, data);
+    }
+    async deleteCategory(id) {
+        return this.marketService.deleteCategory(id);
+    }
     async createProduct(data) {
         return this.marketService.createProduct(data);
     }
@@ -58,6 +70,38 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], MarketController.prototype, "getAllProducts", null);
+__decorate([
+    (0, common_1.Get)('categories'),
+    __param(0, (0, common_1.Query)('activeOnly')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], MarketController.prototype, "getAllCategories", null);
+__decorate([
+    (0, common_1.Post)('categories'),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], MarketController.prototype, "createCategory", null);
+__decorate([
+    (0, common_1.Put)('categories/:id'),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], MarketController.prototype, "updateCategory", null);
+__decorate([
+    (0, common_1.Delete)('categories/:id'),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], MarketController.prototype, "deleteCategory", null);
 __decorate([
     (0, common_1.Post)('products'),
     (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),

@@ -29,6 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 
 interface Product {
   id: string;
@@ -40,6 +41,13 @@ interface Product {
   isActive: boolean;
   type: "PHYSICAL" | "DIGITAL";
   category?: string;
+}
+
+interface MarketCategory {
+  id: string;
+  name: string;
+  description?: string;
+  isActive: boolean;
 }
 
 interface Purchase {
@@ -78,6 +86,8 @@ export default function AdminMarketPage() {
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [newCategoryDesc, setNewCategoryDesc] = useState("");
 
   // Get Products (Admin sees all)
   const { data: products, isLoading: productsLoading } = useQuery<Product[]>({
@@ -94,6 +104,37 @@ export default function AdminMarketPage() {
     queryFn: async () => {
       const res = await api.get("/market/purchases");
       return res.data;
+    },
+  });
+
+  // Get Categories
+  const { data: categories } = useQuery<MarketCategory[]>({
+    queryKey: ["market-categories"],
+    queryFn: async () => {
+      const res = await api.get("/market/categories");
+      return res.data;
+    },
+  });
+
+  // Category Mutations
+  const categoryMutation = useMutation({
+    mutationFn: async (data: { name: string; description?: string }) => {
+      const res = await api.post("/market/categories", data);
+      return res.data;
+    },
+    onSuccess: () => {
+      toast({ title: "Başarılı", description: "Kategori oluşturuldu." });
+      queryClient.invalidateQueries({ queryKey: ["market-categories"] });
+    },
+  });
+
+  const deleteCategoryMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await api.delete(`/market/categories/${id}`);
+    },
+    onSuccess: () => {
+      toast({ title: "Başarılı", description: "Kategori silindi." });
+      queryClient.invalidateQueries({ queryKey: ["market-categories"] });
     },
   });
 
@@ -136,6 +177,21 @@ export default function AdminMarketPage() {
       toast({
         title: "Başarılı",
         description: "Ürün silindi.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["admin-products"] });
+    },
+  });
+
+  // Toggle Product Active Status Mutation
+  const toggleProductActiveMutation = useMutation({
+    mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
+      const res = await api.put(`/market/products/${id}`, { isActive });
+      return res.data;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Başarılı",
+        description: "Ürün durumu güncellendi.",
       });
       queryClient.invalidateQueries({ queryKey: ["admin-products"] });
     },
@@ -228,6 +284,7 @@ export default function AdminMarketPage() {
       <Tabs defaultValue="products" className="space-y-4">
         <TabsList>
           <TabsTrigger value="products">Ürünler</TabsTrigger>
+          <TabsTrigger value="categories">Kategoriler</TabsTrigger>
           <TabsTrigger value="purchases">Siparişler</TabsTrigger>
         </TabsList>
 
@@ -269,26 +326,45 @@ export default function AdminMarketPage() {
                       <TableCell>{product.pointCost} Puan</TableCell>
                       <TableCell>{product.stock}</TableCell>
                       <TableCell>
-                        <Badge variant={product.isActive ? "default" : "secondary"}>
-                          {product.isActive ? "Aktif" : "Pasif"}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            checked={product.isActive}
+                            disabled={toggleProductActiveMutation.isPending}
+                            onCheckedChange={(checked) => {
+                              toggleProductActiveMutation.mutate({ id: product.id, isActive: checked });
+                            }}
+                          />
+                          <Badge variant={product.isActive ? "default" : "secondary"}>
+                            {product.isActive ? "Aktif" : "Pasif"}
+                          </Badge>
+                        </div>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="icon" onClick={() => openEditDialog(product)}>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => openEditDialog(product)}
+                            disabled={productMutation.isPending}
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
                           <Button 
                             variant="ghost" 
                             size="icon" 
                             className="text-destructive hover:text-destructive"
+                            disabled={deleteProductMutation.isPending}
                             onClick={() => {
                               if (confirm("Bu ürünü silmek istediğinize emin misiniz?")) {
                                 deleteProductMutation.mutate(product.id);
                               }
                             }}
                           >
-                            <Trash2 className="h-4 w-4" />
+                            {deleteProductMutation.isPending ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
+                            )}
                           </Button>
                         </div>
                       </TableCell>
@@ -298,6 +374,103 @@ export default function AdminMarketPage() {
                     <TableRow>
                       <TableCell colSpan={7} className="text-center text-muted-foreground">
                         Ürün bulunamadı.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Categories Tab */}
+        <TabsContent value="categories">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Kategoriler</CardTitle>
+                  <CardDescription>Ürün kategorilerini yönetin.</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Add New Category */}
+              <div className="flex gap-2 items-end p-4 bg-muted/50 rounded-lg">
+                <div className="flex-1 space-y-1">
+                  <Label htmlFor="categoryName">Kategori Adı</Label>
+                  <Input
+                    id="categoryName"
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                    placeholder="Örn: Teknoloji"
+                  />
+                </div>
+                <div className="flex-1 space-y-1">
+                  <Label htmlFor="categoryDesc">Açıklama (Opsiyonel)</Label>
+                  <Input
+                    id="categoryDesc"
+                    value={newCategoryDesc}
+                    onChange={(e) => setNewCategoryDesc(e.target.value)}
+                    placeholder="Örn: Elektronik ürünler"
+                  />
+                </div>
+                <Button
+                  onClick={() => {
+                    if (newCategoryName.trim()) {
+                      categoryMutation.mutate({ name: newCategoryName, description: newCategoryDesc || undefined });
+                      setNewCategoryName("");
+                      setNewCategoryDesc("");
+                    }
+                  }}
+                  disabled={!newCategoryName.trim() || categoryMutation.isPending}
+                >
+                  {categoryMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  <Plus className="mr-2 h-4 w-4" />
+                  Ekle
+                </Button>
+              </div>
+
+              {/* Categories Table */}
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Kategori Adı</TableHead>
+                    <TableHead>Açıklama</TableHead>
+                    <TableHead>Durum</TableHead>
+                    <TableHead className="text-right">İşlemler</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {categories?.map((category) => (
+                    <TableRow key={category.id}>
+                      <TableCell className="font-medium">{category.name}</TableCell>
+                      <TableCell className="text-muted-foreground">{category.description || "-"}</TableCell>
+                      <TableCell>
+                        <Badge variant={category.isActive ? "default" : "secondary"}>
+                          {category.isActive ? "Aktif" : "Pasif"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => {
+                            if (confirm(`"${category.name}" kategorisini silmek istediğinizden emin misiniz?`)) {
+                              deleteCategoryMutation.mutate(category.id);
+                            }
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {(!categories || categories.length === 0) && (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center text-muted-foreground">
+                        Henüz kategori eklenmemiş. Yukarıdaki formu kullanarak kategori ekleyin.
                       </TableCell>
                     </TableRow>
                   )}
@@ -362,63 +535,10 @@ export default function AdminMarketPage() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                         <Dialog>
-                            <DialogTrigger asChild>
-                                <Button variant="outline" size="sm">Yönet</Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                                <DialogHeader>
-                                    <DialogTitle>Sipariş Yönetimi</DialogTitle>
-                                    <DialogDescription>
-                                        {purchase.product.name} - {purchase.tali.fullName}
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <div className="space-y-4">
-                                    {purchase.product.type === "PHYSICAL" && (
-                                        <div className="p-3 bg-gray-50 rounded text-sm">
-                                            <strong>Teslimat Adresi:</strong>
-                                            <p>{purchase.details?.address || "Adres girilmemiş"}</p>
-                                        </div>
-                                    )}
-                                    
-                                    <div className="space-y-2">
-                                        <Label>Durum Güncelle</Label>
-                                        <Select 
-                                            defaultValue={purchase.status} 
-                                            onValueChange={(val) => updateStatusMutation.mutate({ id: purchase.id, status: val })}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Durum Seç" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="PENDING">Bekliyor</SelectItem>
-                                                <SelectItem value="APPROVED">Onaylandı</SelectItem>
-                                                <SelectItem value="SHIPPED">Kargolandı</SelectItem>
-                                                <SelectItem value="DELIVERED">Teslim Edildi</SelectItem>
-                                                <SelectItem value="COMPLETED">Tamamlandı</SelectItem>
-                                                <SelectItem value="REJECTED">Reddedildi</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label>{purchase.product.type === "PHYSICAL" ? "Kargo Takip Kodu" : "Kupon Kodu"}</Label>
-                                        <div className="flex gap-2">
-                                            <Input 
-                                                id={`fulfillment-${purchase.id}`} 
-                                                placeholder={purchase.product.type === "PHYSICAL" ? "Takip No" : "Kupon Kodu"}
-                                                defaultValue={purchase.product.type === "PHYSICAL" ? purchase.fulfillmentData?.trackingCode : purchase.fulfillmentData?.couponCode}
-                                            />
-                                            <Button onClick={() => {
-                                                const val = (document.getElementById(`fulfillment-${purchase.id}`) as HTMLInputElement).value;
-                                                const data = purchase.product.type === "PHYSICAL" ? { trackingCode: val } : { couponCode: val };
-                                                updateStatusMutation.mutate({ id: purchase.id, status: purchase.status, fulfillmentData: data });
-                                            }}>Kaydet</Button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </DialogContent>
-                         </Dialog>
+                         <OrderManagementDialog 
+                            purchase={purchase}
+                            updateStatusMutation={updateStatusMutation}
+                          />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -501,12 +621,20 @@ export default function AdminMarketPage() {
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="category">Kategori</Label>
-                    <Input 
-                        id="category" 
-                        value={formData.category} 
-                        onChange={(e) => setFormData({...formData, category: e.target.value})} 
-                        placeholder="Örn: Teknoloji"
-                    />
+                    <Select
+                        value={formData.category || "NONE"}
+                        onValueChange={(val) => setFormData({...formData, category: val === "NONE" ? "" : val})}
+                    >
+                        <SelectTrigger>
+                            <SelectValue placeholder="Kategori seçin" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="NONE">Kategori Yok</SelectItem>
+                            {categories?.map((cat) => (
+                                <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
             </div>
 
@@ -552,5 +680,121 @@ export default function AdminMarketPage() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+// Order Management Dialog Component with form-based saving
+function OrderManagementDialog({ 
+  purchase, 
+  updateStatusMutation 
+}: { 
+  purchase: Purchase; 
+  updateStatusMutation: any;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [formStatus, setFormStatus] = useState(purchase.status);
+  const [fulfillmentValue, setFulfillmentValue] = useState(
+    purchase.product.type === "PHYSICAL" 
+      ? purchase.fulfillmentData?.trackingCode || "" 
+      : purchase.fulfillmentData?.couponCode || ""
+  );
+  const [adminNote, setAdminNote] = useState(purchase.adminNote || "");
+
+  // Reset form when dialog opens
+  const handleOpenChange = (open: boolean) => {
+    if (open) {
+      setFormStatus(purchase.status);
+      setFulfillmentValue(
+        purchase.product.type === "PHYSICAL" 
+          ? purchase.fulfillmentData?.trackingCode || "" 
+          : purchase.fulfillmentData?.couponCode || ""
+      );
+      setAdminNote(purchase.adminNote || "");
+    }
+    setIsOpen(open);
+  };
+
+  const handleSubmit = () => {
+    const fulfillmentData = purchase.product.type === "PHYSICAL" 
+      ? { trackingCode: fulfillmentValue } 
+      : { couponCode: fulfillmentValue };
+    
+    updateStatusMutation.mutate({ 
+      id: purchase.id, 
+      status: formStatus, 
+      fulfillmentData: fulfillmentValue ? fulfillmentData : undefined,
+      adminNote: adminNote || undefined
+    }, {
+      onSuccess: () => setIsOpen(false)
+    });
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm">Yönet</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Sipariş Yönetimi</DialogTitle>
+          <DialogDescription>
+            {purchase.product.name} - {purchase.tali.fullName}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          {purchase.product.type === "PHYSICAL" && (
+            <div className="p-3 bg-gray-50 rounded text-sm">
+              <strong>Teslimat Adresi:</strong>
+              <p>{purchase.details?.address || "Adres girilmemiş"}</p>
+            </div>
+          )}
+          
+          <div className="space-y-2">
+            <Label>Durum</Label>
+            <Select value={formStatus} onValueChange={setFormStatus}>
+              <SelectTrigger>
+                <SelectValue placeholder="Durum Seç" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="PENDING">Bekliyor</SelectItem>
+                <SelectItem value="APPROVED">Onaylandı</SelectItem>
+                <SelectItem value="SHIPPED">Kargolandı</SelectItem>
+                <SelectItem value="DELIVERED">Teslim Edildi</SelectItem>
+                <SelectItem value="COMPLETED">Tamamlandı</SelectItem>
+                <SelectItem value="REJECTED">Reddedildi</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>{purchase.product.type === "PHYSICAL" ? "Kargo Takip Kodu" : "Kupon Kodu"}</Label>
+            <Input 
+              value={fulfillmentValue}
+              onChange={(e) => setFulfillmentValue(e.target.value)}
+              placeholder={purchase.product.type === "PHYSICAL" ? "Takip No" : "Kupon Kodu"}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Admin Notu (Opsiyonel)</Label>
+            <Input 
+              value={adminNote}
+              onChange={(e) => setAdminNote(e.target.value)}
+              placeholder="Kullanıcıya görünecek not..."
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setIsOpen(false)}>İptal</Button>
+          <Button 
+            onClick={handleSubmit}
+            disabled={updateStatusMutation.isPending}
+          >
+            {updateStatusMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Kaydet
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

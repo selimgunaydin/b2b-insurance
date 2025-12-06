@@ -1,42 +1,59 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { SidebarNav } from "./sidebar-nav";
 import { 
   LayoutDashboard, FileText, Users, Settings, LogOut, ShieldAlert, 
   ChevronLeft, ChevronRight, XCircle, Shield, UserCog, BarChart3, 
-  Building2, Target, ShoppingBag, Globe, Menu, X, Percent, Crown, 
-  Wallet 
+  Building2, Target, ShoppingBag, Globe, Menu, X, Percent, Crown,
+  Award
 } from "lucide-react";
+import { useSocketStore } from "@/lib/socket";
 
 export function AdminSidebar() {
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const { socket } = useSocketStore();
+  const queryClient = useQueryClient();
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     router.push("/auth/login");
   };
 
+  // Fetch initial unread count (no polling)
   const { data: unreadCount = 0 } = useQuery({
     queryKey: ["unread-count"],
     queryFn: async () => {
       const res = await api.get("/notification/unread-count");
       return res.data as number;
     },
-    refetchInterval: 30000,
+    staleTime: Infinity, // Don't auto-refetch, rely on socket
   });
+
+  // Listen for socket updates
+  useEffect(() => {
+    if (socket) {
+      const handleUnreadCount = (data: { count: number }) => {
+        queryClient.setQueryData(["unread-count"], data.count);
+      };
+      socket.on("unread_count", handleUnreadCount);
+      return () => {
+        socket.off("unread_count", handleUnreadCount);
+      };
+    }
+  }, [socket, queryClient]);
 
   const links = [
     {
       groupLabel: "Genel Bakış",
       items: [
         { title: "Panel", href: "/admin", icon: LayoutDashboard },
-        { title: "İstatistikler", href: "/admin/statistics", icon: BarChart3 },
+        { title: "Analitik", href: "/admin/analytics", icon: BarChart3 },
       ]
     },
     {
@@ -58,7 +75,6 @@ export function AdminSidebar() {
     {
       groupLabel: "Finans",
       items: [
-        { title: "Finansal", href: "/admin/financials", icon: Wallet },
         { title: "Komisyonlar", href: "/admin/commissions", icon: Percent },
         { title: "Premium", href: "/admin/premium", icon: Crown },
       ]
@@ -67,6 +83,7 @@ export function AdminSidebar() {
       groupLabel: "Sistem",
       items: [
         { title: "Market", href: "/admin/market", icon: ShoppingBag },
+        { title: "Rozetler", href: "/admin/badges", icon: Award },
         { title: "Hedefler", href: "/admin/goals", icon: Target },
         { title: "CMS", href: "/admin/website", icon: Globe },
         { title: "Bildirimler", href: "/admin/notifications", icon: ShieldAlert, label: unreadCount > 0 ? (unreadCount > 99 ? "99+" : String(unreadCount)) : undefined },

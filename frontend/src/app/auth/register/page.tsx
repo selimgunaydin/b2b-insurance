@@ -32,7 +32,6 @@ const registerSchema = z.object({
   password: z.string().min(6, "Şifre en az 6 karakter olmalıdır"),
   confirmPassword: z.string(),
   hasKvkkApproval: z.boolean().refine((val) => val === true, "KVKK metnini onaylamalısınız"),
-  hasContractApproval: z.boolean().refine((val) => val === true, "Sözleşmeyi onaylamalısınız"),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Şifreler eşleşmiyor",
   path: ["confirmPassword"],
@@ -57,7 +56,6 @@ export default function RegisterPage() {
       password: "",
       confirmPassword: "",
       hasKvkkApproval: false,
-      hasContractApproval: false,
     },
   });
 
@@ -75,7 +73,6 @@ export default function RegisterPage() {
         address: data.address,
         birthDate: data.birthDate,
         hasKvkkApproval: data.hasKvkkApproval,
-        hasContractApproval: data.hasContractApproval,
       });
       router.push("/auth/login?registered=true");
     } catch (err) {
@@ -282,25 +279,7 @@ export default function RegisterPage() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="hasContractApproval"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel className="text-sm font-normal text-gray-600 cursor-pointer">
-                          Tali Acentelik Sözleşmesini okudum ve onaylıyorum.
-                        </FormLabel>
-                      </div>
-                    </FormItem>
-                  )}
-                />
+  
               </div>
 
               <Alert className="bg-blue-50 border-blue-200 mb-6">

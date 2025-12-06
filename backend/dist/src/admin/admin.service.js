@@ -298,6 +298,209 @@ let AdminService = class AdminService {
             onlineUsers,
         };
     }
+    async getRevenueByInsuranceType(startDate, endDate) {
+        const dateFilter = {};
+        if (startDate)
+            dateFilter.gte = startDate;
+        if (endDate)
+            dateFilter.lte = endDate;
+        const policies = await this.prisma.policy.findMany({
+            where: {
+                status: 'ACTIVE',
+                ...(Object.keys(dateFilter).length > 0 && { createdAt: dateFilter }),
+            },
+            include: {
+                insuranceRequest: {
+                    select: { type: true },
+                },
+            },
+        });
+        const revenueByType = {
+            TRAFIK: { count: 0, revenue: 0 },
+            KASKO: { count: 0, revenue: 0 },
+            SAGLIK: { count: 0, revenue: 0 },
+            DASK: { count: 0, revenue: 0 },
+            KONUT: { count: 0, revenue: 0 },
+        };
+        for (const policy of policies) {
+            const type = policy.insuranceRequest.type;
+            if (revenueByType[type]) {
+                revenueByType[type].count += 1;
+                revenueByType[type].revenue += Number(policy.premium);
+            }
+        }
+        return revenueByType;
+    }
+    async getPolicyCancellationRatio(startDate, endDate) {
+        const dateFilter = {};
+        if (startDate)
+            dateFilter.gte = startDate;
+        if (endDate)
+            dateFilter.lte = endDate;
+        const totalPolicies = await this.prisma.policy.count({
+            where: Object.keys(dateFilter).length > 0 ? { createdAt: dateFilter } : undefined,
+        });
+        const cancelledPolicies = await this.prisma.policy.count({
+            where: {
+                status: 'CANCELLED',
+                ...(Object.keys(dateFilter).length > 0 && { createdAt: dateFilter }),
+            },
+        });
+        const cancellationRequests = await this.prisma.cancellationRequest.count({
+            where: Object.keys(dateFilter).length > 0 ? { createdAt: dateFilter } : undefined,
+        });
+        const approvedCancellations = await this.prisma.cancellationRequest.count({
+            where: {
+                status: 'APPROVED',
+                ...(Object.keys(dateFilter).length > 0 && { createdAt: dateFilter }),
+            },
+        });
+        const rejectedCancellations = await this.prisma.cancellationRequest.count({
+            where: {
+                status: 'REJECTED',
+                ...(Object.keys(dateFilter).length > 0 && { createdAt: dateFilter }),
+            },
+        });
+        return {
+            totalPolicies,
+            cancelledPolicies,
+            cancellationRequests,
+            approvedCancellations,
+            rejectedCancellations,
+            cancellationRate: totalPolicies > 0 ? (cancelledPolicies / totalPolicies) * 100 : 0,
+        };
+    }
+    async getConsolidatedAnalytics(startDate, endDate) {
+        const dateFilter = {};
+        if (startDate)
+            dateFilter.gte = startDate;
+        if (endDate)
+            dateFilter.lte = endDate;
+        const [revenueByType, cancellationStats, financialStats, generalStats,] = await Promise.all([
+            this.getRevenueByInsuranceType(startDate, endDate),
+            this.getPolicyCancellationRatio(startDate, endDate),
+            this.getFinancialStats(),
+            this.getGeneralTaliStats(),
+        ]);
+        let totalRevenue = 0;
+        let totalPolicyCount = 0;
+        for (const type of Object.values(revenueByType)) {
+            totalRevenue += type.revenue;
+            totalPolicyCount += type.count;
+        }
+        const profitSettings = await this.prisma.systemSetting.findMany({
+            where: {
+                key: { startsWith: 'profit_rate_' },
+            },
+        });
+        const profitRates = {};
+        for (const setting of profitSettings) {
+            const type = setting.key.replace('profit_rate_', '');
+            profitRates[type] = parseFloat(setting.value) || 0;
+        }
+        const commissionSettings = await this.prisma.systemSetting.findMany({
+            where: {
+                key: { startsWith: 'commission_STANDARD_' },
+            },
+        });
+        const commissionRates = {};
+        for (const setting of commissionSettings) {
+            const type = setting.key.replace('commission_STANDARD_', '');
+            commissionRates[type] = parseFloat(setting.value) || 0;
+        }
+        const policiesWithCommission = await this.prisma.policy.findMany({
+            where: {
+                status: 'ACTIVE',
+                ...(Object.keys(dateFilter).length > 0 && { createdAt: dateFilter }),
+            },
+            include: {
+                insuranceRequest: {
+                    select: { type: true, taliId: true },
+                },
+            },
+        });
+        const detailedByType = {
+            TRAFIK: { count: 0, revenue: 0, grossProfit: 0, commissionsPaid: 0, netProfit: 0 },
+            KASKO: { count: 0, revenue: 0, grossProfit: 0, commissionsPaid: 0, netProfit: 0 },
+            SAGLIK: { count: 0, revenue: 0, grossProfit: 0, commissionsPaid: 0, netProfit: 0 },
+            DASK: { count: 0, revenue: 0, grossProfit: 0, commissionsPaid: 0, netProfit: 0 },
+            KONUT: { count: 0, revenue: 0, grossProfit: 0, commissionsPaid: 0, netProfit: 0 },
+        };
+        for (const policy of policiesWithCommission) {
+            const type = policy.insuranceRequest.type;
+            const premium = Number(policy.premium);
+            const commissionPoints = Number(policy.commissionPoints || 0);
+            const profitRate = profitRates[type] || 0;
+            const grossProfit = (premium * profitRate) / 100;
+            const netProfit = grossProfit - commissionPoints;
+            if (detailedByType[type]) {
+                detailedByType[type].count += 1;
+                detailedByType[type].revenue += premium;
+                detailedByType[type].grossProfit += grossProfit;
+                detailedByType[type].commissionsPaid += commissionPoints;
+                detailedByType[type].netProfit += netProfit;
+            }
+        }
+        let totalGrossProfit = 0;
+        let totalCommissionsPaid = 0;
+        let totalNetProfit = 0;
+        for (const data of Object.values(detailedByType)) {
+            totalGrossProfit += data.grossProfit;
+            totalCommissionsPaid += data.commissionsPaid;
+            totalNetProfit += data.netProfit;
+        }
+        const cancelledPolicies = await this.prisma.policy.findMany({
+            where: {
+                status: 'CANCELLED',
+                ...(Object.keys(dateFilter).length > 0 && { createdAt: dateFilter }),
+            },
+        });
+        const lostRevenue = cancelledPolicies.reduce((sum, p) => sum + Number(p.premium), 0);
+        const profitsByType = {};
+        for (const [type, data] of Object.entries(detailedByType)) {
+            profitsByType[type] = data.netProfit;
+        }
+        return {
+            overview: {
+                totalTalis: generalStats.totalTalis,
+                totalPolicies: totalPolicyCount,
+                totalRevenue,
+                totalGrossProfit,
+                totalCommissionsPaid,
+                totalNetProfit,
+                lostRevenue,
+                cancelledPolicies: cancelledPolicies.length,
+            },
+            revenueByType: detailedByType,
+            cancellationStats,
+            profitRates,
+            commissionRates,
+            profitsByType,
+            liabilities: {
+                totalPointsDistributed: financialStats.totalPointsDistributed,
+                totalLiabilities: financialStats.totalLiabilities,
+            },
+            monthlyPoints: financialStats.monthlyPoints,
+        };
+    }
+    async updateProfitRates(rates) {
+        const updates = [];
+        for (const [type, rate] of Object.entries(rates)) {
+            updates.push(this.prisma.systemSetting.upsert({
+                where: { key: `profit_rate_${type}` },
+                update: { value: rate.toString() },
+                create: {
+                    key: `profit_rate_${type}`,
+                    value: rate.toString(),
+                    type: 'NUMBER',
+                    category: 'PROFIT',
+                    description: `${type} Kar Oranı (%)`,
+                },
+            }));
+        }
+        await Promise.all(updates);
+        return { success: true };
+    }
 };
 exports.AdminService = AdminService;
 exports.AdminService = AdminService = __decorate([

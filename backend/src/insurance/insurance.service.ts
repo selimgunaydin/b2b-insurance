@@ -152,18 +152,51 @@ export class InsuranceService {
       where: { key: `insurance_type_${dto.type}_enabled` },
     });
     if (globalSetting && globalSetting.value === 'false') {
-      throw new Error(
+      throw new BadRequestException(
         `Bu sigorta türü (${dto.type}) şu anda sistem genelinde pasiftir.`,
       );
     }
 
-    // 2. User Permission Check
+    // 2. Trust Score Restrictions Check
+    const trustScoreEnabledSetting = await this.prisma.systemSetting.findUnique({
+      where: { key: 'trust_score_enabled' },
+    });
+    
+    if (trustScoreEnabledSetting && trustScoreEnabledSetting.value === 'true') {
+      // Check general min trust score
+      const minAllSetting = await this.prisma.systemSetting.findUnique({
+        where: { key: 'trust_score_min_all' },
+      });
+      const minAll = minAllSetting ? parseInt(minAllSetting.value) : 50;
+      
+      if (taliProfile.trustScore < minAll) {
+        throw new BadRequestException(
+          `Güven puanınız (${taliProfile.trustScore}) tüm sigorta işlemleri için gereken minimum değerin (${minAll}) altında.`,
+        );
+      }
+      
+      // Check type-specific min trust score
+      const typeMinSetting = await this.prisma.systemSetting.findUnique({
+        where: { key: `trust_score_min_${dto.type}` },
+      });
+      
+      if (typeMinSetting) {
+        const typeMin = parseInt(typeMinSetting.value);
+        if (taliProfile.trustScore < typeMin) {
+          throw new BadRequestException(
+            `Güven puanınız (${taliProfile.trustScore}) ${dto.type} sigortası için gereken minimum değerin (${typeMin}) altında.`,
+          );
+        }
+      }
+    }
+
+    // 3. User Permission Check
     if (
       taliProfile.allowedInsuranceTypes &&
       taliProfile.allowedInsuranceTypes.length > 0
     ) {
       if (!taliProfile.allowedInsuranceTypes.includes(dto.type)) {
-        throw new Error(
+        throw new BadRequestException(
           `Bu sigorta türünü (${dto.type}) oluşturma yetkiniz bulunmamaktadır.`,
         );
       }

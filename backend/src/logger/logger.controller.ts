@@ -19,27 +19,17 @@ import { Role } from '@prisma/client';
 export class LoggerController {
   @Get('download')
   @Roles(Role.ADMIN)
-  async downloadLog(@Query('date') date: string, @Res() res: Response) {
-    if (!date) {
-      throw new BadRequestException('Date parameter is required (YYYY-MM-DD)');
+  async downloadLog(
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+    @Res() res: Response,
+  ) {
+    if (!startDate) {
+      throw new BadRequestException('startDate parameter is required (YYYY-MM-DD)');
     }
 
-    // Winston usually rotates files or we can just read the combined.log if date is today
-    // Or if we strictly follow the plan: "logs/YYYY-MM-DD.log"
-    // Since I configured "combined.log" and "error.log" in the previous step, I should ideally use daily rotation.
-    // However, for simplicity given the previous config, let's just allow downloading the main files for now,
-    // OR reconfigure LoggerModule to use DailyRotateFile.
-
-    // Let's assume for this MVP we download the 'combined.log' or 'error.log'
-    // But the user requested "loglar tarih seçilerek indirilebilmeli".
-    // I should probably switch to winston-daily-rotate-file for better date support, but I can't install it easily now without another user interaction loop if I strictly follow "no new deps".
-    // Wait, I installed `winston` and `nest-winston`. `winston-daily-rotate-file` is separate.
-    // If I didn't install it, I can't use it.
-
-    // Alternative: Just serve the `combined.log` for today, or scan the logs directory if I had setup rotation.
-    // Given I set up `combined.log` as a static file, date filtering on download is tricky without parsing the file.
-
-    // PLAN B: Parse `combined.log` and stream only lines matching the date.
+    // Default endDate to startDate if not provided
+    const effectiveEndDate = endDate || startDate;
 
     const logFilePath = path.join(process.cwd(), 'logs', 'combined.log');
 
@@ -51,7 +41,7 @@ export class LoggerController {
     res.setHeader('Content-Type', 'text/plain');
     res.setHeader(
       'Content-Disposition',
-      `attachment; filename="logs-${date}.log"`,
+      `attachment; filename="logs-${startDate}-to-${effectiveEndDate}.log"`,
     );
 
     // Create read stream and filter
@@ -63,11 +53,21 @@ export class LoggerController {
     });
 
     for await (const line of rl) {
-      // Assume log format contains timestamp or is JSON.
-      // My config was: winston.format.timestamp() + winston.format.json()
-      // Line ex: {"level":"info","message":"...","timestamp":"2023-12-05T..."}
-      if (line.includes(date)) {
-        res.write(line + '\n');
+      // Check if line contains any date in the range
+      // Logs are in JSON format with timestamp field
+      try {
+        const logEntry = JSON.parse(line);
+        if (logEntry.timestamp) {
+          const logDate = logEntry.timestamp.slice(0, 10); // YYYY-MM-DD
+          if (logDate >= startDate && logDate <= effectiveEndDate) {
+            res.write(line + '\n');
+          }
+        }
+      } catch {
+        // If not JSON, check if line contains the date string
+        if (line.includes(startDate) || line.includes(effectiveEndDate)) {
+          res.write(line + '\n');
+        }
       }
     }
 
@@ -77,20 +77,50 @@ export class LoggerController {
   @Get('list')
   @Roles(Role.ADMIN)
   async listLogs() {
-    // Just return the last 100 lines of combined.log for quick view
+    // Return the last 100 lines of combined.log with proper formatting
     const logFilePath = path.join(process.cwd(), 'logs', 'combined.log');
-    if (!fs.existsSync(logFilePath)) return [];
+    if (!fs.existsSync(logFilePath)) {
+      // Return a sample log entry if no logs exist yet
+      return [{
+        timestamp: new Date().toISOString(),
+        level: 'info',
+        message: 'Log dosyası henüz oluşturulmadı. Sistem logları burada görüntülenecek.',
+        context: 'System'
+      }];
+    }
 
     const content = fs.readFileSync(logFilePath, 'utf-8');
+    if (!content.trim()) {
+      return [{
+        timestamp: new Date().toISOString(),
+        level: 'info',
+        message: 'Log dosyası boş. Loglar burada görüntülenecek.',
+        context: 'System'
+      }];
+    }
+
     const lines = content.trim().split('\n');
-    // Parse JSON lines
+    // Parse JSON lines and ensure proper format
     return lines
       .slice(-100)
       .map((line) => {
         try {
-          return JSON.parse(line);
+          const parsed = JSON.parse(line);
+          // Ensure all required fields exist
+          return {
+            timestamp: parsed.timestamp || new Date().toISOString(),
+            level: parsed.level || 'info',
+            message: parsed.message || line,
+            context: parsed.context || 'System'
+          };
         } catch {
-          return { message: line };
+          // If not JSON, create a formatted log entry
+          return {
+            timestamp: new Date().toISOString(),
+            level: 'info',
+            message: line,
+            context: 'System'
+          };
         }
       })
       .reverse();

@@ -1,0 +1,26 @@
+Aşağıdaki tüm maddeleri detaylıca analiz et, genişlet ve en optimum şekilde geliştir. 
+Sistem mimarisinin dışına çıkma.
+Gerekli tüm backend/frontend geliştirmelerini yap.
+Lint, build kontrolü yap. Hatalar varsa çöz.
+
+register tali acentelik sözleşmesi kaldırılacak
+admin istatistikler alanındaki ciro sigorta türüne göre ayrıştırılacak.
+admin istatistiklerde poliçe/iptal oranı
+admin istatistiklerde adminin kazanç oranları belirlenip kaydedilecek. 
+Admin istatistiklerde poliçe türüne göre oranlar girilip kar oranları otomatik hesaplanacak. 
+admin istatistikler tarih filtrelenebilecek.
+admin istatistikler ve finansal sayfaları birleştirilecek. Toplu bir yapı kurgulanacak. Gerekiyorsa alt sayfalar eklenecek.
+liderlik tablosundaki sıralama ve çalışma mantığı anlık puanı değil toplamda kazandığı puan ile hesaplanmalı.
+liderlik tablosunda kendisi hariç diğer kişilerin isimlerini Se*** gibi görmeli.
+admin market sipariş tesliminde açılan modalda sipariş durumu seçildiği an kaydediyor. form tamamen doldurulduğunda kaydetmeli.
+istek yapılan tüm buttonlara loader eklenmeli ki aynı istek 2 defa gitmemeli.
+sistemde badge geliştirmesi var. tali kişiler de görebiliyor ama admin tarafında badge yönetim sayfası yok. geliştirilmeli.
+admin loglar anlık olarak akmıyor. geliştirilmeli.
+admin loglar tarih aralığı seçilerek indirilebilmeli.
+admin genel ayarlarda bulunan sigorta türleri farklı başlık altına taşınmalı. güvenlik alanıyla alakalı olanlar güvenlik altına taşınmalı.
+admin ayarlar genel sekmesinde site başlığı alanı var bu alan ne işe yarıyor? buraya girilen data hiçbir yere yansımıyor. Kullanılmıyorsa kaldır ya da kullanıma al.
+güven puanına göre yasaklamalar eklenebilmeli. admin ayarlar alanında yeni sekme açıp burada yönetilsin.
+örneğin: 80 puandan az ise sağlık poliçesi kesemesin
+örneğin: 50 puandan az ise hiç poliçe kesemesin
+bu ve bunlara benzer ayarlar tanımlanabilmeli admin panelinden.
+admin cms alanında sekmeler kendi içerisinde de bölümlere ayrılmalı. örneğin ana sayfa sekmesinde hero ile ilgili olanlar bir alandan yönetilmeli. tüm sekmelere uygula.

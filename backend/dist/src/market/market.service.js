@@ -27,6 +27,28 @@ let MarketService = class MarketService {
             orderBy: { createdAt: 'desc' },
         });
     }
+    async getAllCategories(activeOnly = false) {
+        return this.prisma.marketCategory.findMany({
+            where: activeOnly ? { isActive: true } : {},
+            orderBy: { name: 'asc' },
+        });
+    }
+    async createCategory(data) {
+        return this.prisma.marketCategory.create({
+            data,
+        });
+    }
+    async updateCategory(id, data) {
+        return this.prisma.marketCategory.update({
+            where: { id },
+            data,
+        });
+    }
+    async deleteCategory(id) {
+        return this.prisma.marketCategory.delete({
+            where: { id },
+        });
+    }
     async createProduct(data) {
         return this.prisma.product.create({
             data: {

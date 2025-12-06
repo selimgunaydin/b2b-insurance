@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,10 +12,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Loader2, Settings, Bell, DollarSign, Megaphone, Save, 
   Shield, Mail, Palette, Globe, Users, Zap, AlertCircle,
-  CheckCircle2, RefreshCw
+  CheckCircle2, RefreshCw, FileText, ShieldCheck
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+
 
 interface SystemSetting {
   id: string;
@@ -26,11 +27,13 @@ interface SystemSetting {
   description: string;
 }
 
-const CATEGORY_CONFIG = {
+const CATEGORY_CONFIG: Record<string, { label: string; icon: any; color: string }> = {
   GENERAL: { label: "Genel", icon: Settings, color: "text-gray-600" },
   SECURITY: { label: "Güvenlik", icon: Shield, color: "text-red-600" },
-  NOTIFICATIONS: { label: "Bildirimler", icon: Bell, color: "text-blue-600" },
+  INSURANCE_TYPES: { label: "Sigorta Türleri", icon: FileText, color: "text-indigo-600" },
+  TRUST_RESTRICTIONS: { label: "Güven Puanı", icon: ShieldCheck, color: "text-orange-600" },
   COMMISSION: { label: "Komisyon", icon: DollarSign, color: "text-green-600" },
+  NOTIFICATIONS: { label: "Bildirimler", icon: Bell, color: "text-blue-600" },
   EMAIL: { label: "E-posta", icon: Mail, color: "text-purple-600" },
 };
 
@@ -182,13 +185,21 @@ export default function AdminSettingsPage() {
             <Shield className="h-4 w-4" />
             <span className="hidden sm:inline">Güvenlik</span>
           </TabsTrigger>
-          <TabsTrigger value="notifications" className="gap-2">
-            <Bell className="h-4 w-4" />
-            <span className="hidden sm:inline">Bildirimler</span>
+          <TabsTrigger value="insurance_types" className="gap-2">
+            <FileText className="h-4 w-4" />
+            <span className="hidden sm:inline">Sigorta</span>
+          </TabsTrigger>
+          <TabsTrigger value="trust_restrictions" className="gap-2">
+            <ShieldCheck className="h-4 w-4" />
+            <span className="hidden sm:inline">Güven</span>
           </TabsTrigger>
           <TabsTrigger value="commission" className="gap-2">
             <DollarSign className="h-4 w-4" />
             <span className="hidden sm:inline">Komisyon</span>
+          </TabsTrigger>
+          <TabsTrigger value="notifications" className="gap-2">
+            <Bell className="h-4 w-4" />
+            <span className="hidden sm:inline">Bildirimler</span>
           </TabsTrigger>
           <TabsTrigger value="broadcast" className="gap-2">
             <Megaphone className="h-4 w-4" />
@@ -257,6 +268,58 @@ export default function AdminSettingsPage() {
                     />
                   </div>
                 </>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Insurance Types Settings */}
+        <TabsContent value="insurance_types" className="space-y-4">
+          <Card className="border-indigo-200">
+            <CardHeader className="bg-indigo-50 rounded-t-lg">
+              <CardTitle className="text-lg flex items-center gap-2 text-indigo-700">
+                <FileText className="h-5 w-5" />
+                Sigorta Türleri
+              </CardTitle>
+              <CardDescription>Aktif/pasif sigorta türlerini yönetin</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4 pt-6">
+              {getSettingsByCategory("INSURANCE_TYPES").map((setting) => (
+                <SettingItem
+                  key={setting.key}
+                  setting={setting}
+                  savingKey={savingKey}
+                  onUpdate={handleUpdate}
+                />
+              ))}
+              {getSettingsByCategory("INSURANCE_TYPES").length === 0 && (
+                <EmptyState message="Sigorta türü ayarı bulunamadı. Ayarları başlatmak için lütfen backend'i yeniden başlatın." />
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Trust Score Restrictions */}
+        <TabsContent value="trust_restrictions" className="space-y-4">
+          <Card className="border-orange-200">
+            <CardHeader className="bg-orange-50 rounded-t-lg">
+              <CardTitle className="text-lg flex items-center gap-2 text-orange-700">
+                <ShieldCheck className="h-5 w-5" />
+                Güven Puanı Kısıtlamaları
+              </CardTitle>
+              <CardDescription>Sigorta işlemleri için minimum güven puanı gereksinimlerini ayarlayın</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4 pt-6">
+              {getSettingsByCategory("TRUST_RESTRICTIONS").map((setting) => (
+                <SettingItem
+                  key={setting.key}
+                  setting={setting}
+                  savingKey={savingKey}
+                  onUpdate={handleUpdate}
+                />
+              ))}
+              {getSettingsByCategory("TRUST_RESTRICTIONS").length === 0 && (
+                <EmptyState message="Güven puanı ayarı bulunamadı. Ayarları başlatmak için lütfen backend'i yeniden başlatın." />
               )}
             </CardContent>
           </Card>
@@ -409,15 +472,19 @@ import { useSocketStore } from "@/lib/socket";
 
 function LogsTabContent() {
   const [logs, setLogs] = useState<{ timestamp: string; level: string; message: string; context: string }[]>([]);
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));
+  const [endDate, setEndDate] = useState(new Date().toISOString().slice(0, 10));
+  const [levelFilter, setLevelFilter] = useState<string>("all");
+  const [isDownloading, setIsDownloading] = useState(false);
   const { socket } = useSocketStore();
+  const { toast } = useToast();
+  const logContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Initial fetch
     const fetchLogs = async () => {
       try {
         const res = await api.get("/logs/list");
-        // Ensure logs are in correct format if backend returns raw lines
         setLogs(res.data.map((l: any) => 
             typeof l === 'string' ? { message: l, timestamp: new Date().toISOString(), level: 'info', context: 'System' } : l
         ));
@@ -430,7 +497,7 @@ function LogsTabContent() {
     // Listen for realtime logs
     if (socket) {
       socket.on("system_log", (log: any) => {
-        setLogs((prev) => [log, ...prev].slice(0, 500)); // Keep last 500
+        setLogs((prev) => [log, ...prev].slice(0, 500));
       });
     }
 
@@ -440,64 +507,126 @@ function LogsTabContent() {
   }, [socket]);
 
   const handleDownload = async () => {
+    setIsDownloading(true);
     try {
-      const response = await api.get(`/logs/download?date=${date}`, {
+      const response = await api.get(`/logs/download?startDate=${startDate}&endDate=${endDate}`, {
         responseType: 'blob',
       });
       
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `logs-${date}.log`);
+      link.setAttribute('download', `logs-${startDate}-to-${endDate}.log`);
       document.body.appendChild(link);
       link.click();
       link.remove();
+      toast({ title: "Başarılı", description: "Log dosyası indirildi." });
     } catch (error) {
        console.error("Download failed", error);
-       // Maybe show toast here
+       toast({ title: "Hata", description: "İndirme başarısız.", variant: "destructive" });
+    } finally {
+      setIsDownloading(false);
     }
   };
 
+  const handleClearLogs = () => {
+    setLogs([]);
+  };
+
+  const filteredLogs = levelFilter === "all" 
+    ? logs 
+    : logs.filter(log => log.level === levelFilter);
+
   return (
     <Card className="h-[600px] flex flex-col">
-      <CardHeader className="py-4 border-b flex-row items-center justify-between">
-        <div>
-           <CardTitle className="text-lg flex items-center gap-2">
-            <Terminal className="h-5 w-5 text-gray-700" />
-            Sistem Logları
-          </CardTitle>
-          <CardDescription>Gerçek zamanlı sunucu logları ve geçmiş kayıtlar</CardDescription>
+      <CardHeader className="py-4 border-b">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Terminal className="h-5 w-5 text-gray-700" />
+              Sistem Logları
+            </CardTitle>
+            <CardDescription>Gerçek zamanlı sunucu logları ve geçmiş kayıtlar</CardDescription>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 mt-3">
+          <div className="flex items-center gap-1">
+            <Label className="text-xs">Başlangıç:</Label>
             <Input 
-                type="date" 
-                value={date} 
-                onChange={(e) => setDate(e.target.value)} 
-                className="w-40"
+              type="date" 
+              value={startDate} 
+              onChange={(e) => setStartDate(e.target.value)} 
+              className="w-36 h-8 text-xs"
             />
-            <Button variant="outline" size="sm" onClick={handleDownload}>
-                <Download className="mr-2 h-4 w-4" />
-                İndir
-            </Button>
+          </div>
+          <div className="flex items-center gap-1">
+            <Label className="text-xs">Bitiş:</Label>
+            <Input 
+              type="date" 
+              value={endDate} 
+              onChange={(e) => setEndDate(e.target.value)} 
+              className="w-36 h-8 text-xs"
+            />
+          </div>
+          <select 
+            value={levelFilter} 
+            onChange={(e) => setLevelFilter(e.target.value)}
+            className="h-8 px-2 text-xs border rounded-md"
+          >
+            <option value="all">Tüm Seviyeler</option>
+            <option value="log">Log</option>
+            <option value="info">Info</option>
+            <option value="warn">Warn</option>
+            <option value="error">Error</option>
+          </select>
+          <Button variant="outline" size="sm" onClick={handleDownload} disabled={isDownloading}>
+            {isDownloading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+            İndir
+          </Button>
+          <Button variant="ghost" size="sm" onClick={handleClearLogs}>
+            Temizle
+          </Button>
+          <Badge variant="outline" className="ml-auto">
+            {filteredLogs.length} kayıt
+          </Badge>
         </div>
       </CardHeader>
-      <CardContent className="p-0 flex-1 bg-black text-green-400 font-mono text-xs overflow-hidden rounded-b-lg relative">
+      <CardContent ref={logContainerRef} className="p-0 flex-1 bg-black text-green-400 font-mono text-xs overflow-hidden rounded-b-lg relative">
          <div className="h-full p-4 overflow-y-auto">
-            {logs.length === 0 && <div className="text-gray-500 italic">Log kaydı bulunamadı veya bekleniyor...</div>}
-            {logs.map((log, i) => (
-                <div key={i} className="mb-1 break-all hover:bg-white/5 p-0.5 rounded">
-                    <span className="text-gray-500 mr-2">[{new Date(log.timestamp).toLocaleTimeString()}]</span>
-                    <span className={`font-bold mr-2 ${
-                        log.level === 'error' ? 'text-red-500' : 
-                        log.level === 'warn' ? 'text-yellow-500' : 
-                        log.level === 'debug' ? 'text-blue-400' : 'text-green-500'
-                    }`}>
-                        {log.level?.toUpperCase()}
-                    </span>
-                    <span className="text-yellow-600 mr-2">[{log.context}]</span>
-                    <span className="text-gray-300">{log.message}</span>
-                </div>
-            ))}
+            {filteredLogs.length === 0 && <div className="text-gray-500 italic">Log kaydı bulunamadı veya bekleniyor...</div>}
+            {filteredLogs.map((log, i) => {
+                // Safe formatting for date
+                let timeStr = "--:--:--";
+                if (log.timestamp) {
+                  try {
+                    const dateObj = new Date(log.timestamp);
+                    if (!isNaN(dateObj.getTime())) {
+                      timeStr = dateObj.toLocaleTimeString();
+                    }
+                  } catch {
+                    timeStr = "--:--:--";
+                  }
+                }
+                
+                const level = log.level || "info";
+                const context = log.context || "System";
+                const message = log.message || "";
+                
+                return (
+                  <div key={i} className="mb-1 break-all hover:bg-white/5 p-0.5 rounded">
+                      <span className="text-gray-500 mr-2">[{timeStr}]</span>
+                      <span className={`font-bold mr-2 ${
+                          level === 'error' ? 'text-red-500' : 
+                          level === 'warn' ? 'text-yellow-500' : 
+                          level === 'debug' ? 'text-blue-400' : 'text-green-500'
+                      }`}>
+                          {level.toUpperCase()}
+                      </span>
+                      <span className="text-yellow-600 mr-2">[{context}]</span>
+                      <span className="text-gray-300">{message}</span>
+                  </div>
+                );
+            })}
          </div>
       </CardContent>
     </Card>

@@ -35,6 +35,9 @@ let SettingsController = class SettingsController {
         const settings = await this.settingsService.getSettings();
         return settings.filter((s) => s.key.startsWith('insurance_type_') && s.key.endsWith('_enabled'));
     }
+    async getTrustRestrictions(req) {
+        return this.settingsService.getTrustRestrictionsForUser(req.user.id);
+    }
     async updateSetting(key, value, req) {
         return this.settingsService.updateSetting(key, value, req.user.id);
     }
@@ -60,6 +63,14 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], SettingsController.prototype, "getConfig", null);
+__decorate([
+    (0, common_1.Get)('trust-restrictions'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], SettingsController.prototype, "getTrustRestrictions", null);
 __decorate([
     (0, common_1.Put)(':key'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

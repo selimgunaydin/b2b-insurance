@@ -29,6 +29,16 @@ export declare class SettingsController {
         category: string;
         description: string | null;
     }[]>;
+    getTrustRestrictions(req: any): Promise<{
+        trustScoreEnabled: boolean;
+        userTrustScore: number;
+        restrictions: {
+            type: string;
+            allowed: boolean;
+            reason: string | null;
+            minRequired: number;
+        }[];
+    }>;
     updateSetting(key: string, value: string, req: any): Promise<{
         id: string;
         updatedAt: Date;

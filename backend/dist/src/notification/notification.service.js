@@ -97,6 +97,12 @@ let NotificationService = NotificationService_1 = class NotificationService {
             isRead: false,
             createdAt: notification.createdAt.toISOString(),
         });
+        const unreadCount = await this.prisma.notification.count({
+            where: { userId, isRead: false },
+        });
+        this.notificationGateway.sendToUser(userId, 'unread_count', {
+            count: unreadCount,
+        });
         return notification;
     }
     async notifyMarketPurchase(purchaseId, userId, status = 'PENDING') {

@@ -10,16 +10,17 @@ export declare class BadgeController {
         points: number;
         type: import("@prisma/client").$Enums.BadgeType;
         description: string;
-        isActive: boolean;
         iconUrl: string | null;
         criteria: import("@prisma/client/runtime/library").JsonValue;
+        isActive: boolean;
     }[]>;
-    getLeaderboard(limit?: string): Promise<{
+    getLeaderboard(limit?: string, req?: any): Promise<{
         rank: number;
         id: string;
         fullName: string;
         email: string;
         points: number;
+        currentPoints: number;
         badgeCount: number;
         badges: {
             id: string;
@@ -29,6 +30,7 @@ export declare class BadgeController {
         policyCount: number;
         customerCount: number;
         membershipType: import("@prisma/client").$Enums.MembershipType;
+        isCurrentUser: boolean;
     }[]>;
     getMyBadges(req: any): Promise<({
         badge: {
@@ -38,15 +40,15 @@ export declare class BadgeController {
             points: number;
             type: import("@prisma/client").$Enums.BadgeType;
             description: string;
-            isActive: boolean;
             iconUrl: string | null;
             criteria: import("@prisma/client/runtime/library").JsonValue;
+            isActive: boolean;
         };
     } & {
         id: string;
         taliId: string;
-        earnedAt: Date;
         badgeId: string;
+        earnedAt: Date;
     })[]>;
     getUserBadges(userId: string): Promise<({
         badge: {
@@ -56,15 +58,15 @@ export declare class BadgeController {
             points: number;
             type: import("@prisma/client").$Enums.BadgeType;
             description: string;
-            isActive: boolean;
             iconUrl: string | null;
             criteria: import("@prisma/client/runtime/library").JsonValue;
+            isActive: boolean;
         };
     } & {
         id: string;
         taliId: string;
-        earnedAt: Date;
         badgeId: string;
+        earnedAt: Date;
     })[]>;
     createBadge(body: {
         name: string;
@@ -83,9 +85,9 @@ export declare class BadgeController {
         points: number;
         type: import("@prisma/client").$Enums.BadgeType;
         description: string;
-        isActive: boolean;
         iconUrl: string | null;
         criteria: import("@prisma/client/runtime/library").JsonValue;
+        isActive: boolean;
     }>;
     updateBadge(id: string, body: {
         name?: string;
@@ -105,9 +107,9 @@ export declare class BadgeController {
         points: number;
         type: import("@prisma/client").$Enums.BadgeType;
         description: string;
-        isActive: boolean;
         iconUrl: string | null;
         criteria: import("@prisma/client/runtime/library").JsonValue;
+        isActive: boolean;
     }>;
     deleteBadge(id: string): Promise<{
         id: string;
@@ -116,21 +118,21 @@ export declare class BadgeController {
         points: number;
         type: import("@prisma/client").$Enums.BadgeType;
         description: string;
-        isActive: boolean;
         iconUrl: string | null;
         criteria: import("@prisma/client/runtime/library").JsonValue;
+        isActive: boolean;
     }>;
     awardBadge(taliId: string, badgeId: string): Promise<{
         id: string;
         taliId: string;
-        earnedAt: Date;
         badgeId: string;
+        earnedAt: Date;
     }>;
     checkAndAwardBadges(taliId: string): Promise<{
         id: string;
         taliId: string;
-        earnedAt: Date;
         badgeId: string;
+        earnedAt: Date;
     }[]>;
     initializeDefaultBadges(): Promise<{
         message: string;

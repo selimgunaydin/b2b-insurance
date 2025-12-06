@@ -5,4 +5,5 @@ export declare class LoggingInterceptor implements NestInterceptor {
     private readonly logger;
     constructor(logger: LoggerService);
     intercept(context: ExecutionContext, next: CallHandler): Observable<any>;
+    private sanitizeData;
 }

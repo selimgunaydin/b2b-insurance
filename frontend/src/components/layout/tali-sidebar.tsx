@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { SidebarNav } from "./sidebar-nav";
 import { 
@@ -10,25 +10,42 @@ import {
   Settings, MessageSquare, Home, Users, Shield, ShoppingBag, XCircle, 
   Bell, X, Menu, ChevronRight, ChevronLeft, Crown, History, Award, Trophy 
 } from "lucide-react";
+import { useSocketStore } from "@/lib/socket";
 
 export function TaliSidebar() {
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const { socket } = useSocketStore();
+  const queryClient = useQueryClient();
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     router.push("/auth/login");
   };
 
+  // Fetch initial unread count (no polling)
   const { data: unreadCount = 0 } = useQuery({
     queryKey: ["unread-count"],
     queryFn: async () => {
       const res = await api.get("/notification/unread-count");
       return res.data as number;
     },
-    refetchInterval: 30000,
+    staleTime: Infinity, // Don't auto-refetch, rely on socket
   });
+
+  // Listen for socket updates
+  useEffect(() => {
+    if (socket) {
+      const handleUnreadCount = (data: { count: number }) => {
+        queryClient.setQueryData(["unread-count"], data.count);
+      };
+      socket.on("unread_count", handleUnreadCount);
+      return () => {
+        socket.off("unread_count", handleUnreadCount);
+      };
+    }
+  }, [socket, queryClient]);
 
   const links = [
     {

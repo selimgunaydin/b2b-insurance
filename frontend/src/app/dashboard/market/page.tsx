@@ -21,6 +21,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Product {
   id: string;
@@ -31,6 +38,12 @@ interface Product {
   stock: number;
   isActive: boolean;
   type: "PHYSICAL" | "DIGITAL";
+  category?: string;
+}
+
+interface MarketCategory {
+  id: string;
+  name: string;
 }
 
 interface Purchase {
@@ -51,6 +64,10 @@ export default function MarketPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isPurchaseDialogOpen, setIsPurchaseDialogOpen] = useState(false);
   const [address, setAddress] = useState("");
+  
+  // Filter states
+  const [categoryFilter, setCategoryFilter] = useState<string>("ALL");
+  const [sortBy, setSortBy] = useState<string>("newest");
 
   // Get User Profile for Points
   const { data: profile } = useQuery({
@@ -75,6 +92,15 @@ export default function MarketPage() {
     queryKey: ["my-purchases"],
     queryFn: async () => {
       const res = await api.get("/market/my-purchases");
+      return res.data;
+    },
+  });
+
+  // Get Categories
+  const { data: categories } = useQuery<MarketCategory[]>({
+    queryKey: ["market-categories"],
+    queryFn: async () => {
+      const res = await api.get("/market/categories?activeOnly=true");
       return res.data;
     },
   });
@@ -133,6 +159,19 @@ export default function MarketPage() {
 
   const userPoints = profile?.taliProfile?.points || 0;
 
+  // Filter and sort products
+  const filteredProducts = products?.filter(product => {
+    if (categoryFilter !== "ALL" && product.category !== categoryFilter) return false;
+    return true;
+  }).sort((a, b) => {
+    switch (sortBy) {
+      case "price_low": return a.pointCost - b.pointCost;
+      case "price_high": return b.pointCost - a.pointCost;
+      case "stock": return b.stock - a.stock;
+      default: return 0; // newest - keep original order
+    }
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
@@ -168,8 +207,42 @@ export default function MarketPage() {
         </TabsList>
 
         <TabsContent value="products" className="space-y-4">
+          {/* Filters */}
+          <div className="flex flex-wrap gap-4 items-center">
+            <div className="flex items-center gap-2">
+              <Label className="text-sm whitespace-nowrap">Kategori:</Label>
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder="Kategori seç" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">Tüm Ürünler</SelectItem>
+                  {categories?.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-2">
+              <Label className="text-sm whitespace-nowrap">Sırala:</Label>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">En Yeni</SelectItem>
+                  <SelectItem value="price_low">Fiyat: Düşük-Yüksek</SelectItem>
+                  <SelectItem value="price_high">Fiyat: Yüksek-Düşük</SelectItem>
+                  <SelectItem value="stock">Stok Miktarı</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Badge variant="outline" className="ml-auto">
+              {filteredProducts?.length || 0} ürün
+            </Badge>
+          </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {products?.map((product) => (
+            {filteredProducts?.map((product) => (
               <Card key={product.id} className="overflow-hidden flex flex-col">
                 <div className="aspect-video w-full bg-muted relative">
                   {product.imageUrl ? (
@@ -281,9 +354,9 @@ export default function MarketPage() {
                 </CardFooter>
               </Card>
             ))}
-            {(!products || products.length === 0) && (
+            {(!filteredProducts || filteredProducts.length === 0) && (
               <div className="col-span-full text-center py-12 text-muted-foreground">
-                Henüz markette ürün bulunmuyor.
+                {categoryFilter !== "ALL" ? "Bu kategoride ürün bulunamadı." : "Henüz markette ürün bulunmuyor."}
               </div>
             )}
           </div>

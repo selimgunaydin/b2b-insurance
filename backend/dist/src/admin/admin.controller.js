@@ -48,6 +48,24 @@ let AdminController = class AdminController {
     async upgradeToPremium(id) {
         return this.adminService.upgradeToPremium(id);
     }
+    async getConsolidatedAnalytics(startDate, endDate) {
+        const start = startDate ? new Date(startDate) : undefined;
+        const end = endDate ? new Date(endDate) : undefined;
+        return this.adminService.getConsolidatedAnalytics(start, end);
+    }
+    async getRevenueByType(startDate, endDate) {
+        const start = startDate ? new Date(startDate) : undefined;
+        const end = endDate ? new Date(endDate) : undefined;
+        return this.adminService.getRevenueByInsuranceType(start, end);
+    }
+    async getCancellationStats(startDate, endDate) {
+        const start = startDate ? new Date(startDate) : undefined;
+        const end = endDate ? new Date(endDate) : undefined;
+        return this.adminService.getPolicyCancellationRatio(start, end);
+    }
+    async updateProfitRates(body) {
+        return this.adminService.updateProfitRates(body.rates);
+    }
 };
 exports.AdminController = AdminController;
 __decorate([
@@ -110,6 +128,41 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "upgradeToPremium", null);
+__decorate([
+    (0, common_1.Get)('analytics'),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    __param(0, (0, common_1.Query)('startDate')),
+    __param(1, (0, common_1.Query)('endDate')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "getConsolidatedAnalytics", null);
+__decorate([
+    (0, common_1.Get)('analytics/revenue'),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    __param(0, (0, common_1.Query)('startDate')),
+    __param(1, (0, common_1.Query)('endDate')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "getRevenueByType", null);
+__decorate([
+    (0, common_1.Get)('analytics/cancellations'),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    __param(0, (0, common_1.Query)('startDate')),
+    __param(1, (0, common_1.Query)('endDate')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "getCancellationStats", null);
+__decorate([
+    (0, common_1.Put)('profit-settings'),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "updateProfitRates", null);
 exports.AdminController = AdminController = __decorate([
     (0, common_1.Controller)('admin'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
